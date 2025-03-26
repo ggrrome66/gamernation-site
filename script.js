@@ -19,3 +19,8 @@ function typeLine() {
 }
 
 window.onload = typeLine;
+
+function toggleDrone() {
+  const droneSection = document.getElementById('drone');
+  droneSection.style.display = droneSection.style.display === 'none' ? 'block' : 'none';
+}
