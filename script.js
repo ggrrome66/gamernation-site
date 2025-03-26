@@ -24,3 +24,8 @@ function toggleDrone() {
   const droneSection = document.getElementById('drone');
   droneSection.style.display = droneSection.style.display === 'none' ? 'block' : 'none';
 }
+
+function toggleVideo() {
+  const panel = document.getElementById('videoPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}

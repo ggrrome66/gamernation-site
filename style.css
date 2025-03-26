@@ -27,16 +27,28 @@ body {
 #nav a {
   color: #00ff00;
   text-decoration: none;
+  position: relative;
+  padding-left: 1.2em;
+  display: inline-block;
+  transition: color 0.2s;
 }
 
 #nav a:hover {
-  text-decoration: underline;
   color: #66ff66;
+  text-shadow: 0 0 5px #00ff00;
 }
 
-@keyframes flicker {
+#nav a.active::before {
+  content: '▌';
+  position: absolute;
+  left: 0;
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
   0% { opacity: 1; }
-  100% { opacity: 0.97; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 .division {
@@ -102,36 +114,4 @@ body {
   0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
   50% { transform: translate(-50%, -50%) scale(1.4); opacity: 0.2; }
   100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
-}
-#nav p {
-  margin: 8px 0;
-  font-size: 1rem;
-}
-
-#nav a {
-  color: #00ff00;
-  text-decoration: none;
-  position: relative;
-  padding-left: 1.2em;
-  display: inline-block;
-  transition: color 0.2s;
-}
-
-#nav a:hover {
-  color: #66ff66;
-  text-shadow: 0 0 5px #00ff00;
-}
-
-/* Blinking cursor for active nav item */
-#nav a.active::before {
-  content: '▌';
-  position: absolute;
-  left: 0;
-  animation: blink 1s steps(2, start) infinite;
-}
-
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0; }
-  100% { opacity: 1; }
 }
