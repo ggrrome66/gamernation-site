@@ -20,12 +20,22 @@ function typeLine() {
 
 window.onload = typeLine;
 
-function toggleDrone() {
-  const droneSection = document.getElementById('drone');
-  droneSection.style.display = droneSection.style.display === 'none' ? 'block' : 'none';
-}
-
 function toggleVideo() {
   const panel = document.getElementById('videoPanel');
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+function showSection(sectionId, titleText) {
+  // Hide all sections
+  document.querySelectorAll('.section').forEach(sec => {
+    sec.style.display = 'none';
+  });
+
+  // Show selected section
+  const section = document.getElementById(sectionId);
+  if (section) section.style.display = 'block';
+
+  // Update header title
+  const title = document.getElementById('title');
+  title.textContent = 'GAMERNATION INC. — ' + titleText;
 }

@@ -11,25 +11,15 @@
     <h1 id="title">GAMERNATION INC.</h1>
     <pre id="terminal"></pre>
     <div id="nav">
-      <p>> <a href="#marketing" class="active">Marketing</a></p>
-      <p>> <a href="#manufacturing">Manufacturing</a></p>
-      <p>> <a href="#" onclick="toggleDrone()">Drone Division</a></p>
-      <p>> <a href="#investing">Investing</a></p>
-      <p>> <a href="#rnd">R&D</a></p>
+      <p>> <a href="#" onclick="showSection('marketing', 'MARKETING DIVISION')">Marketing</a></p>
+      <p>> <a href="#" onclick="showSection('manufacturing', 'MANUFACTURING DIVISION')">Manufacturing</a></p>
+      <p>> <a href="#" onclick="showSection('drone', 'DRONE DIVISION')">Drone Division</a></p>
+      <p>> <a href="#" onclick="showSection('investing', 'INVESTING DIVISION')">Investing</a></p>
+      <p>> <a href="#" onclick="showSection('rnd', 'R&D DIVISION')">R&D</a></p>
     </div>
   </div>
 
-  <div id="drone" class="division" style="display: none;">
-    <h2>> Drone Division: Data Collection & R&D</h2>
-    <div class="scanner">
-      <div class="radar"></div>
-      <div class="pulse"></div>
-      <div class="crosshair"></div>
-      <p class="scan-text">Scanning terrain... Mapping coordinates...</p>
-    </div>
-  </div>
-
-  <div id="marketing" class="division" style="margin-top: 80px;">
+  <div id="marketing" class="division section" style="display:none;">
     <pre>
   _____                        _   _       _   _             
  |  __ \                      | \ | |     | | (_)            
@@ -54,6 +44,49 @@
     <p style="text-align: center;">
       <a href="#" onclick="toggleVideo()">[ Expand Cinematic Drone Reel Demo ]</a>
     </p>
+  </div>
+
+  <div id="drone" class="division section" style="display:none;">
+    <h2>> Drone Division: Data Collection & R&D</h2>
+    <div class="scanner">
+      <div class="radar"></div>
+      <div class="pulse"></div>
+      <div class="crosshair"></div>
+      <p class="scan-text">Scanning terrain... Mapping coordinates...</p>
+    </div>
+  </div>
+
+  <div id="manufacturing" class="division section" style="display:none;">
+    <pre>
+> MANUFACTURING DIVISION
+------------------------
+> PRODUCTS:
+  • Tactical Knives
+  • Custom Tooling
+  • Container Labs & Refits
+    </pre>
+  </div>
+
+  <div id="investing" class="division section" style="display:none;">
+    <pre>
+> INVESTING DIVISION
+---------------------
+> FOCUS AREAS:
+  • Cryptocurrency Trading
+  • Token Research
+  • Smart Contract Staking
+    </pre>
+  </div>
+
+  <div id="rnd" class="division section" style="display:none;">
+    <pre>
+> RESEARCH & DEVELOPMENT
+-------------------------
+> PROJECTS:
+  • Drone Payload Engineering
+  • Modular Ops Units
+  • Sustainable Tech
+    </pre>
   </div>
 
   <script src="script.js"></script>
