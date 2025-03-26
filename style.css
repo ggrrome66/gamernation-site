@@ -1,1 +1,47 @@
-body { background-color: #000; color: #00ff00; font-family: 'Courier New', monospace; }
+body {
+  background-color: #000;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+  padding: 20px;
+  margin: 0;
+  white-space: pre;
+}
+
+#screen {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+#title {
+  text-align: center;
+  font-size: 2em;
+  text-shadow: 0 0 8px #00ff00;
+}
+
+#terminal {
+  margin-top: 20px;
+  font-size: 1em;
+  animation: flicker 0.2s infinite alternate;
+}
+
+#nav a {
+  color: #00ff00;
+  text-decoration: none;
+  position: relative;
+  padding-left: 1.2em;
+  display: inline-block;
+  transition: color 0.2s;
+}
+
+#nav a:hover {
+  color: #66ff66;
+  text-shadow: 0 0 5px #00ff00;
+}
+
+.division {
+  margin-top: 40px;
+}
+
+pre {
+  font-size: 0.85em;
+}
