@@ -2,85 +2,86 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GamerNation Inc.</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GamerNation Inc. - Retro Terminal</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Typed.js library for typing animation -->
+  <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+  <script defer src="script.js"></script>
 </head>
 <body>
-  <div id="screen">
-    <h1 id="title">GAMERNATION INC.</h1>
-    <pre id="terminal"></pre>
+  <!-- Homepage -->
+  <div id="home" class="section">
+    <!-- ASCII logo -->
+    <pre class="logo">
+ ____                             _   _
+/ ___| __ _ _ __ ___   ___  ___  | \ | | __ _
+| |  _ / _` | '_ ` _ \ / _ \/ __| |  \| |/ _` |
+| |_| | (_| | | | | | |  __/\__ \ | |\  | (_| |
+ \____|\__,_|_| |_| |_|\___||___/ |_| \_|\__,_|
+                 INC.
+    </pre>
+    <!-- Typed intro text -->
+    <pre id="intro-text"></pre>
+    <!-- Navigation (command-style) -->
     <div id="nav">
-      <p>> <a href="#" onclick="showSection('marketing', marketingArt)">Marketing</a></p>
-      <p>> <a href="#" onclick="showSection('manufacturing', manufacturingArt)">Manufacturing</a></p>
-      <p>> <a href="#" onclick="showSection('drone', droneArt)">Drone Division</a></p>
-      <p>> <a href="#" onclick="showSection('investing', investingArt)">Investing</a></p>
-      <p>> <a href="#" onclick="showSection('rnd', rndArt)">R&D</a></p>
+      <p class="nav-item" data-target="marketing">&gt; GOTO MARKETING</p>
+      <p class="nav-item" data-target="manufacturing">&gt; GOTO MANUFACTURING</p>
+      <p class="nav-item" data-target="drones">&gt; GOTO DRONES</p>
+      <p class="nav-item" data-target="investing">&gt; GOTO INVESTING</p>
+      <p class="nav-item" data-target="rnd">&gt; GOTO R&amp;D</p>
     </div>
   </div>
 
-  <div id="ascii-header" style="white-space: pre-wrap; color: #00ff00; margin-top: 20px;"></div>
-
-  <div id="marketing" class="division section" style="display:none;">
-    <pre>
-> SERVICES:
-  • Cinematic Drone Reels [Click to expand]
-  • Branding Strategy
-  • Paid Social Ad Targeting
-    </pre>
-    <div id="videoPanel" style="display:none; text-align: center; margin-top: 10px;">
-      <video width="560" controls>
-        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
+  <!-- Marketing Division -->
+  <div id="marketing" class="section">
+    <h2 class="ascii-header">=== MARKETING ===</h2>
+    <p>Our Marketing Division leverages drone media and creative ad strategies to deliver targeted campaigns. We deploy autonomous drones for aerial billboards and live events, creating interactive experiences that capture audience attention. Data-driven analytics and innovative media tactics ensure maximum outreach and engagement.</p>
+    <p id="videoPrompt">Press <strong>Enter</strong> to Watch Marketing Video...</p>
+    <div id="marketingVideo" style="display: none;">
+      <!-- Embedded YouTube video (hidden until "Enter" pressed) -->
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Marketing Video" frameborder="0" allowfullscreen></iframe>
     </div>
-    <p style="text-align: center;">
-      <a href="#" onclick="toggleVideo()">[ Expand Cinematic Drone Reel Demo ]</a>
-    </p>
+    <p class="nav-item" data-target="home">&gt; GOTO MAIN MENU</p>
   </div>
 
-  <div id="drone" class="division section" style="display:none;">
-    <pre>
-> CAPABILITIES:
-  • Land Survey Mapping
-  • Thermal Imaging
-  • Custom Payload R&D
-    </pre>
-    <div class="scanner">
-      <div class="radar"></div>
-      <div class="pulse"></div>
-      <div class="crosshair"></div>
-      <p class="scan-text">Scanning terrain... Mapping coordinates...</p>
+  <!-- Manufacturing Division -->
+  <div id="manufacturing" class="section">
+    <h2 class="ascii-header">=== MANUFACTURING ===</h2>
+    <p>The Manufacturing Division specializes in high-quality knife and tool production, as well as the construction of modular container homes. Our craftsmen forge durable blades and multi-tools using state-of-the-art techniques, ensuring reliability in the field. Simultaneously, we repurpose shipping containers into eco-friendly living spaces, demonstrating our commitment to sustainable innovation.</p>
+    <div class="gallery">
+      <img src="https://cdn.pixabay.com/photo/2021/04/07/11/37/end-mill-6158890_1280.jpg" alt="Machining metal">
+      <img src="https://cdn.pixabay.com/photo/2022/05/18/18/31/container-7205911_1280.jpg" alt="Shipping container home">
     </div>
+    <p class="nav-item" data-target="home">&gt; GOTO MAIN MENU</p>
   </div>
 
-  <div id="manufacturing" class="division section" style="display:none;">
+  <!-- Drone Division -->
+  <div id="drones" class="section">
+    <h2 class="ascii-header">=== DRONES ===</h2>
+    <p>In our Drone Division, fleets of custom UAVs collect aerial data and push the boundaries of research and development. From environmental monitoring to security surveillance, our drones are at the forefront of data collection and autonomous operation. Continuous R&amp;D efforts drive improvements in flight endurance, sensor technology, and AI-driven navigation.</p>
     <pre>
-> PRODUCTS:
-  • Tactical Knives
-  • Custom Tooling
-  • Container Labs & Refits
+[DRONE CAM #42 ACTIVE]
+Location: 43.65 N, -79.38 W
+Signal: ██████████ 100%
     </pre>
+    <p class="nav-item" data-target="home">&gt; GOTO MAIN MENU</p>
   </div>
 
-  <div id="investing" class="division section" style="display:none;">
-    <pre>
-> FOCUS AREAS:
-  • Cryptocurrency Trading
-  • Token Research
-  • Smart Contract Staking
-    </pre>
+  <!-- Investing Division -->
+  <div id="investing" class="section">
+    <h2 class="ascii-header">=== INVESTING ===</h2>
+    <p>The Investing Division explores cryptocurrency, trading algorithms, and real estate opportunities to grow GamerNation's portfolio. We employ cutting-edge trading bots and market analysis tools to capitalize on crypto volatility, while also investing in tangible assets like property for stable long-term returns. Diversification and innovation are key to our investment strategy.</p>
+    <p><strong>Crypto Ticker:</strong> <span id="ticker">Loading...</span></p>
+    <p class="nav-item" data-target="home">&gt; GOTO MAIN MENU</p>
   </div>
 
-  <div id="rnd" class="division section" style="display:none;">
-    <pre>
-> PROJECTS:
-  • Drone Payload Engineering
-  • Modular Ops Units
-  • Sustainable Tech
-    </pre>
+  <!-- R&D Division -->
+  <div id="rnd" class="section">
+    <h2 class="ascii-header">=== R&amp;D ===</h2>
+    <p>Our R&amp;D Division works on modular tactical technology and sustainable solutions. From prototyping advanced multi-purpose drones to developing self-sustaining habitats, we push innovation to solve complex challenges. Each project is approached with creativity and a mission-focused mindset to deliver practical, cutting-edge solutions for tomorrow's problems.</p>
+    <pre id="loading-bar">[                    ] 0%</pre>
+    <p class="nav-item" data-target="home">&gt; GOTO MAIN MENU</p>
   </div>
-
-  <script src="script.js"></script>
 </body>
 </html>

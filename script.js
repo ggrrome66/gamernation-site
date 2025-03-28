@@ -1,82 +1,97 @@
-const terminal = document.getElementById('terminal');
-const lines = [
-  '> Initializing system...',
-  '> Loading divisions...',
-  '> Establishing uplink...',
-  '> Welcome to GamerNation Inc.',
-  '',
-  '> Select a division below to continue:'
-];
+// GamerNation Inc. Retro Terminal Script
+(function(){
+  // Track current section and state flags
+  let currentSection = "home";
+  let videoShown = false;
+  let rndStarted = false;
 
-let i = 0;
-
-function typeLine() {
-  if (i < lines.length) {
-    terminal.innerHTML += lines[i] + '\n';
-    i++;
-    setTimeout(typeLine, 300);
-  }
-}
-
-window.onload = typeLine;
-
-function toggleVideo() {
-  const panel = document.getElementById('videoPanel');
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-}
-
-function showSection(sectionId, asciiArt) {
-  document.querySelectorAll('.section').forEach(sec => {
-    sec.style.display = 'none';
+  // Initialize Typed.js effect on the intro text&#8203;:contentReference[oaicite:5]{index=5}
+  var typed = new Typed('#intro-text', {
+    strings: ['Booting GamerNation Inc...'],
+    typeSpeed: 50,
+    showCursor: true,
+    cursorChar: '_',
+    onComplete: function() {
+      // Reveal navigation after intro typing finishes
+      document.getElementById('nav').style.visibility = 'visible';
+    }
   });
-  const section = document.getElementById(sectionId);
-  const header = document.getElementById('ascii-header');
-  if (section) section.style.display = 'block';
-  if (header) header.textContent = asciiArt;
-}
 
-const marketingArt = `
-  __  __                 _             _   _             
- |  \/  |               | |           | | (_)            
- | \  / | ___  _ __ ___ | |__   ___   | |_ _  ___  _ __  
- | |\/| |/ _ \| '__/ _ \| '_ \ / _ \  | __| |/ _ \| '_ \ 
- | |  | | (_) | | | (_) | |_) | (_) | | |_| | (_) | | | |
- |_|  |_|\___/|_|  \___/|_.__/ \___/   \__|_|\___/|_| |_|
-`;
+  // Function to show a section by id and hide others
+  function showSection(targetId) {
+    // Hide all sections and show the target section
+    document.querySelectorAll('.section').forEach(sec => {
+      sec.style.display = (sec.id === targetId ? 'block' : 'none');
+    });
+    currentSection = targetId;
+    // If entering R&D section, start loading bar animation if not already started
+    if (targetId === 'rnd' && !rndStarted) {
+      startProgressBar();
+      rndStarted = true;
+    }
+  }
 
-const droneArt = `
-  ____                        ____  _             _       
- |  _ \ _ __ ___   ___ ___  |  _ \(_)_ __   __ _| |_ ___ 
- | | | | '__/ _ \ / __/ _ \ | | | | | '_ \ / _\` | __/ _ \
- | |_| | | | (_) | (_|  __/ | |_| | | | | | (_| | ||  __/
- |____/|_|  \___/ \___\___| |____/|_|_| |_|\__,_|\__\___|
-`;
+  // Attach click events to navigation items
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const target = item.getAttribute('data-target');
+      showSection(target);
+    });
+  });
 
-const manufacturingArt = `
-  __  __                 _                      _   _             
- |  \/  |               | |                    | | (_)            
- | \  / | ___  _ __ ___ | |__   ___  _   _  ___| |_ _  ___  _ __  
- | |\/| |/ _ \| '__/ _ \| '_ \ / _ \| | | |/ __| __| |/ _ \| '_ \ 
- | |  | | (_) | | | (_) | |_) | (_) | |_| | (__| |_| | (_) | | | |
- |_|  |_|\___/|_|  \___/|_.__/ \___/ \__,_|\___|\__|_|\___/|_| |_|
-`;
+  // Handle "Press Enter to Watch" for Marketing video
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && currentSection === 'marketing' && !videoShown) {
+      // Show the embedded video, hide the prompt
+      document.getElementById('marketingVideo').style.display = 'block';
+      const prompt = document.getElementById('videoPrompt');
+      if (prompt) prompt.style.display = 'none';
+      videoShown = true;
+    }
+  });
+  // Also allow clicking the prompt text to trigger the video
+  const videoPromptEl = document.getElementById('videoPrompt');
+  if (videoPromptEl) {
+    videoPromptEl.addEventListener('click', () => {
+      // Simulate pressing Enter key
+      document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'Enter'}));
+    });
+  }
 
-const investingArt = `
-  _____                 _           _             
- |_   _|               | |         (_)            
-   | |  _ __  ___  ___ | |__   __ _ _ _ __   __ _ 
-   | | | '_ \/ __|/ _ \| '_ \ / _\` | | '_ \ / _\` |
-  _| |_| | | \__ \ (_) | |_) | (_| | | | | | (_| |
- |_____|_| |_|___/\___/|_.__/ \__, |_|_| |_|\__, |
-                               __/ |         __/ |
-                              |___/         |___/ 
-`;
+  // Crypto price ticker update function using CoinGecko API&#8203;:contentReference[oaicite:6]{index=6}&#8203;:contentReference[oaicite:7]{index=7}
+  function updateTicker() {
+    fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd')
+      .then(response => response.json())
+      .then(data => {
+        const btcPrice = data.bitcoin.usd;
+        const ethPrice = data.ethereum.usd;
+        const tickerEl = document.getElementById('ticker');
+        if (tickerEl) {
+          tickerEl.textContent = `BTC: $${btcPrice.toLocaleString()} , ETH: $${ethPrice.toLocaleString()}`;
+        }
+      })
+      .catch(err => console.error("Ticker fetch error:", err));
+  }
+  // Initial ticker update and then update every 60 seconds
+  updateTicker();
+  setInterval(updateTicker, 60000);
 
-const rndArt = `
-  _____                 _                         _   _           
- |  __ \               | |                       | | (_)          
- | |__) |___  __ _  ___| |_ ___  _ __   ___ _ __ | |_ _  ___  ___ 
- |  _  // _ \/ _\` |/ __| __/ _ \| '_ \ / _ \ '_ \| __| |/ _ \/ __|
- | | \ \  __/ (_| | (__| || (_) | | | |  __/ | | | |_| |  __/\__ \
- |_|  \_\___|\__,_|\___|\__\___/|_| |_|\___|_| |_|\__|_|\___||___/
-`;
+  // Progress bar simulation for R&D section (loading bar animation)
+  function startProgressBar() {
+    const barEl = document.getElementById('loading-bar');
+    if (!barEl) return;
+    let progress = 0;
+    const barLength = 20;
+    const interval = setInterval(() => {
+      progress += 2; // increment progress by 2%
+      if (progress > 100) progress = 100;
+      // Build the bar string with '#' filled proportionally
+      const filledCount = Math.round((progress / 100) * barLength);
+      const barStr = '#'.repeat(filledCount) + ' '.repeat(barLength - filledCount);
+      barEl.textContent = `[${barStr}] ${progress}%`;
+      if (progress >= 100) {
+        clearInterval(interval);
+      }
+    }, 100);
+  }
+})();
