@@ -6,131 +6,99 @@
 <title>DRONE LONG-LINER</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #000; overflow: hidden; font-family: 'Press Start 2P', cursive; }
-#game-container { width: 100vw; height: 100vh; position: relative; }
-canvas { display: block; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#000; overflow:hidden; font-family:'Press Start 2P',cursive; }
+#game-container { width:100vw; height:100vh; position:relative; }
+canvas { display:block; }
 
-/* === SCREENS === */
-.screen {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
-}
-#start-screen  { background: rgba(0,0,20,0.93); }
-#end-screen    { background: rgba(0,0,20,0.95); display: none; }
-#pause-screen  { background: rgba(0,0,0,0.72); display: none; }
+.screen { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; }
+#start-screen  { background:rgba(0,0,20,0.93); }
+#end-screen    { background:rgba(0,0,20,0.95); display:none; }
+#pause-screen  { background:rgba(0,0,0,0.72); display:none; }
 
-/* === HUD === */
-#hud {
-  position: absolute; top: 0; left: 0; width: 100%;
-  pointer-events: none; z-index: 50; display: none;
-}
-#hud-top {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 7px 14px; background: rgba(0,0,0,0.65);
-  border-bottom: 2px solid #ff00ff; color: #ffff00; font-size: 8px;
-}
-#hud-row2 {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 4px 14px; background: rgba(0,0,0,0.45); color: #00ffff; font-size: 8px;
-}
-#line-prog-wrap { padding: 3px 14px; background: rgba(0,0,0,0.4); }
-#line-prog-bg   { height: 5px; background: #222; border: 1px solid #555; border-radius: 3px; overflow: hidden; }
-#line-prog-fill { height: 100%; background: linear-gradient(90deg,#00cc00,#ffff00); width: 0%; }
+/* MODE TABS */
+#mode-tabs { display:flex; gap:8px; margin-bottom:16px; }
+.mode-tab { background:transparent; border:2px solid #444; color:#777; font-family:'Press Start 2P',cursive; font-size:7px; padding:7px 14px; cursor:pointer; transition:all 0.15s; }
+.mode-tab.active { border-color:#00ffff; color:#00ffff; background:rgba(0,255,255,0.08); }
 
-/* Health bar inline */
-#health-bar-wrap { display: inline-flex; align-items: center; gap: 5px; }
-#health-bar { width: 80px; height: 10px; background: #333; border: 1px solid #888; border-radius: 2px; overflow: hidden; display: inline-block; }
-#health-fill { height: 100%; width: 100%; background: #00ff00; }
+/* SURVEY HUD */
+#hud { position:absolute; top:0; left:0; width:100%; pointer-events:none; z-index:50; display:none; }
+#hud-top { display:flex; justify-content:space-between; align-items:center; padding:7px 14px; background:rgba(0,0,0,0.65); border-bottom:2px solid #ff00ff; color:#ffff00; font-size:8px; }
+#hud-row2 { display:flex; justify-content:space-between; align-items:center; padding:4px 14px; background:rgba(0,0,0,0.45); color:#00ffff; font-size:8px; }
+#line-prog-wrap { padding:3px 14px; background:rgba(0,0,0,0.4); }
+#line-prog-bg { height:5px; background:#222; border:1px solid #555; border-radius:3px; overflow:hidden; }
+#line-prog-fill { height:100%; background:linear-gradient(90deg,#00cc00,#ffff00); width:0%; }
+#health-bar-wrap { display:inline-flex; align-items:center; gap:5px; }
+#health-bar { width:80px; height:10px; background:#333; border:1px solid #888; border-radius:2px; overflow:hidden; display:inline-block; }
+#health-fill { height:100%; width:100%; background:#00ff00; }
 
-/* === STREAK POPUP === */
-#streak-popup {
-  position: absolute; top: 48%; left: 50%; transform: translate(-50%,-50%);
-  color: #ff8800; font-size: 26px; text-shadow: 0 0 18px currentColor;
-  pointer-events: none; z-index: 60; text-align: center; display: none;
-}
+/* LONGLINE HUD */
+#hud-ll { position:absolute; top:0; left:0; width:100%; pointer-events:none; z-index:50; display:none; }
+#hud-ll-top { display:flex; justify-content:space-between; align-items:center; padding:6px 14px; background:rgba(0,0,0,0.72); border-bottom:2px solid #ff8800; color:#ffaa00; font-size:8px; }
+#hud-ll-row2 { display:flex; justify-content:space-between; align-items:center; padding:4px 14px; background:rgba(0,0,0,0.55); color:#00ffff; font-size:7px; gap:10px; flex-wrap:wrap; }
+.ll-palt { font-size:20px; color:#ffff00; text-shadow:0 0 10px #ffff00; }
+.ll-bar { width:64px; height:8px; background:#222; border:1px solid #555; border-radius:2px; overflow:hidden; display:inline-block; vertical-align:middle; }
+.ll-bar-fill { height:100%; background:#00ff00; width:100%; }
+
+/* STREAK POPUP */
+#streak-popup { position:absolute; top:48%; left:50%; transform:translate(-50%,-50%); color:#ff8800; font-size:26px; text-shadow:0 0 18px currentColor; pointer-events:none; z-index:60; text-align:center; display:none; }
 @keyframes pulse { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.15)} }
-.pulsing { animation: pulse 0.45s ease-in-out infinite; }
+.pulsing { animation:pulse 0.45s ease-in-out infinite; }
 
-/* === DEVIATION WIDGET === */
-#dev-widget {
-  position: absolute; bottom: 55px; right: 18px;
-  width: 76px; height: 76px; border: 2px solid #00ffff;
-  border-radius: 50%; background: rgba(0,0,0,0.52);
-  pointer-events: none; z-index: 60; display: none;
-}
-#dev-h { position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(0,255,255,0.25); }
-#dev-v { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(0,255,255,0.25); }
-#dev-dot {
-  position: absolute; width: 8px; height: 8px; background: #ff0000;
-  border-radius: 50%; transform: translate(-50%,-50%); top: 50%; left: 50%;
-}
+/* DEVIATION WIDGET */
+#dev-widget { position:absolute; bottom:55px; right:18px; width:76px; height:76px; border:2px solid #00ffff; border-radius:50%; background:rgba(0,0,0,0.52); pointer-events:none; z-index:60; display:none; }
+#dev-h { position:absolute; top:50%; left:0; right:0; height:1px; background:rgba(0,255,255,0.25); }
+#dev-v { position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(0,255,255,0.25); }
+#dev-dot { position:absolute; width:8px; height:8px; background:#ff0000; border-radius:50%; transform:translate(-50%,-50%); top:50%; left:50%; }
 
-/* === COUNTDOWN === */
-#countdown {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  color: #ffff00; font-size: 72px; text-shadow: 0 0 28px #ffff00;
-  pointer-events: none; z-index: 70; display: none;
-}
+/* PAYLOAD WIDGET */
+#payload-widget { position:absolute; bottom:55px; left:18px; width:90px; height:90px; border:2px solid #ff8800; border-radius:50%; background:rgba(0,0,0,0.55); pointer-events:none; z-index:60; display:none; }
+#pw-h { position:absolute; top:50%; left:0; right:0; height:1px; background:rgba(255,136,0,0.3); }
+#pw-v { position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,136,0,0.3); }
+#pw-dot { position:absolute; width:10px; height:10px; background:#ff6600; border-radius:50%; transform:translate(-50%,-50%); top:50%; left:50%; }
+#pw-label { position:absolute; bottom:3px; left:50%; transform:translateX(-50%); color:#ff8800; font-size:5px; white-space:nowrap; }
 
-/* === FLASH OVERLAYS === */
-#flash-white, #flash-red {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  pointer-events: none; z-index: 80; opacity: 0;
-}
-#flash-white { background: #fff; }
-#flash-red   { background: #f00; }
+/* COUNTDOWN */
+#countdown { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:#ffff00; font-size:72px; text-shadow:0 0 28px #ffff00; pointer-events:none; z-index:70; display:none; }
 
-/* === START SCREEN === */
-.title    { color: #00ffff; font-size: 30px; text-shadow: 0 0 18px #00ffff; margin-bottom: 10px; letter-spacing: 3px; text-align: center; }
-.subtitle { color: #ff00ff; font-size: 10px; margin-bottom: 36px; letter-spacing: 2px; }
-.diff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px; }
-.diff-card {
-  border: 2px solid #444; padding: 11px 16px; cursor: pointer;
-  text-align: center; min-width: 148px; transition: all 0.18s;
-}
-.diff-card:hover  { border-color: #00ffff; background: rgba(0,255,255,0.08); }
-.diff-card.sel    { border-color: #ff00ff; background: rgba(255,0,255,0.1);  }
-.diff-name  { color: #ffff00; font-size: 10px; margin-bottom: 6px; }
-.diff-stats { color: #aaa; font-size: 7px; line-height: 1.8; }
+/* FLASH */
+#flash-white,#flash-red { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:80; opacity:0; }
+#flash-white { background:#fff; }
+#flash-red   { background:#f00; }
 
-.start-btn {
-  background: transparent; border: 3px solid #00ff00; color: #00ff00;
-  font-family: 'Press Start 2P', cursive; font-size: 13px; padding: 12px 26px;
-  cursor: pointer; text-shadow: 0 0 10px #00ff00; box-shadow: 0 0 14px rgba(0,255,0,0.35);
-  transition: all 0.2s;
-}
-.start-btn:hover { background: rgba(0,255,0,0.12); box-shadow: 0 0 24px rgba(0,255,0,0.6); }
-.ctrl-legend { color: #666; font-size: 7px; text-align: center; line-height: 2.4; margin-top: 18px; }
-.ctrl-legend span { color: #00ccff; }
+/* START SCREEN */
+.title    { color:#00ffff; font-size:28px; text-shadow:0 0 18px #00ffff; margin-bottom:8px; letter-spacing:3px; text-align:center; }
+.subtitle { color:#ff00ff; font-size:9px; margin-bottom:22px; letter-spacing:2px; }
+.diff-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:24px; }
+.diff-card { border:2px solid #444; padding:10px 14px; cursor:pointer; text-align:center; min-width:140px; transition:all 0.18s; }
+.diff-card:hover { border-color:#00ffff; background:rgba(0,255,255,0.08); }
+.diff-card.sel { border-color:#ff00ff; background:rgba(255,0,255,0.1); }
+.diff-name  { color:#ffff00; font-size:9px; margin-bottom:5px; }
+.diff-stats { color:#aaa; font-size:6px; line-height:1.9; }
+.start-btn { background:transparent; border:3px solid #00ff00; color:#00ff00; font-family:'Press Start 2P',cursive; font-size:12px; padding:11px 24px; cursor:pointer; text-shadow:0 0 10px #00ff00; box-shadow:0 0 14px rgba(0,255,0,0.35); transition:all 0.2s; }
+.start-btn:hover { background:rgba(0,255,0,0.12); box-shadow:0 0 24px rgba(0,255,0,0.6); }
+.ctrl-legend { color:#666; font-size:7px; text-align:center; line-height:2.4; margin-top:16px; }
+.ctrl-legend span { color:#00ccff; }
 
-/* === END SCREEN === */
-#end-reason    { color: #ff4444; font-size: 11px; margin-bottom: 14px; }
-.grade-big     { font-size: 78px; margin-bottom: 8px; text-shadow: 0 0 28px currentColor; }
-.score-big     { color: #ffff00; font-size: 20px; margin-bottom: 16px; }
-.best-line     { color: #ff8800; font-size: 8px; margin-bottom: 16px; }
-.breakdown     { border-collapse: collapse; font-size: 7px; color: #bbb; margin-bottom: 18px; display: block; max-height: 200px; overflow-y: auto; }
-.breakdown th  { color: #00ffff; padding: 3px 11px; border-bottom: 1px solid #333; }
-.breakdown td  { padding: 3px 11px; text-align: center; }
-.btn-row       { display: flex; gap: 18px; }
-.act-btn {
-  background: transparent; border: 2px solid #00ffff; color: #00ffff;
-  font-family: 'Press Start 2P', cursive; font-size: 9px; padding: 9px 17px; cursor: pointer;
-}
-.act-btn:hover { background: rgba(0,255,255,0.12); }
+/* END SCREEN */
+#end-reason { color:#ff4444; font-size:11px; margin-bottom:12px; }
+.grade-big  { font-size:72px; margin-bottom:8px; text-shadow:0 0 28px currentColor; }
+.score-big  { color:#ffff00; font-size:18px; margin-bottom:14px; }
+.best-line  { color:#ff8800; font-size:8px; margin-bottom:14px; }
+.breakdown  { border-collapse:collapse; font-size:7px; color:#bbb; margin-bottom:16px; display:block; max-height:180px; overflow-y:auto; }
+.breakdown th { color:#00ffff; padding:3px 10px; border-bottom:1px solid #333; }
+.breakdown td { padding:3px 10px; text-align:center; }
+.btn-row  { display:flex; gap:16px; }
+.act-btn  { background:transparent; border:2px solid #00ffff; color:#00ffff; font-family:'Press Start 2P',cursive; font-size:9px; padding:9px 16px; cursor:pointer; }
+.act-btn:hover { background:rgba(0,255,255,0.12); }
 @keyframes gradeIn { 0%{transform:scale(0.2);opacity:0} 65%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
-.grade-anim { animation: gradeIn 0.55s ease-out forwards; }
+.grade-anim { animation:gradeIn 0.55s ease-out forwards; }
+#pause-screen .ptitle { color:#ffff00; font-size:36px; text-shadow:0 0 18px #ffff00; }
+#pause-screen .psub   { color:#888; font-size:9px; margin-top:16px; }
+#new-best { position:absolute; top:28%; left:50%; transform:translateX(-50%); color:#ff8800; font-size:12px; display:none; z-index:90; text-shadow:0 0 14px #ff8800; text-align:center; }
 
-/* PAUSE */
-#pause-screen .ptitle { color: #ffff00; font-size: 38px; text-shadow: 0 0 18px #ffff00; }
-#pause-screen .psub   { color: #888; font-size: 9px; margin-top: 18px; }
-
-/* NEW BEST */
-#new-best {
-  position: absolute; top: 28%; left: 50%; transform: translateX(-50%);
-  color: #ff8800; font-size: 13px; display: none; z-index: 90;
-  text-shadow: 0 0 14px #ff8800; text-align: center;
-}
+/* CABLE SNAP NOTICE */
+#snap-notice { position:absolute; top:20%; left:50%; transform:translateX(-50%); color:#ff4444; font-size:11px; display:none; z-index:90; text-shadow:0 0 12px #ff4444; }
 </style>
 </head>
 <body>
@@ -139,29 +107,61 @@ canvas { display: block; }
   <!-- START SCREEN -->
   <div id="start-screen" class="screen">
     <div class="title">DRONE LONG-LINER</div>
-    <div class="subtitle">SURVEY GRID FLIGHT SIM</div>
-    <div class="diff-grid">
-      <div class="diff-card sel" data-diff="EASY">
-        <div class="diff-name">EASY</div>
-        <div class="diff-stats">No wind<br>0 zone obstacles<br>Speed ×14</div>
-      </div>
-      <div class="diff-card" data-diff="MEDIUM">
-        <div class="diff-name">MEDIUM</div>
-        <div class="diff-stats">Light wind<br>3 zone obstacles<br>Speed ×12</div>
-      </div>
-      <div class="diff-card" data-diff="HARD">
-        <div class="diff-name">HARD</div>
-        <div class="diff-stats">Gusty wind<br>8 zone obstacles<br>Speed ×10</div>
-      </div>
-      <div class="diff-card" data-diff="EXPERT">
-        <div class="diff-name">EXPERT</div>
-        <div class="diff-stats">Strong wind<br>15 zone obstacles<br>Speed ×8</div>
+    <div class="subtitle">SURVEY &amp; PAYLOAD FLIGHT SIM</div>
+
+    <div id="mode-tabs">
+      <button class="mode-tab active" data-mode="SURVEY">SURVEY GRID</button>
+      <button class="mode-tab" data-mode="LONGLINE">LONG-LINE</button>
+    </div>
+
+    <!-- Survey diffs -->
+    <div id="survey-diff-section">
+      <div class="diff-grid">
+        <div class="diff-card sel" data-diff="EASY">
+          <div class="diff-name">EASY</div>
+          <div class="diff-stats">No wind<br>0 zone obs<br>Speed ×14</div>
+        </div>
+        <div class="diff-card" data-diff="MEDIUM">
+          <div class="diff-name">MEDIUM</div>
+          <div class="diff-stats">Light wind<br>3 zone obs<br>Speed ×12</div>
+        </div>
+        <div class="diff-card" data-diff="HARD">
+          <div class="diff-name">HARD</div>
+          <div class="diff-stats">Gusty wind<br>8 zone obs<br>Speed ×10</div>
+        </div>
+        <div class="diff-card" data-diff="EXPERT">
+          <div class="diff-name">EXPERT</div>
+          <div class="diff-stats">Strong wind<br>15 zone obs<br>Speed ×8</div>
+        </div>
       </div>
     </div>
+
+    <!-- Longline diffs -->
+    <div id="ll-diff-section" style="display:none">
+      <div class="diff-grid">
+        <div class="diff-card ll-card sel" data-lldiff="BEGINNER">
+          <div class="diff-name">BEGINNER</div>
+          <div class="diff-stats">HP 100/100<br>Light wind<br>Forgiving</div>
+        </div>
+        <div class="diff-card ll-card" data-lldiff="INTERMEDIATE">
+          <div class="diff-name">INTER</div>
+          <div class="diff-stats">HP 75/60<br>Mod gusts<br>3 min</div>
+        </div>
+        <div class="diff-card ll-card" data-lldiff="ADVANCED">
+          <div class="diff-name">ADVANCED</div>
+          <div class="diff-stats">HP 50/30<br>Strong var<br>Tight course</div>
+        </div>
+        <div class="diff-card ll-card" data-lldiff="EXPERT">
+          <div class="diff-name">EXPERT</div>
+          <div class="diff-stats">1-HIT FAIL<br>Max turb<br>No mercy</div>
+        </div>
+      </div>
+    </div>
+
     <button class="start-btn" id="start-btn">[ START MISSION ]</button>
     <div class="ctrl-legend">
-      <span>W / S</span> FWD / BACK &nbsp; <span>A / D</span> STRAFE &nbsp; <span>Q / E</span> YAW<br>
-      <span>↑ / ↓</span> ASCEND / DESCEND &nbsp; <span>SHIFT</span> BOOST &nbsp; <span>ESC</span> PAUSE
+      <span>W/S</span> FWD/BACK &nbsp;<span>A/D</span> STRAFE &nbsp;<span>Q/E</span> YAW<br>
+      <span>↑/↓</span> ASCEND/DESCEND &nbsp;<span>SHIFT</span> BOOST &nbsp;<span>ESC</span> PAUSE
     </div>
   </div>
 
@@ -172,53 +172,62 @@ canvas { display: block; }
     <div id="score-el" class="score-big"></div>
     <div id="best-el" class="best-line"></div>
     <table class="breakdown" id="breakdown">
-      <thead><tr><th>LINE</th><th>ACCURACY</th><th>PTS</th><th>MULT</th></tr></thead>
+      <thead><tr id="bk-head"></tr></thead>
       <tbody id="bk-body"></tbody>
     </table>
     <div class="btn-row">
       <button class="act-btn" id="try-btn">TRY AGAIN</button>
-      <button class="act-btn" id="diff-btn">CHANGE DIFF</button>
+      <button class="act-btn" id="diff-btn">CHANGE MODE</button>
     </div>
   </div>
 
-  <!-- PAUSE SCREEN -->
+  <!-- PAUSE -->
   <div id="pause-screen" class="screen">
     <div class="ptitle">PAUSED</div>
     <div class="psub">PRESS ESC TO RESUME</div>
   </div>
 
-  <!-- HUD -->
+  <!-- SURVEY HUD -->
   <div id="hud">
     <div id="hud-top">
       <span>SCORE: <span id="h-score">0</span></span>
-      <span>LINE: <span id="h-line">1</span> / <span id="h-total">10</span></span>
-      <span id="health-bar-wrap">HEALTH: <span id="health-bar"><span id="health-fill"></span></span> <span id="h-hp">100</span>%</span>
+      <span>LINE: <span id="h-line">1</span>/<span id="h-total">8</span></span>
+      <span id="health-bar-wrap">HEALTH:<span id="health-bar"><span id="health-fill"></span></span><span id="h-hp">100</span>%</span>
     </div>
     <div id="hud-row2">
-      <span>ALT: <span id="h-alt">15.0</span> M</span>
-      <span>STREAK: <span id="h-streak">×1</span></span>
-      <span>SPEED: <span id="h-spd">0.0</span> M/S</span>
+      <span>ALT:<span id="h-alt">15.0</span>M</span>
+      <span>STREAK:<span id="h-streak">×1</span></span>
+      <span>SPD:<span id="h-spd">0.0</span>M/S</span>
     </div>
-    <div id="line-prog-wrap">
-      <div id="line-prog-bg"><div id="line-prog-fill"></div></div>
+    <div id="line-prog-wrap"><div id="line-prog-bg"><div id="line-prog-fill"></div></div></div>
+  </div>
+
+  <!-- LONGLINE HUD -->
+  <div id="hud-ll">
+    <div id="hud-ll-top">
+      <span>SCORE:<span id="ll-score">0</span> &nbsp; PROX:<span id="ll-prox">0%</span></span>
+      <div style="text-align:center">
+        <div style="font-size:7px;color:#aaa">PAYLOAD AGL</div>
+        <div class="ll-palt"><span id="ll-payload-alt">0.0</span> M</div>
+      </div>
+      <span>TIME:<span id="ll-time">180</span>s &nbsp; DRONE:<span id="ll-drone-alt">0.0</span>M</span>
+    </div>
+    <div id="hud-ll-row2">
+      <span>DRONE HP:<span class="ll-bar"><span id="ll-dhp-fill" class="ll-bar-fill"></span></span></span>
+      <span>PAYLOAD HP:<span class="ll-bar"><span id="ll-php-fill" class="ll-bar-fill" style="background:#ff8800"></span></span></span>
+      <span>TENSION:<span class="ll-bar"><span id="ll-ten-fill" class="ll-bar-fill" style="background:#00ffff"></span></span></span>
+      <span>WIND:<span id="ll-wind-dir">→</span><span id="ll-wind-spd">0</span>m/s</span>
     </div>
   </div>
 
-  <!-- Streak popup -->
   <div id="streak-popup"></div>
-
-  <!-- Countdown -->
   <div id="countdown"></div>
-
-  <!-- Deviation widget -->
-  <div id="dev-widget">
-    <div id="dev-h"></div><div id="dev-v"></div><div id="dev-dot"></div>
-  </div>
-
-  <!-- Flash overlays -->
+  <div id="dev-widget"><div id="dev-h"></div><div id="dev-v"></div><div id="dev-dot"></div></div>
+  <div id="payload-widget"><div id="pw-h"></div><div id="pw-v"></div><div id="pw-dot"></div><div id="pw-label">PAYLOAD</div></div>
   <div id="flash-white"></div>
   <div id="flash-red"></div>
-  <div id="new-best">★ NEW BEST SCORE! ★</div>
+  <div id="new-best">★ NEW BEST! ★</div>
+  <div id="snap-notice">⚡ CABLE SNAPPED!</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -226,271 +235,133 @@ canvas { display: block; }
 <script>
 'use strict';
 
-// --- CONSTANTS & CONFIG ---
-var DIFF = {
-  EASY:   { wind:0,   turb:0,   zoneObs:0,  spacing:25, targetAlt:15, speed:14, multCap:3  },
-  MEDIUM: { wind:2.5, turb:0.5, zoneObs:3,  spacing:20, targetAlt:15, speed:12, multCap:5  },
-  HARD:   { wind:5,   turb:1.2, zoneObs:8,  spacing:15, targetAlt:12, speed:10, multCap:5  },
-  EXPERT: { wind:9,   turb:2.0, zoneObs:15, spacing:10, targetAlt:10, speed:8,  multCap:5  }
+var SURVEY_DIFF = {
+  EASY:   { wind:0,   turb:0,   zoneObs:0,  spacing:25, targetAlt:15, speed:14, multCap:3 },
+  MEDIUM: { wind:2.5, turb:0.5, zoneObs:3,  spacing:20, targetAlt:15, speed:12, multCap:5 },
+  HARD:   { wind:5,   turb:1.2, zoneObs:8,  spacing:15, targetAlt:12, speed:10, multCap:5 },
+  EXPERT: { wind:9,   turb:2.0, zoneObs:15, spacing:10, targetAlt:10, speed:8,  multCap:5 }
 };
+var LL_DIFF = {
+  BEGINNER:     { dHP:100, pHP:100, wind:1.5, turb:0.3, speed:11, instant:false },
+  INTERMEDIATE: { dHP:75,  pHP:60,  wind:3.5, turb:0.8, speed:10, instant:false },
+  ADVANCED:     { dHP:50,  pHP:30,  wind:7,   turb:1.6, speed:9,  instant:false },
+  EXPERT:       { dHP:0,   pHP:0,   wind:12,  turb:3.0, speed:8,  instant:true  }
+};
+
 var SZ = { ox:-100, oz:-100, w:200, d:200 };
-var BASE_PTS       = 100;
-var MAX_LAT_FACTOR = 0.5;
-var MAX_ALT_DEV    = 5;
-var DMG            = 30;
-var INVIC_MS       = 250;
-var YAW_SPD        = 1.6;
-var WORLD_BOUND    = 290;
+var BASE_PTS=100, MAX_LAT_FACTOR=0.5, MAX_ALT_DEV=5, DMG=30, INVIC_MS=250, YAW_SPD=1.6, WORLD_BOUND=290;
+var LL_SEGS=24, LL_SEG_LEN=2.5, LL_ITERS=18, LL_DAMP=0.984, LL_PAYLOAD_M=20, LL_SNAP_N=12000;
+var LL_PROX_THRES=12, LL_PROX_RATE=8, LL_SMOOTH_RATE=2, LL_MISSION_DUR=180, LL_INVIC=0.5;
 
-// --- STATE VARIABLES ---
 var scene, camera, renderer, clock, world;
-var droneGroup, droneBody, droneMesh;
-var rotors    = [];
-var obstacles = [];
-var physObjs  = [];
-var surveyLines = [];
-var lineObjs    = [];
-var ghostDrone;
-var particles   = [];
+var droneGroup, droneBody, droneMesh, rotors=[], obstacles=[], surveyLines=[], lineObjs=[], ghostDrone, particles=[];
+var gameMode='SURVEY', selDiff='EASY', llSelDiff='BEGINNER', cfg=SURVEY_DIFF.EASY, llCfg=LL_DIFF.BEGINNER, gameState='START';
+var curLine=0, numLines=0, lineAcc=0, lineFrames=0, streak=0, totalPts=0, maxPts=0, health=100, lastHit=-9999, breakdown=[];
+var cablePoints=[], cableBuf=null, cableMesh=null, payloadMesh=null;
+var llDroneHP=100, llPayloadHP=100, llScore=0, proxBonus=0, swingRMS=0, lineTension=0, cableSnapped=false;
+var missionTime=0, llDmgTimer=-999, llTurbines=[], llPowerlines=[], llObstacles=[];
+var keys={}, windAngle=0, simTime=0, shakeTimer=0, hitTimer=0;
+var _v3a=new THREE.Vector3(), _v3c=new THREE.Vector3();
 
-var cfg       = DIFF.EASY;
-var selDiff   = 'EASY';
-var gameState = 'START';
-
-var curLine    = 0;
-var numLines   = 0;
-var lineAcc    = 0;
-var lineFrames = 0;
-var streak     = 0;
-var totalPts   = 0;
-var maxPts     = 0;
-var health     = 100;
-var lastHit    = -9999;
-var breakdown  = [];
-
-var keys       = {};
-var windAngle  = 0;
-var simTime    = 0;
-var shakeTimer = 0;
-var hitTimer   = 0;
-
-var _v3a = new THREE.Vector3();
-var _v3c = new THREE.Vector3();
-
-// --- THREE.JS SETUP ---
-function setupThree() {
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x87ceeb);
-  scene.fog = new THREE.Fog(0x87ceeb, 220, 520);
-
-  camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 22, 32);
-
-  renderer = new THREE.WebGLRenderer({ antialias:true });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  document.getElementById('game-container').appendChild(renderer.domElement);
-
-  clock = new THREE.Clock();
+function setupThree(){
+  scene=new THREE.Scene(); scene.background=new THREE.Color(0x87ceeb); scene.fog=new THREE.Fog(0x87ceeb,220,520);
+  camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000); camera.position.set(0,22,32);
+  renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth,window.innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  document.getElementById('game-container').appendChild(renderer.domElement); clock=new THREE.Clock();
 }
-
-// --- CANNON.JS SETUP ---
-function setupCannon() {
-  world = new CANNON.World();
-  world.gravity.set(0, -9.82, 0);
-  world.broadphase = new CANNON.NaiveBroadphase();
-  world.solver.iterations = 10;
-  var gp = new CANNON.Body({ mass:0 });
-  gp.addShape(new CANNON.Plane());
-  gp.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2);
-  world.addBody(gp);
+function setupCannon(){
+  world=new CANNON.World(); world.gravity.set(0,-9.82,0); world.broadphase=new CANNON.NaiveBroadphase(); world.solver.iterations=10;
+  var gp=new CANNON.Body({mass:0}); gp.addShape(new CANNON.Plane()); gp.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2); world.addBody(gp);
 }
-
-// --- SCENE OBJECTS ---
-function buildScene() {
-  scene.add(new THREE.HemisphereLight(0x87ceeb, 0x2d5a1b, 0.65));
-  var sun = new THREE.DirectionalLight(0xffffff, 0.88);
-  sun.position.set(80,150,80); sun.castShadow = true;
-  sun.shadow.mapSize.width = sun.shadow.mapSize.height = 2048;
-  sun.shadow.camera.near=0.5; sun.shadow.camera.far=600;
-  sun.shadow.camera.left=-300; sun.shadow.camera.right=300;
-  sun.shadow.camera.top=300; sun.shadow.camera.bottom=-300;
-  scene.add(sun);
-
-  var ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(600,600),
-    new THREE.MeshLambertMaterial({ color:0x2d5a1b })
-  );
-  ground.rotation.x = -Math.PI/2; ground.receiveShadow = true;
-  scene.add(ground);
-
-  var zp = [
-    new THREE.Vector3(SZ.ox,      0.18, SZ.oz),
-    new THREE.Vector3(SZ.ox+SZ.w, 0.18, SZ.oz),
-    new THREE.Vector3(SZ.ox+SZ.w, 0.18, SZ.oz+SZ.d),
-    new THREE.Vector3(SZ.ox,      0.18, SZ.oz+SZ.d),
-    new THREE.Vector3(SZ.ox,      0.18, SZ.oz)
-  ];
-  scene.add(new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints(zp),
-    new THREE.LineBasicMaterial({ color:0xffffff, transparent:true, opacity:0.35 })
-  ));
+function buildScene(){
+  scene.add(new THREE.HemisphereLight(0x87ceeb,0x2d5a1b,0.65));
+  var sun=new THREE.DirectionalLight(0xffffff,0.88); sun.position.set(80,150,80); sun.castShadow=true;
+  sun.shadow.mapSize.width=sun.shadow.mapSize.height=2048; sun.shadow.camera.near=0.5; sun.shadow.camera.far=600;
+  sun.shadow.camera.left=-300; sun.shadow.camera.right=300; sun.shadow.camera.top=300; sun.shadow.camera.bottom=-300; scene.add(sun);
+  var ground=new THREE.Mesh(new THREE.PlaneGeometry(600,600),new THREE.MeshLambertMaterial({color:0x2d5a1b}));
+  ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
 }
-
-// --- DRONE BUILD ---
-function buildDrone() {
-  droneGroup = new THREE.Group();
-  var bodyMat = new THREE.MeshLambertMaterial({ color:0x2a2a2a });
-  droneMesh = new THREE.Mesh(new THREE.BoxGeometry(1.2,0.3,1.2), bodyMat);
-  droneMesh.castShadow = true;
-  droneGroup.add(droneMesh);
-
-  var armMat = new THREE.MeshLambertMaterial({ color:0x404040 });
+function buildDrone(){
+  droneGroup=new THREE.Group();
+  var bodyMat=new THREE.MeshLambertMaterial({color:0x2a2a2a});
+  droneMesh=new THREE.Mesh(new THREE.BoxGeometry(1.2,0.3,1.2),bodyMat); droneMesh.castShadow=true; droneGroup.add(droneMesh);
+  var armMat=new THREE.MeshLambertMaterial({color:0x404040});
   [[-0.7,0.7,Math.PI/4],[0.7,0.7,-Math.PI/4],[-0.7,-0.7,-Math.PI/4],[0.7,-0.7,Math.PI/4]].forEach(function(a){
-    var arm = new THREE.Mesh(new THREE.BoxGeometry(0.85,0.07,0.11), armMat);
-    arm.position.set(a[0],0.02,a[1]); arm.rotation.y=a[2]; arm.castShadow=true;
-    droneGroup.add(arm);
+    var arm=new THREE.Mesh(new THREE.BoxGeometry(0.85,0.07,0.11),armMat);
+    arm.position.set(a[0],0.02,a[1]); arm.rotation.y=a[2]; arm.castShadow=true; droneGroup.add(arm);
   });
-
-  var rMat = new THREE.MeshLambertMaterial({ color:0x0088ff, transparent:true, opacity:0.55 });
-  rotors = [];
+  var rMat=new THREE.MeshLambertMaterial({color:0x0088ff,transparent:true,opacity:0.55}); rotors=[];
   [[-1.1,1.1],[1.1,1.1],[-1.1,-1.1],[1.1,-1.1]].forEach(function(r){
-    var rot = new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,0.05,12), rMat);
+    var rot=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,0.05,12),rMat);
     rot.position.set(r[0],0.12,r[1]); droneGroup.add(rot); rotors.push(rot);
   });
-
-  droneGroup.position.set(SZ.ox-20, cfg.targetAlt, SZ.oz+cfg.spacing*0.5);
-  scene.add(droneGroup);
-
-  ghostDrone = new THREE.Mesh(
-    new THREE.BoxGeometry(1.5,0.4,1.5),
-    new THREE.MeshBasicMaterial({ color:0xffff00, wireframe:true, transparent:true, opacity:0.38 })
-  );
-  scene.add(ghostDrone);
-
-  droneBody = new CANNON.Body({ mass:1, linearDamping:0.75, angularDamping:0.999 });
+  var sx=gameMode==='SURVEY'?SZ.ox-20:-30, sy=gameMode==='SURVEY'?cfg.targetAlt:45, sz=gameMode==='SURVEY'?SZ.oz+cfg.spacing*0.5:0;
+  droneGroup.position.set(sx,sy,sz); scene.add(droneGroup);
+  ghostDrone=new THREE.Mesh(new THREE.BoxGeometry(1.5,0.4,1.5),new THREE.MeshBasicMaterial({color:0xffff00,wireframe:true,transparent:true,opacity:0.35}));
+  ghostDrone.visible=(gameMode==='SURVEY'); scene.add(ghostDrone);
+  droneBody=new CANNON.Body({mass:1,linearDamping:0.75,angularDamping:0.999});
   droneBody.addShape(new CANNON.Box(new CANNON.Vec3(0.6,0.15,0.6)));
-  droneBody.position.set(droneGroup.position.x, droneGroup.position.y, droneGroup.position.z);
-  world.addBody(droneBody);
-  droneBody.addEventListener('collide', onCollide);
+  droneBody.position.set(droneGroup.position.x,droneGroup.position.y,droneGroup.position.z);
+  world.addBody(droneBody); droneBody.addEventListener('collide',onCollide);
 }
 
-// --- OBSTACLE GENERATION ---
-function mkPineTree(x,z) {
-  var g = new THREE.Group();
-  var tM = new THREE.MeshLambertMaterial({ color:0x3d1f00 });
-  var tr = new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.3,2.2,6), tM);
-  tr.position.y=1.1; tr.castShadow=true; g.add(tr);
-  var fM = new THREE.MeshLambertMaterial({ color:0x1a5c28 });
-  [[2.0,3.2,3.5],[1.4,2.6,5.6],[0.85,2.0,7.2]].forEach(function(t){
-    var f=new THREE.Mesh(new THREE.ConeGeometry(t[0],t[1],7),fM);
-    f.position.y=t[2]; f.castShadow=true; g.add(f);
-  });
+function mkPineTree(x,z){
+  var g=new THREE.Group(), tM=new THREE.MeshLambertMaterial({color:0x3d1f00});
+  var tr=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.3,2.2,6),tM); tr.position.y=1.1; tr.castShadow=true; g.add(tr);
+  var fM=new THREE.MeshLambertMaterial({color:0x1a5c28});
+  [[2.0,3.2,3.5],[1.4,2.6,5.6],[0.85,2.0,7.2]].forEach(function(t){ var f=new THREE.Mesh(new THREE.ConeGeometry(t[0],t[1],7),fM); f.position.y=t[2]; f.castShadow=true; g.add(f); });
   g.position.set(x,0,z); scene.add(g);
-  var b=new CANNON.Body({mass:0});
-  b.addShape(new CANNON.Cylinder(0.25,0.35,2.2,6), new CANNON.Vec3(0,1.1,0));
-  b.addShape(new CANNON.Sphere(2.4), new CANNON.Vec3(0,5.5,0));
-  b.position.set(x,0,z); world.addBody(b); obstacles.push(b);
+  var b=new CANNON.Body({mass:0}); b.addShape(new CANNON.Cylinder(0.25,0.35,2.2,6),new CANNON.Vec3(0,1.1,0));
+  b.addShape(new CANNON.Sphere(2.4),new CANNON.Vec3(0,5.5,0)); b.position.set(x,0,z); world.addBody(b); obstacles.push(b);
 }
-
-function mkRock(x,z) {
-  var s=0.9+Math.random()*1.1;
-  var geo=new THREE.DodecahedronGeometry(s,0);
-  var pos=geo.attributes.position;
-  for(var i=0;i<pos.count;i++){
-    pos.setX(i,pos.getX(i)+(Math.random()-0.5)*0.28);
-    pos.setY(i,pos.getY(i)+(Math.random()-0.5)*0.28);
-    pos.setZ(i,pos.getZ(i)+(Math.random()-0.5)*0.28);
-  }
+function mkRock(x,z){
+  var s=0.9+Math.random()*1.1, geo=new THREE.DodecahedronGeometry(s,0), pos=geo.attributes.position;
+  for(var i=0;i<pos.count;i++){ pos.setX(i,pos.getX(i)+(Math.random()-0.5)*0.28); pos.setY(i,pos.getY(i)+(Math.random()-0.5)*0.28); pos.setZ(i,pos.getZ(i)+(Math.random()-0.5)*0.28); }
   pos.needsUpdate=true; geo.computeVertexNormals();
-  var mesh=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color:0x888888}));
-  mesh.position.set(x,s*0.55,z); mesh.castShadow=true; mesh.receiveShadow=true; scene.add(mesh);
-  var b=new CANNON.Body({mass:0});
-  b.addShape(new CANNON.Sphere(s*0.88)); b.position.set(x,s*0.55,z);
-  world.addBody(b); obstacles.push(b);
+  var mesh=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color:0x888888})); mesh.position.set(x,s*0.55,z); mesh.castShadow=true; mesh.receiveShadow=true; scene.add(mesh);
+  var b=new CANNON.Body({mass:0}); b.addShape(new CANNON.Sphere(s*0.88)); b.position.set(x,s*0.55,z); world.addBody(b); obstacles.push(b);
 }
-
-function mkPole(x,z) {
-  var g=new THREE.Group();
-  var pM=new THREE.MeshLambertMaterial({color:0x7a6340});
-  var pole=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.15,12,6),pM);
-  pole.position.y=6; pole.castShadow=true; g.add(pole);
-  var arm=new THREE.Mesh(new THREE.BoxGeometry(3.2,0.1,0.1),pM);
-  arm.position.y=11.6; g.add(arm);
+function mkPole(x,z){
+  var g=new THREE.Group(), pM=new THREE.MeshLambertMaterial({color:0x7a6340});
+  var pole=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.15,12,6),pM); pole.position.y=6; pole.castShadow=true; g.add(pole);
+  var arm=new THREE.Mesh(new THREE.BoxGeometry(3.2,0.1,0.1),pM); arm.position.y=11.6; g.add(arm);
   g.position.set(x,0,z); scene.add(g);
-  var b=new CANNON.Body({mass:0});
-  b.addShape(new CANNON.Cylinder(0.12,0.18,12,6),new CANNON.Vec3(0,6,0));
-  b.position.set(x,0,z); world.addBody(b); obstacles.push(b);
-  return {x:x,z:z,h:12};
+  var b=new CANNON.Body({mass:0}); b.addShape(new CANNON.Cylinder(0.12,0.18,12,6),new CANNON.Vec3(0,6,0));
+  b.position.set(x,0,z); world.addBody(b); obstacles.push(b); return {x:x,z:z,h:12};
 }
-
-function mkWire(p1,p2) {
-  var s=new THREE.Vector3(p1.x,p1.h-0.4,p1.z);
-  var e=new THREE.Vector3(p2.x,p2.h-0.4,p2.z);
+function mkWire(p1,p2){
+  var s=new THREE.Vector3(p1.x,p1.h-0.4,p1.z), e=new THREE.Vector3(p2.x,p2.h-0.4,p2.z);
   var m=s.clone().add(e).multiplyScalar(0.5); m.y-=2.2;
-  var curve=new THREE.QuadraticBezierCurve3(s,m,e);
-  var pts=curve.getPoints(22);
-  scene.add(new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints(pts),
-    new THREE.LineBasicMaterial({color:0x2a2a2a})
-  ));
-  for(var i=0;i<pts.length;i+=4){
-    var wb=new CANNON.Body({mass:0});
-    wb.addShape(new CANNON.Sphere(0.16));
-    wb.position.set(pts[i].x,pts[i].y,pts[i].z);
-    world.addBody(wb); obstacles.push(wb);
-  }
+  var pts=new THREE.QuadraticBezierCurve3(s,m,e).getPoints(22);
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x2a2a2a})));
+  for(var i=0;i<pts.length;i+=4){ var wb=new CANNON.Body({mass:0}); wb.addShape(new CANNON.Sphere(0.16)); wb.position.set(pts[i].x,pts[i].y,pts[i].z); world.addBody(wb); obstacles.push(wb); }
 }
-
-function outsideZone() {
-  var x,z;
-  do{ x=(Math.random()-0.5)*540; z=(Math.random()-0.5)*540; }
-  while(x>SZ.ox-22&&x<SZ.ox+SZ.w+22&&z>SZ.oz-22&&z<SZ.oz+SZ.d+22);
-  return {x:x,z:z};
-}
-
-function generateObstacles() {
+function outsideZone(){ var x,z; do{ x=(Math.random()-0.5)*540; z=(Math.random()-0.5)*540; } while(x>SZ.ox-22&&x<SZ.ox+SZ.w+22&&z>SZ.oz-22&&z<SZ.oz+SZ.d+22); return {x:x,z:z}; }
+function generateObstacles(){
   for(var i=0;i<38;i++){ var p=outsideZone(); mkPineTree(p.x,p.z); }
   for(var j=0;j<22;j++){ var q=outsideZone(); mkRock(q.x,q.z); }
-  var poles=[];
-  for(var k=0;k<4;k++){ var r=outsideZone(); poles.push(mkPole(r.x,r.z)); }
+  var poles=[]; for(var k=0;k<4;k++){ var r=outsideZone(); poles.push(mkPole(r.x,r.z)); }
   mkWire(poles[0],poles[1]); mkWire(poles[2],poles[3]);
-  for(var n=0;n<cfg.zoneObs;n++){
-    var x=SZ.ox+10+Math.random()*(SZ.w-20);
-    var z=SZ.oz+10+Math.random()*(SZ.d-20);
-    if(Math.random()<0.5) mkPineTree(x,z); else mkRock(x,z);
-  }
+  for(var n=0;n<cfg.zoneObs;n++){ var x=SZ.ox+10+Math.random()*(SZ.w-20),z=SZ.oz+10+Math.random()*(SZ.d-20); if(Math.random()<0.5) mkPineTree(x,z); else mkRock(x,z); }
 }
-
-// --- SURVEY GRID GENERATION ---
-function generateGrid() {
-  numLines=Math.floor(SZ.d/cfg.spacing);
-  surveyLines=[]; breakdown=[];
+function generateGrid(){
+  numLines=Math.floor(SZ.d/cfg.spacing); surveyLines=[]; breakdown=[];
+  var zp=[new THREE.Vector3(SZ.ox,0.18,SZ.oz),new THREE.Vector3(SZ.ox+SZ.w,0.18,SZ.oz),new THREE.Vector3(SZ.ox+SZ.w,0.18,SZ.oz+SZ.d),new THREE.Vector3(SZ.ox,0.18,SZ.oz+SZ.d),new THREE.Vector3(SZ.ox,0.18,SZ.oz)];
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(zp),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.35})));
   for(var i=0;i<numLines;i++){
-    var z=SZ.oz+cfg.spacing*0.5+i*cfg.spacing;
-    var fr=(i%2===1);
-    var sx=fr?SZ.ox+SZ.w:SZ.ox, ex=fr?SZ.ox:SZ.ox+SZ.w;
-    var st=new THREE.Vector3(sx,cfg.targetAlt,z);
-    var en=new THREE.Vector3(ex,cfg.targetAlt,z);
-    surveyLines.push({start:st,end:en,dir:en.clone().sub(st).normalize()});
-    breakdown.push({accuracy:0,points:0,mult:1});
+    var z=SZ.oz+cfg.spacing*0.5+i*cfg.spacing, fr=(i%2===1);
+    var st=new THREE.Vector3(fr?SZ.ox+SZ.w:SZ.ox,cfg.targetAlt,z), en=new THREE.Vector3(fr?SZ.ox:SZ.ox+SZ.w,cfg.targetAlt,z);
+    surveyLines.push({start:st,end:en,dir:en.clone().sub(st).normalize()}); breakdown.push({accuracy:0,points:0,mult:1});
   }
-  maxPts=numLines*BASE_PTS*cfg.multCap;
-  document.getElementById('h-total').textContent=numLines;
-  lineObjs=[];
+  maxPts=numLines*BASE_PTS*cfg.multCap; document.getElementById('h-total').textContent=numLines; lineObjs=[];
   for(var k=0;k<numLines;k++){
     var lp=[surveyLines[k].start.clone().setY(0.18),surveyLines[k].end.clone().setY(0.18)];
-    var lo=new THREE.Line(
-      new THREE.BufferGeometry().setFromPoints(lp),
-      new THREE.LineBasicMaterial({color:0x444444,transparent:true,opacity:0.45})
-    );
+    var lo=new THREE.Line(new THREE.BufferGeometry().setFromPoints(lp),new THREE.LineBasicMaterial({color:0x444444,transparent:true,opacity:0.45}));
     scene.add(lo); lineObjs.push(lo);
   }
 }
-
-function refreshLineColors() {
+function refreshLineColors(){
   for(var i=0;i<lineObjs.length;i++){
     var m=lineObjs[i].material;
     if(i<curLine){ m.color.set(breakdown[i].accuracy>=0.7?0x00aa00:0xaa0000); m.opacity=0.85; }
@@ -501,335 +372,376 @@ function refreshLineColors() {
   }
 }
 
-// --- CONTROLS ---
-function setupControls() {
-  document.addEventListener('keydown',function(e){
-    keys[e.code]=true;
-    if(e.code==='Escape') togglePause();
-    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
-  });
+function initCable(){
+  var ax=droneBody.position.x, ay=droneBody.position.y-0.2, az=droneBody.position.z;
+  cablePoints=[];
+  for(var i=0;i<=LL_SEGS;i++){ var y=ay-i*LL_SEG_LEN; cablePoints.push({x:ax,y:Math.max(0.3,y),z:az,px:ax,py:Math.max(0.3,y),pz:az}); }
+  cableSnapped=false; lineTension=0; swingRMS=0;
+  if(cableMesh){ scene.remove(cableMesh); if(cableMesh.geometry) cableMesh.geometry.dispose(); }
+  cableBuf=new Float32Array((LL_SEGS+1)*3);
+  var cGeo=new THREE.BufferGeometry(); cGeo.setAttribute('position',new THREE.BufferAttribute(cableBuf,3));
+  cableMesh=new THREE.Line(cGeo,new THREE.LineBasicMaterial({color:0xffaa00})); cableMesh.frustumCulled=false; scene.add(cableMesh);
+  if(payloadMesh){ scene.remove(payloadMesh); if(payloadMesh.geometry) payloadMesh.geometry.dispose(); }
+  payloadMesh=new THREE.Mesh(new THREE.SphereGeometry(0.55,10,10),new THREE.MeshLambertMaterial({color:0xff6600}));
+  payloadMesh.castShadow=true; scene.add(payloadMesh);
+}
+function stepCable(dt){
+  if(cableSnapped||cablePoints.length===0) return;
+  var ax=droneBody.position.x, ay=droneBody.position.y-0.2, az=droneBody.position.z;
+  var grav=9.82*dt*dt, windX=0, windZ=0;
+  if(llCfg.wind>0){ windAngle+=dt*0.1*llCfg.turb; windX=llCfg.wind*Math.sin(simTime*0.35+windAngle)*dt*dt; windZ=llCfg.wind*0.55*Math.cos(simTime*0.28+windAngle*0.7)*dt*dt; }
+  for(var i=1;i<=LL_SEGS;i++){
+    var p=cablePoints[i], vx=(p.x-p.px)*LL_DAMP, vy=(p.y-p.py)*LL_DAMP, vz=(p.z-p.pz)*LL_DAMP, wf=(i/LL_SEGS);
+    if(i===LL_SEGS){ vx*=0.93; vz*=0.93; }
+    p.px=p.x; p.py=p.y; p.pz=p.z; p.x+=vx+windX*wf; p.y+=vy-grav; p.z+=vz+windZ*wf;
+  }
+  for(var iter=0;iter<LL_ITERS;iter++){
+    cablePoints[0].x=ax; cablePoints[0].y=ay; cablePoints[0].z=az;
+    for(var i=0;i<LL_SEGS;i++){
+      var a=cablePoints[i], b=cablePoints[i+1], dx=b.x-a.x, dy=b.y-a.y, dz=b.z-a.z;
+      var dist=Math.sqrt(dx*dx+dy*dy+dz*dz); if(dist<0.001) continue;
+      var corr=(dist-LL_SEG_LEN)/dist;
+      if(i===0){ b.x-=dx*corr; b.y-=dy*corr; b.z-=dz*corr; }
+      else{ var h=corr*0.5; a.x+=dx*h; a.y+=dy*h; a.z+=dz*h; b.x-=dx*h; b.y-=dy*h; b.z-=dz*h; }
+    }
+    for(var i=0;i<=LL_SEGS;i++){ if(cablePoints[i].y<0.3){ cablePoints[i].y=0.3; cablePoints[i].py=0.31; } }
+  }
+  cablePoints[0].x=ax; cablePoints[0].y=ay; cablePoints[0].z=az;
+  var p1=cablePoints[1], dx=p1.x-ax, dy=p1.y-ay, dz=p1.z-az, d=Math.sqrt(dx*dx+dy*dy+dz*dz);
+  if(d>0.01){
+    lineTension=(LL_PAYLOAD_M*9.82*0.65)+(Math.max(0,d-LL_SEG_LEN)*700);
+    if(LL_SNAP_N>0&&lineTension>LL_SNAP_N){ snapCable(); return; }
+    droneBody.applyForce(new CANNON.Vec3(dx/d*lineTension,dy/d*lineTension,dz/d*lineTension),droneBody.position);
+  }
+  for(var i=0;i<=LL_SEGS;i++){ cableBuf[i*3]=cablePoints[i].x; cableBuf[i*3+1]=cablePoints[i].y; cableBuf[i*3+2]=cablePoints[i].z; }
+  cableMesh.geometry.attributes.position.needsUpdate=true;
+  var last=cablePoints[LL_SEGS]; payloadMesh.position.set(last.x,last.y,last.z);
+}
+function snapCable(){
+  cableSnapped=true; if(cableMesh) cableMesh.material.color.set(0x444444);
+  document.getElementById('snap-notice').style.display='block';
+  setTimeout(function(){ document.getElementById('snap-notice').style.display='none'; },2000);
+  if(llCfg.instant) endRound('CABLE SNAPPED');
+}
+
+function mkLLPylon(x,z,h){
+  var g=new THREE.Group(), pM=new THREE.MeshLambertMaterial({color:0x666666});
+  var pole=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.26,h,6),pM); pole.position.y=h*0.5; pole.castShadow=true; g.add(pole);
+  var arm=new THREE.Mesh(new THREE.BoxGeometry(3.5,0.14,0.14),pM); arm.position.y=h-0.3; g.add(arm);
+  g.position.set(x,0,z); scene.add(g);
+  var b=new CANNON.Body({mass:0}); b.addShape(new CANNON.Cylinder(0.2,0.28,h,6),new CANNON.Vec3(0,h*0.5,0));
+  b.position.set(x,0,z); world.addBody(b); obstacles.push(b); llObstacles.push(b);
+}
+function mkLLPowerline(x1,z1,x2,z2,h,sag){
+  mkLLPylon(x1,z1,h); mkLLPylon(x2,z2,h);
+  var sg=sag||3.5, nPts=24, ptsA=[], ptsB=[];
+  for(var i=0;i<=nPts;i++){
+    var t=i/nPts, x=x1+(x2-x1)*t, z=z1+(z2-z1)*t, y=h-sg*4*t*(1-t);
+    ptsA.push(new THREE.Vector3(x,y,z)); ptsB.push(new THREE.Vector3(x+0.9,y,z+0.1));
+  }
+  var wMat=new THREE.LineBasicMaterial({color:0x222222});
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(ptsA),wMat));
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(ptsB),wMat));
+  for(var i=0;i<nPts;i++){
+    llPowerlines.push({ax:ptsA[i].x,ay:ptsA[i].y,az:ptsA[i].z,bx:ptsA[i+1].x,by:ptsA[i+1].y,bz:ptsA[i+1].z,r:0.35});
+    llPowerlines.push({ax:ptsB[i].x,ay:ptsB[i].y,az:ptsB[i].z,bx:ptsB[i+1].x,by:ptsB[i+1].y,bz:ptsB[i+1].z,r:0.35});
+  }
+}
+function mkLLTurbine(x,z){
+  var tH=26+Math.random()*12, bladeR=15+Math.random()*5, rpm=(8+Math.random()*10)/60, initAngle=Math.random()*Math.PI*2;
+  var g=new THREE.Group(), tMat=new THREE.MeshLambertMaterial({color:0xdddddd});
+  var tower=new THREE.Mesh(new THREE.CylinderGeometry(0.65,1.05,tH,8),tMat); tower.position.y=tH*0.5; tower.castShadow=true; g.add(tower);
+  var nacelle=new THREE.Mesh(new THREE.BoxGeometry(4,2.4,2.4),new THREE.MeshLambertMaterial({color:0xeeeeee})); nacelle.position.y=tH; g.add(nacelle);
+  var hubGrp=new THREE.Group(); hubGrp.position.set(0,tH,1.4); hubGrp.rotation.z=initAngle;
+  var bMat=new THREE.MeshLambertMaterial({color:0xf2f2f2});
+  for(var b=0;b<3;b++){
+    var bg=new THREE.Group(); bg.rotation.z=b*Math.PI*2/3;
+    var blade=new THREE.Mesh(new THREE.BoxGeometry(1.2,bladeR,0.22),bMat); blade.position.y=bladeR*0.5; blade.castShadow=true; bg.add(blade); hubGrp.add(bg);
+  }
+  g.add(hubGrp); g.position.set(x,0,z); scene.add(g);
+  var tb=new CANNON.Body({mass:0}); tb.addShape(new CANNON.Cylinder(0.7,1.1,tH,8),new CANNON.Vec3(0,tH*0.5,0));
+  tb.position.set(x,0,z); world.addBody(tb); obstacles.push(tb); llObstacles.push(tb);
+  llTurbines.push({x:x,z:z,towerH:tH,bladeR:bladeR,hubY:tH,angle:initAngle,rpm:rpm,hub:hubGrp,group:g});
+}
+function generateLLCourse(){
+  for(var i=0;i<18;i++){ var rx=(Math.random()-0.5)*380,rz=(Math.random()-0.5)*380; if(Math.random()<0.6) mkPineTree(rx,rz); else mkRock(rx,rz); }
+  mkLLPowerline(-110,-140,-110,140,22,3.5); mkLLPowerline(110,-140,110,140,18,3.0);
+  mkLLPowerline(-160,60,160,60,26,4.0); mkLLPowerline(-160,-70,160,-70,14,2.5); mkLLPowerline(40,-180,40,180,20,3.0);
+  mkLLTurbine(-170,90); mkLLTurbine(170,-130); mkLLTurbine(200,70);
+}
+
+function ptSegDist(px,py,pz,ax,ay,az,bx,by,bz){
+  var abx=bx-ax,aby=by-ay,abz=bz-az,apx=px-ax,apy=py-ay,apz=pz-az,ab2=abx*abx+aby*aby+abz*abz;
+  if(ab2<0.001) return Math.sqrt(apx*apx+apy*apy+apz*apz);
+  var t=Math.max(0,Math.min(1,(apx*abx+apy*aby+apz*abz)/ab2));
+  var cx=ax+t*abx-px,cy=ay+t*aby-py,cz=az+t*abz-pz; return Math.sqrt(cx*cx+cy*cy+cz*cz);
+}
+function checkPLHit(px,py,pz,r){
+  for(var i=0;i<llPowerlines.length;i++){ var pl=llPowerlines[i]; if(ptSegDist(px,py,pz,pl.ax,pl.ay,pl.az,pl.bx,pl.by,pl.bz)<pl.r+r) return true; } return false;
+}
+function checkTurbineHit(px,py,pz){
+  for(var i=0;i<llTurbines.length;i++){
+    var t=llTurbines[i], dz2=pz-(t.z+1.4); if(Math.abs(dz2)>2.8) continue;
+    var dx=px-t.x,dy=py-t.hubY,xyDist=Math.sqrt(dx*dx+dy*dy);
+    if(xyDist>t.bladeR+1.5||xyDist<1.2) continue;
+    var pAngle=Math.atan2(dy,dx);
+    for(var b=0;b<3;b++){
+      var bAngle=t.angle+b*Math.PI*2/3,diff=pAngle-bAngle;
+      diff=((diff%(Math.PI*2))+Math.PI*2)%(Math.PI*2); if(diff>Math.PI) diff=Math.PI*2-diff;
+      if(diff<0.22) return true;
+    }
+  } return false;
+}
+
+function setupControls(){
+  document.addEventListener('keydown',function(e){ keys[e.code]=true; if(e.code==='Escape') togglePause(); if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault(); });
   document.addEventListener('keyup',function(e){ keys[e.code]=false; });
 }
-
-// --- PHYSICS UPDATE ---
-function getMultiplier() {
-  var s=streak, c=cfg.multCap;
-  if(s>=8) return Math.min(5,c);
-  if(s>=5) return Math.min(3,c);
-  if(s>=3) return Math.min(2,c);
-  if(s>=1) return Math.min(1.5,c);
-  return 1;
-}
-
-function updateDrone(dt) {
+function getMultiplier(){ var s=streak,c=cfg.multCap; if(s>=8) return Math.min(5,c); if(s>=5) return Math.min(3,c); if(s>=3) return Math.min(2,c); if(s>=1) return Math.min(1.5,c); return 1; }
+function updateDrone(dt){
   if(gameState!=='PLAYING') return;
-  droneBody.applyForce(new CANNON.Vec3(0,9.82*droneBody.mass,0), droneBody.position);
-  var boost=(keys['ShiftLeft']||keys['ShiftRight'])?1.55:1.0;
-  var spd=cfg.speed*boost;
-  var yaw=droneGroup.rotation.y;
-  var cY=Math.cos(yaw), sY=Math.sin(yaw);
-  var tvx=0,tvz=0;
-  if(keys['KeyW']){ tvx-=sY*spd; tvz-=cY*spd; }
-  if(keys['KeyS']){ tvx+=sY*spd; tvz+=cY*spd; }
-  if(keys['KeyA']){ tvx-=cY*spd; tvz+=sY*spd; }
-  if(keys['KeyD']){ tvx+=cY*spd; tvz-=sY*spd; }
-  var al=Math.min(1,dt*9);
-  droneBody.velocity.x+=(tvx-droneBody.velocity.x)*al;
-  droneBody.velocity.z+=(tvz-droneBody.velocity.z)*al;
-  var tvy=0;
-  if(keys['ArrowUp'])   tvy= spd*0.75;
-  if(keys['ArrowDown']) tvy=-spd*0.75;
+  droneBody.applyForce(new CANNON.Vec3(0,9.82*droneBody.mass,0),droneBody.position);
+  var speed=(gameMode==='LONGLINE'?llCfg.speed:cfg.speed), boost=(keys['ShiftLeft']||keys['ShiftRight'])?1.5:1.0, spd=speed*boost;
+  var yaw=droneGroup.rotation.y, cY=Math.cos(yaw), sY=Math.sin(yaw), tvx=0, tvz=0;
+  if(keys['KeyW']){tvx-=sY*spd;tvz-=cY*spd;} if(keys['KeyS']){tvx+=sY*spd;tvz+=cY*spd;}
+  if(keys['KeyA']){tvx-=cY*spd;tvz+=sY*spd;} if(keys['KeyD']){tvx+=cY*spd;tvz-=sY*spd;}
+  var al=Math.min(1,dt*9); droneBody.velocity.x+=(tvx-droneBody.velocity.x)*al; droneBody.velocity.z+=(tvz-droneBody.velocity.z)*al;
+  var tvy=0; if(keys['ArrowUp']) tvy=spd*0.75; if(keys['ArrowDown']) tvy=-spd*0.75;
   droneBody.velocity.y+=(tvy-droneBody.velocity.y)*Math.min(1,dt*7);
-  if(keys['KeyQ']) droneGroup.rotation.y+=YAW_SPD*dt;
-  if(keys['KeyE']) droneGroup.rotation.y-=YAW_SPD*dt;
+  if(keys['KeyQ']) droneGroup.rotation.y+=YAW_SPD*dt; if(keys['KeyE']) droneGroup.rotation.y-=YAW_SPD*dt;
   var q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),droneGroup.rotation.y);
   droneBody.quaternion.set(q.x,q.y,q.z,q.w);
-  if(cfg.wind>0){
-    windAngle+=dt*0.1*cfg.turb;
-    droneBody.applyForce(new CANNON.Vec3(
-      cfg.wind*Math.sin(simTime*0.35+windAngle),0,
-      cfg.wind*0.55*Math.cos(simTime*0.28+windAngle*0.7)
-    ), droneBody.position);
-  }
+  if(gameMode==='SURVEY'&&cfg.wind>0){ windAngle+=dt*0.1*cfg.turb; droneBody.applyForce(new CANNON.Vec3(cfg.wind*Math.sin(simTime*0.35+windAngle),0,cfg.wind*0.55*Math.cos(simTime*0.28+windAngle*0.7)),droneBody.position); }
   var bp=droneBody.position;
-  if(bp.x<-WORLD_BOUND){bp.x=-WORLD_BOUND;droneBody.velocity.x=0;}
-  if(bp.x> WORLD_BOUND){bp.x= WORLD_BOUND;droneBody.velocity.x=0;}
-  if(bp.z<-WORLD_BOUND){bp.z=-WORLD_BOUND;droneBody.velocity.z=0;}
-  if(bp.z> WORLD_BOUND){bp.z= WORLD_BOUND;droneBody.velocity.z=0;}
+  if(bp.x<-WORLD_BOUND){bp.x=-WORLD_BOUND;droneBody.velocity.x=0;} if(bp.x>WORLD_BOUND){bp.x=WORLD_BOUND;droneBody.velocity.x=0;}
+  if(bp.z<-WORLD_BOUND){bp.z=-WORLD_BOUND;droneBody.velocity.z=0;} if(bp.z>WORLD_BOUND){bp.z=WORLD_BOUND;droneBody.velocity.z=0;}
   if(bp.y<1){bp.y=1;droneBody.velocity.y=Math.max(0,droneBody.velocity.y);}
-  droneGroup.position.copy(bp);
-  droneGroup.rotation.x=0; droneGroup.rotation.z=0;
+  droneGroup.position.copy(bp); droneGroup.rotation.x=0; droneGroup.rotation.z=0;
   for(var i=0;i<rotors.length;i++) rotors[i].rotation.y+=dt*22*(i%2===0?1:-1);
 }
-
-function onCollide(evt) {
+function onCollide(evt){
   if(obstacles.indexOf(evt.body)<0) return;
-  var now=performance.now();
-  if(now-lastHit<INVIC_MS) return;
-  lastHit=now;
-  health=Math.max(0,health-DMG); streak=0; refreshStreakUI();
-  hitTimer=0.22;
-  droneMesh.material.emissive=new THREE.Color(0xff2200);
+  var now=performance.now(); if(now-lastHit<INVIC_MS) return; lastHit=now;
+  if(gameMode==='LONGLINE'){
+    if(llCfg.instant){ endRound('DRONE DESTROYED'); return; }
+    llDroneHP=Math.max(0,llDroneHP-DMG); if(llDroneHP<=0){ endRound('DRONE DESTROYED'); return; }
+  } else {
+    health=Math.max(0,health-DMG); streak=0; refreshStreakUI(); if(health<=0){ endRound('DRONE DESTROYED'); return; }
+  }
+  hitTimer=0.22; droneMesh.material.emissive=new THREE.Color(0xff2200);
   setTimeout(function(){ if(droneMesh) droneMesh.material.emissive.set(0x000000); },220);
-  shakeTimer=0.32;
-  spawnParticles(droneBody.position);
-  if(health<=0) endRound('DRONE DESTROYED');
-  updateHUD();
+  shakeTimer=0.32; spawnParticles(droneBody.position); updateHUD();
 }
-
-function spawnParticles(pos) {
+function spawnParticles(pos){
   for(var i=0;i<13;i++){
     var pm=new THREE.MeshBasicMaterial({color:new THREE.Color().setHSL(Math.random(),1,0.55),transparent:true});
     var p=new THREE.Mesh(new THREE.SphereGeometry(0.07+Math.random()*0.1,4,4),pm);
-    p.position.set(pos.x,pos.y,pos.z);
-    p.userData.vel=new THREE.Vector3((Math.random()-0.5)*11,Math.random()*8+2,(Math.random()-0.5)*11);
-    p.userData.life=0.75+Math.random()*0.45;
-    scene.add(p); particles.push(p);
+    p.position.set(pos.x,pos.y,pos.z); p.userData.vel=new THREE.Vector3((Math.random()-0.5)*11,Math.random()*8+2,(Math.random()-0.5)*11);
+    p.userData.life=0.75+Math.random()*0.45; scene.add(p); particles.push(p);
   }
 }
-
-function tickParticles(dt) {
+function tickParticles(dt){
   for(var i=particles.length-1;i>=0;i--){
-    var p=particles[i];
-    p.userData.vel.y-=14*dt;
-    p.position.addScaledVector(p.userData.vel,dt);
-    p.userData.life-=dt;
+    var p=particles[i]; p.userData.vel.y-=14*dt; p.position.addScaledVector(p.userData.vel,dt); p.userData.life-=dt;
     p.material.opacity=Math.max(0,p.userData.life*1.2);
-    if(p.userData.life<=0){
-      scene.remove(p); p.geometry.dispose(); p.material.dispose(); particles.splice(i,1);
-    }
+    if(p.userData.life<=0){ scene.remove(p); p.geometry.dispose(); p.material.dispose(); particles.splice(i,1); }
   }
 }
 
-// --- SCORING & STREAK ---
-function updateScoring(dt) {
+function updateScoring(dt){
   if(gameState!=='PLAYING'||curLine>=numLines) return;
-  var line=surveyLines[curLine];
-  var dp=droneBody.position;
-  var dx=dp.x-line.start.x, dz=dp.z-line.start.z;
-  var lvx=line.end.x-line.start.x, lvz=line.end.z-line.start.z;
-  var len=Math.sqrt(lvx*lvx+lvz*lvz);
-  var lnx=lvx/len, lnz=lvz/len;
+  var line=surveyLines[curLine], dp=droneBody.position;
+  var dx=dp.x-line.start.x, dz=dp.z-line.start.z, lvx=line.end.x-line.start.x, lvz=line.end.z-line.start.z;
+  var len=Math.sqrt(lvx*lvx+lvz*lvz), lnx=lvx/len, lnz=lvz/len;
   var t=Math.max(0,Math.min(1,(dx*lnx+dz*lnz)/len));
   var ix=line.start.x+lnx*t*len, iz=line.start.z+lnz*t*len;
-  var latDev=Math.sqrt((dp.x-ix)*(dp.x-ix)+(dp.z-iz)*(dp.z-iz));
-  var altDev=Math.abs(dp.y-cfg.targetAlt);
-  var maxLat=cfg.spacing*MAX_LAT_FACTOR;
-  lineAcc+=Math.max(0,1-(latDev/maxLat)-(altDev/MAX_ALT_DEV));
-  lineFrames++;
+  var latDev=Math.sqrt((dp.x-ix)*(dp.x-ix)+(dp.z-iz)*(dp.z-iz)), altDev=Math.abs(dp.y-cfg.targetAlt), maxLat=cfg.spacing*MAX_LAT_FACTOR;
+  lineAcc+=Math.max(0,1-(latDev/maxLat)-(altDev/MAX_ALT_DEV)); lineFrames++;
   ghostDrone.position.set(ix,cfg.targetAlt,iz);
-  var wx=38+Math.min(1,latDev/maxLat)*34*(dp.x>ix?1:-1);
-  var wy=38+Math.min(1,altDev/MAX_ALT_DEV)*34*(dp.y<cfg.targetAlt?1:-1);
-  var dot=document.getElementById('dev-dot');
-  dot.style.left=wx+'px'; dot.style.top=wy+'px';
+  var wx=38+Math.min(1,latDev/maxLat)*34*(dp.x>ix?1:-1), wy=38+Math.min(1,altDev/MAX_ALT_DEV)*34*(dp.y<cfg.targetAlt?1:-1);
+  var dot=document.getElementById('dev-dot'); dot.style.left=wx+'px'; dot.style.top=wy+'px';
   dot.style.background=(latDev<1&&altDev<0.5)?'#00ff00':latDev>maxLat*0.8?'#ff0000':'#ffff00';
   document.getElementById('line-prog-fill').style.width=(t*100)+'%';
   if(t>=0.98||_v3a.set(dp.x,dp.y,dp.z).distanceTo(line.end)<8) commitLine();
 }
-
-function commitLine() {
+function commitLine(){
   if(curLine>=numLines) return;
-  var acc=lineFrames>0?Math.min(1,lineAcc/lineFrames):0;
-  if(acc>=0.7) streak++; else streak=0;
-  var mult=getMultiplier();
-  var pts=Math.round(BASE_PTS*acc*mult);
-  totalPts+=pts;
-  breakdown[curLine]={accuracy:acc,points:pts,mult:mult};
-  curLine++; lineAcc=0; lineFrames=0;
-  refreshStreakUI(); refreshLineColors(); updateHUD();
+  var acc=lineFrames>0?Math.min(1,lineAcc/lineFrames):0; if(acc>=0.7) streak++; else streak=0;
+  var mult=getMultiplier(), pts=Math.round(BASE_PTS*acc*mult); totalPts+=pts; breakdown[curLine]={accuracy:acc,points:pts,mult:mult};
+  curLine++; lineAcc=0; lineFrames=0; refreshStreakUI(); refreshLineColors(); updateHUD();
   if(curLine>=numLines) setTimeout(function(){ endRound('SURVEY COMPLETE'); },600);
 }
-
-function refreshStreakUI() {
-  var el=document.getElementById('streak-popup');
-  var mult=getMultiplier();
+function refreshStreakUI(){
+  var el=document.getElementById('streak-popup'), mult=getMultiplier();
   if(streak>=3){
-    el.style.display='block';
-    el.textContent='×'+mult+' STREAK!';
-    el.style.color=streak>=8?'#ff00ff':streak>=5?'#ff4400':'#ff8800';
-    el.classList.add('pulsing');
-    var fw=document.getElementById('flash-white');
-    fw.style.opacity='0.14'; setTimeout(function(){ fw.style.opacity='0'; },55);
+    el.style.display='block'; el.textContent='×'+mult+' STREAK!';
+    el.style.color=streak>=8?'#ff00ff':streak>=5?'#ff4400':'#ff8800'; el.classList.add('pulsing');
+    var fw=document.getElementById('flash-white'); fw.style.opacity='0.13'; setTimeout(function(){fw.style.opacity='0';},55);
+  } else { el.style.display=streak>0?'block':'none'; el.textContent=streak>0?'×'+mult:''; el.style.color='#888'; el.classList.remove('pulsing'); }
+}
+
+function updateLLScoring(dt){
+  if(gameState!=='PLAYING') return;
+  missionTime+=dt; if(missionTime>=LL_MISSION_DUR){ endRound('MISSION COMPLETE'); return; }
+  var last=cablePoints[LL_SEGS], first=cablePoints[0], payloadAGL=last?last.y:0;
+  proxBonus=cableSnapped?0:Math.max(0,(LL_PROX_THRES-payloadAGL)/LL_PROX_THRES); llScore+=proxBonus*LL_PROX_RATE*dt;
+  if(last&&first){ var swingD=Math.sqrt(Math.pow(last.x-first.x,2)+Math.pow(last.z-first.z,2)); swingRMS=swingRMS*0.97+swingD*0.03; llScore+=Math.max(0,1-swingRMS/30)*LL_SMOOTH_RATE*dt; }
+  if(cableSnapped) return;
+  var now=simTime;
+  if(last&&now-llDmgTimer>LL_INVIC){
+    for(var i=3;i<=LL_SEGS;i+=3){ var p=cablePoints[i]; if(checkPLHit(p.x,p.y,p.z,0.3)){ applyLLDamage('CABLE_POWERLINE',i); break; } }
+    if(last&&checkPLHit(last.x,last.y,last.z,0.6)) applyLLDamage('PAYLOAD_POWERLINE',LL_SEGS);
+    if(last&&checkTurbineHit(last.x,last.y,last.z)) applyLLDamage('PAYLOAD_TURBINE',LL_SEGS);
+    for(var i=6;i<=LL_SEGS-3;i+=6){ var p=cablePoints[i]; if(checkTurbineHit(p.x,p.y,p.z)){ applyLLDamage('CABLE_TURBINE',i); break; } }
+    if(last&&last.y<=0.35){ var vy=Math.abs(last.y-last.py)/dt; if(vy>4) applyLLDamage('IMPACT',LL_SEGS); }
+  }
+  if(last&&first){
+    var relX=last.x-first.x,relZ=last.z-first.z,maxSwing=30;
+    var wx2=45+Math.min(1,Math.abs(relX)/maxSwing)*40*(relX>0?1:-1), wy2=45+Math.min(1,Math.abs(relZ)/maxSwing)*40*(relZ>0?1:-1);
+    document.getElementById('pw-dot').style.left=wx2+'px'; document.getElementById('pw-dot').style.top=wy2+'px';
+  }
+}
+function applyLLDamage(type,seg){
+  var now=simTime; if(now-llDmgTimer<LL_INVIC) return; llDmgTimer=now;
+  if(llCfg.instant){ endRound('CONTACT: '+type.replace('_',' ')); return; }
+  var isPayload=type.indexOf('PAYLOAD')>=0||type==='IMPACT', dmg=type==='IMPACT'?20:25;
+  if(isPayload){
+    llPayloadHP=Math.max(0,llPayloadHP-dmg);
+    if(payloadMesh){ payloadMesh.material.emissive=new THREE.Color(0xff2200); setTimeout(function(){if(payloadMesh)payloadMesh.material.emissive.set(0x000000);},200); }
+    if(llPayloadHP<=0){ endRound('PAYLOAD DESTROYED'); return; }
   } else {
-    el.style.display=streak>0?'block':'none';
-    el.textContent=streak>0?'×'+mult:'';
-    el.style.color='#888'; el.classList.remove('pulsing');
+    llPayloadHP=Math.max(0,llPayloadHP-15);
+    if(cableMesh){ cableMesh.material.color.set(0xff4400); setTimeout(function(){if(cableMesh)cableMesh.material.color.set(0xffaa00);},200); }
+    if(llPayloadHP<=0){ endRound('PAYLOAD DESTROYED'); return; }
   }
+  spawnParticles(cablePoints[seg]||droneBody.position);
 }
 
-// --- HUD UPDATE ---
-function updateHUD() {
-  document.getElementById('h-score').textContent=totalPts;
-  document.getElementById('h-line').textContent=Math.min(curLine+1,numLines);
-  document.getElementById('h-hp').textContent=health;
-  document.getElementById('h-streak').textContent='×'+getMultiplier();
-  if(droneBody){
-    document.getElementById('h-alt').textContent=droneBody.position.y.toFixed(1);
-    var v=droneBody.velocity;
-    document.getElementById('h-spd').textContent=Math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z).toFixed(1);
+function updateHUD(){
+  if(gameMode==='SURVEY'){
+    document.getElementById('h-score').textContent=totalPts; document.getElementById('h-line').textContent=Math.min(curLine+1,numLines);
+    document.getElementById('h-hp').textContent=health; document.getElementById('h-streak').textContent='×'+getMultiplier();
+    if(droneBody){ document.getElementById('h-alt').textContent=droneBody.position.y.toFixed(1); var v=droneBody.velocity; document.getElementById('h-spd').textContent=Math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z).toFixed(1); }
+    var fill=document.getElementById('health-fill'); fill.style.width=health+'%'; fill.style.background=health>60?'#00ff00':health>30?'#ffff00':'#ff0000';
+  } else {
+    var payloadAGL=cablePoints.length>LL_SEGS?cablePoints[LL_SEGS].y:0;
+    document.getElementById('ll-payload-alt').textContent=payloadAGL.toFixed(1);
+    document.getElementById('ll-drone-alt').textContent=droneBody?droneBody.position.y.toFixed(1):'0.0';
+    document.getElementById('ll-score').textContent=Math.floor(llScore); document.getElementById('ll-prox').textContent=Math.round(proxBonus*100)+'%';
+    document.getElementById('ll-time').textContent=Math.max(0,Math.ceil(LL_MISSION_DUR-missionTime));
+    var tenPct=Math.min(100,(lineTension/450)*100), tFill=document.getElementById('ll-ten-fill');
+    tFill.style.width=tenPct+'%'; tFill.style.background=tenPct>80?'#ff0000':tenPct>50?'#ffff00':'#00ffff';
+    var dFill=document.getElementById('ll-dhp-fill'); dFill.style.width=Math.max(0,llDroneHP)+'%'; dFill.style.background=llDroneHP>60?'#00ff00':llDroneHP>30?'#ffff00':'#ff0000';
+    var pFill=document.getElementById('ll-php-fill'); pFill.style.width=Math.max(0,llPayloadHP)+'%'; pFill.style.background=llPayloadHP>60?'#00ff00':llPayloadHP>30?'#ffff00':'#ff0000';
+    var arrows=['→','↗','↑','↖','←','↙','↓','↘'], aidx=Math.round(((windAngle*180/Math.PI)%360+360)%360/45)%8;
+    document.getElementById('ll-wind-dir').textContent=arrows[aidx]; document.getElementById('ll-wind-spd').textContent=llCfg.wind.toFixed(0);
   }
-  var fill=document.getElementById('health-fill');
-  fill.style.width=health+'%';
-  fill.style.background=health>60?'#00ff00':health>30?'#ffff00':'#ff0000';
 }
-
-// --- CAMERA ---
-function updateCamera(dt) {
+function updateCamera(dt){
   if(!droneGroup) return;
-  var yaw=droneGroup.rotation.y;
-  var tx=droneGroup.position.x+Math.sin(yaw)*22;
-  var ty=droneGroup.position.y+12;
-  var tz=droneGroup.position.z+Math.cos(yaw)*22;
-  if(shakeTimer>0){
-    shakeTimer-=dt; var sh=shakeTimer*0.9;
-    tx+=(Math.random()-0.5)*sh; ty+=(Math.random()-0.5)*sh*0.4; tz+=(Math.random()-0.5)*sh;
+  var yaw=droneGroup.rotation.y, tx=droneGroup.position.x+Math.sin(yaw)*22, ty=droneGroup.position.y+12, tz=droneGroup.position.z+Math.cos(yaw)*22;
+  if(shakeTimer>0){ shakeTimer-=dt; var sh=shakeTimer*0.9; tx+=(Math.random()-0.5)*sh; ty+=(Math.random()-0.5)*sh*0.4; tz+=(Math.random()-0.5)*sh; }
+  camera.position.lerp(_v3c.set(tx,ty,tz),Math.min(1,dt*3)); camera.lookAt(droneGroup.position);
+}
+
+function startCountdown(){
+  gameState='COUNTDOWN'; var el=document.getElementById('countdown'); el.style.display='block'; var n=3; el.textContent=n;
+  var iv=setInterval(function(){ n--; if(n>0){ el.textContent=n; } else{ el.textContent='GO!'; clearInterval(iv); setTimeout(function(){ el.style.display='none'; gameState='PLAYING'; },620); } },800);
+}
+function startGame(){
+  document.getElementById('start-screen').style.display='none'; document.getElementById('end-screen').style.display='none';
+  document.getElementById('snap-notice').style.display='none'; document.getElementById('new-best').style.display='none'; document.getElementById('streak-popup').style.display='none';
+  if(gameMode==='SURVEY'){
+    cfg=SURVEY_DIFF[selDiff]; document.getElementById('hud').style.display='block'; document.getElementById('hud-ll').style.display='none';
+    document.getElementById('dev-widget').style.display='block'; document.getElementById('payload-widget').style.display='none';
+  } else {
+    llCfg=LL_DIFF[llSelDiff]; document.getElementById('hud').style.display='none'; document.getElementById('hud-ll').style.display='block';
+    document.getElementById('dev-widget').style.display='none'; document.getElementById('payload-widget').style.display='block';
   }
-  camera.position.lerp(_v3c.set(tx,ty,tz),Math.min(1,dt*3));
-  camera.lookAt(droneGroup.position);
-}
-
-// --- GAME FLOW ---
-function startCountdown() {
-  gameState='COUNTDOWN';
-  var el=document.getElementById('countdown');
-  el.style.display='block'; var n=3; el.textContent=n;
-  var iv=setInterval(function(){
-    n--;
-    if(n>0){ el.textContent=n; }
-    else{
-      el.textContent='GO!'; clearInterval(iv);
-      setTimeout(function(){ el.style.display='none'; gameState='PLAYING'; },620);
-    }
-  },800);
-}
-
-function startGame() {
-  document.getElementById('start-screen').style.display='none';
-  document.getElementById('end-screen').style.display='none';
-  document.getElementById('hud').style.display='block';
-  document.getElementById('dev-widget').style.display='block';
-  document.getElementById('streak-popup').style.display='none';
-  document.getElementById('new-best').style.display='none';
-  cfg=DIFF[selDiff];
-  cleanupGame(); setupCannon(); buildScene(); buildDrone(); generateObstacles(); generateGrid(); refreshLineColors();
-  curLine=0;lineAcc=0;lineFrames=0;streak=0;totalPts=0;health=100;lastHit=-9999;
-  windAngle=0;simTime=0;shakeTimer=0;hitTimer=0;
-  updateHUD(); refreshStreakUI();
-  document.getElementById('line-prog-fill').style.width='0%';
+  cleanupGame(); setupCannon(); buildScene(); buildDrone();
+  if(gameMode==='SURVEY'){
+    generateObstacles(); generateGrid(); refreshLineColors();
+    curLine=0; lineAcc=0; lineFrames=0; streak=0; totalPts=0; health=100;
+    document.getElementById('line-prog-fill').style.width='0%';
+  } else {
+    llDroneHP=llCfg.instant?Infinity:llCfg.dHP; llPayloadHP=llCfg.instant?Infinity:llCfg.pHP;
+    llScore=0; proxBonus=0; swingRMS=0; missionTime=0; llDmgTimer=-999;
+    generateLLCourse(); initCable();
+  }
+  lastHit=-9999; windAngle=0; simTime=0; shakeTimer=0; hitTimer=0;
+  updateHUD(); if(gameMode==='SURVEY') refreshStreakUI();
   startCountdown();
 }
-
-function endRound(reason) {
+function endRound(reason){
   gameState='END';
-  document.getElementById('hud').style.display='none';
-  document.getElementById('dev-widget').style.display='none';
-  document.getElementById('streak-popup').style.display='none';
-  var pct=Math.min(100,Math.round((totalPts/Math.max(1,maxPts))*100));
-  var grade,color;
-  if(pct>=95){grade='A+';color='#00ffff';}
-  else if(pct>=85){grade='A';color='#00ff88';}
-  else if(pct>=70){grade='B';color='#88ff00';}
-  else if(pct>=50){grade='C';color='#ffff00';}
-  else if(pct>=30){grade='D';color='#ff8800';}
-  else{grade='F';color='#ff3333';}
-  var key='droneLineSim_best_'+selDiff;
-  var prev=parseInt(localStorage.getItem(key)||'0');
-  if(pct>prev){
-    localStorage.setItem(key,pct);
-    document.getElementById('new-best').style.display='block';
-    setTimeout(function(){ document.getElementById('new-best').style.display='none'; },3500);
-  }
+  document.getElementById('hud').style.display='none'; document.getElementById('hud-ll').style.display='none';
+  document.getElementById('dev-widget').style.display='none'; document.getElementById('payload-widget').style.display='none'; document.getElementById('streak-popup').style.display='none';
+  var pct,grade,color;
+  if(gameMode==='SURVEY'){ pct=Math.min(100,Math.round((totalPts/Math.max(1,maxPts))*100)); }
+  else{ var maxLL=LL_PROX_RATE*LL_MISSION_DUR*0.85+LL_SMOOTH_RATE*LL_MISSION_DUR*0.75; pct=Math.min(100,Math.round((llScore/maxLL)*100)); }
+  if(pct>=95){grade='A+';color='#00ffff';} else if(pct>=85){grade='A';color='#00ff88';} else if(pct>=70){grade='B';color='#88ff00';}
+  else if(pct>=50){grade='C';color='#ffff00';} else if(pct>=30){grade='D';color='#ff8800';} else{grade='F';color='#ff3333';}
+  var key='droneLineSim_best_'+gameMode+'_'+(gameMode==='SURVEY'?selDiff:llSelDiff), prev=parseInt(localStorage.getItem(key)||'0');
+  if(pct>prev){ localStorage.setItem(key,pct); document.getElementById('new-best').style.display='block'; setTimeout(function(){document.getElementById('new-best').style.display='none';},3500); }
   document.getElementById('end-reason').textContent=reason;
-  var ge=document.getElementById('grade-el');
-  ge.textContent=grade; ge.style.color=color; ge.className='grade-big grade-anim';
+  var ge=document.getElementById('grade-el'); ge.textContent=grade; ge.style.color=color; ge.className='grade-big grade-anim';
   document.getElementById('score-el').textContent=pct+'% COMPLETION';
-  document.getElementById('best-el').textContent='BEST: '+Math.max(pct,prev)+'%  |  TOTAL PTS: '+totalPts;
-  var tbody=document.getElementById('bk-body');
-  tbody.innerHTML='';
-  for(var i=0;i<curLine;i++){
-    var bd=breakdown[i];
-    var tr=document.createElement('tr');
-    tr.innerHTML='<td>'+(i+1)+'</td><td>'+Math.round(bd.accuracy*100)+'%</td><td>'+bd.points+'</td><td>×'+bd.mult+'</td>';
-    tr.style.color=bd.accuracy>=0.7?'#88ff88':'#ff8888';
-    tbody.appendChild(tr);
+  document.getElementById('best-el').textContent='BEST: '+Math.max(pct,prev)+'% | '+(gameMode==='SURVEY'?('PTS: '+totalPts):('SCORE: '+Math.floor(llScore)));
+  var bkHead=document.getElementById('bk-head'), tbody=document.getElementById('bk-body'); tbody.innerHTML=''; bkHead.innerHTML='';
+  if(gameMode==='SURVEY'){
+    bkHead.innerHTML='<th>LINE</th><th>ACC</th><th>PTS</th><th>MULT</th>';
+    for(var i=0;i<curLine;i++){
+      var bd=breakdown[i],tr=document.createElement('tr');
+      tr.innerHTML='<td>'+(i+1)+'</td><td>'+Math.round(bd.accuracy*100)+'%</td><td>'+bd.points+'</td><td>×'+bd.mult+'</td>';
+      tr.style.color=bd.accuracy>=0.7?'#88ff88':'#ff8888'; tbody.appendChild(tr);
+    }
+  } else {
+    bkHead.innerHTML='<th>METRIC</th><th>VALUE</th>';
+    [['SCORE',Math.floor(llScore)],['TIME',Math.ceil(missionTime)+'s'],['PAYLOAD HP',Math.max(0,llPayloadHP)],['CABLE',cableSnapped?'SNAPPED':'INTACT']].forEach(function(r){ var tr=document.createElement('tr'); tr.innerHTML='<td>'+r[0]+'</td><td>'+r[1]+'</td>'; tbody.appendChild(tr); });
   }
   document.getElementById('end-screen').style.display='flex';
 }
-
-function togglePause() {
-  if(gameState==='PLAYING'){
-    gameState='PAUSED';
-    document.getElementById('pause-screen').style.display='flex';
-  } else if(gameState==='PAUSED'){
-    gameState='PLAYING';
-    document.getElementById('pause-screen').style.display='none';
-    clock.getDelta();
-  }
+function togglePause(){
+  if(gameState==='PLAYING'){ gameState='PAUSED'; document.getElementById('pause-screen').style.display='flex'; }
+  else if(gameState==='PAUSED'){ gameState='PLAYING'; document.getElementById('pause-screen').style.display='none'; clock.getDelta(); }
 }
 
-// --- CLEANUP ---
-function disposeNode(n) {
-  if(n.geometry) n.geometry.dispose();
-  if(n.material){ Array.isArray(n.material)?n.material.forEach(function(m){m.dispose();}):n.material.dispose(); }
-  if(n.children) n.children.forEach(disposeNode);
-}
-
-function cleanupGame() {
+function disposeNode(n){ if(n.geometry) n.geometry.dispose(); if(n.material){ Array.isArray(n.material)?n.material.forEach(function(m){m.dispose();}):n.material.dispose(); } if(n.children) n.children.forEach(disposeNode); }
+function cleanupGame(){
   if(scene){ var ch=scene.children.slice(); ch.forEach(function(c){ scene.remove(c); disposeNode(c); }); }
   if(world){ var bodies=world.bodies.slice(); bodies.forEach(function(b){ world.remove(b); }); }
-  obstacles=[];physObjs=[];surveyLines=[];lineObjs=[];particles=[];rotors=[];
-  droneGroup=null;droneBody=null;droneMesh=null;ghostDrone=null;
+  obstacles=[]; surveyLines=[]; lineObjs=[]; particles=[]; rotors=[]; llTurbines=[]; llPowerlines=[]; llObstacles=[];
+  droneGroup=null; droneBody=null; droneMesh=null; ghostDrone=null; cablePoints=[]; cableMesh=null; cableBuf=null; payloadMesh=null;
 }
 
-// --- ANIMATION LOOP ---
-function animate() {
-  requestAnimationFrame(animate);
-  var dt=Math.min(clock.getDelta(),0.05);
-  simTime+=dt;
+function animate(){
+  requestAnimationFrame(animate); var dt=Math.min(clock.getDelta(),0.05); simTime+=dt;
+  for(var i=0;i<llTurbines.length;i++){ var t=llTurbines[i]; t.angle+=t.rpm*Math.PI*2*dt; t.hub.rotation.z=t.angle; }
   if(gameState==='PLAYING'){
-    world.step(1/60,dt,3);
-    updateDrone(dt); updateScoring(dt); tickParticles(dt); updateHUD();
-  } else {
-    tickParticles(dt);
-  }
+    world.step(1/60,dt,3); updateDrone(dt);
+    if(gameMode==='SURVEY'){ updateScoring(dt); } else { stepCable(dt); updateLLScoring(dt); }
+    tickParticles(dt); updateHUD();
+  } else { tickParticles(dt); }
   updateCamera(dt);
-  if(hitTimer>0){
-    hitTimer-=dt;
-    document.getElementById('flash-red').style.opacity=Math.max(0,hitTimer*1.6*0.38);
-  }
+  if(hitTimer>0){ hitTimer-=dt; document.getElementById('flash-red').style.opacity=Math.max(0,hitTimer*1.6*0.38); }
   renderer.render(scene,camera);
 }
 
-// --- EVENT LISTENERS & INIT ---
-window.addEventListener('resize',function(){
-  if(!camera||!renderer) return;
-  camera.aspect=window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth,window.innerHeight);
-});
-
-document.querySelectorAll('.diff-card').forEach(function(c){
-  c.addEventListener('click',function(){
-    document.querySelectorAll('.diff-card').forEach(function(x){ x.classList.remove('sel'); });
-    c.classList.add('sel'); selDiff=c.dataset.diff;
+window.addEventListener('resize',function(){ if(!camera||!renderer) return; camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); });
+document.querySelectorAll('.mode-tab').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.mode-tab').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); gameMode=btn.dataset.mode;
+    document.getElementById('survey-diff-section').style.display=(gameMode==='SURVEY')?'block':'none';
+    document.getElementById('ll-diff-section').style.display=(gameMode==='LONGLINE')?'block':'none';
   });
 });
-
+document.querySelectorAll('[data-diff]').forEach(function(c){ c.addEventListener('click',function(){ document.querySelectorAll('[data-diff]').forEach(function(x){ x.classList.remove('sel'); }); c.classList.add('sel'); selDiff=c.dataset.diff; }); });
+document.querySelectorAll('[data-lldiff]').forEach(function(c){ c.addEventListener('click',function(){ document.querySelectorAll('[data-lldiff]').forEach(function(x){ x.classList.remove('sel'); }); c.classList.add('sel'); llSelDiff=c.dataset.lldiff; }); });
 document.getElementById('start-btn').addEventListener('click',startGame);
 document.getElementById('try-btn').addEventListener('click',startGame);
-document.getElementById('diff-btn').addEventListener('click',function(){
-  document.getElementById('end-screen').style.display='none';
-  document.getElementById('start-screen').style.display='flex';
-});
+document.getElementById('diff-btn').addEventListener('click',function(){ document.getElementById('end-screen').style.display='none'; document.getElementById('start-screen').style.display='flex'; });
 
-window.onload=function(){
-  setupThree();
-  setupControls();
-  cfg=DIFF[selDiff];
-  setupCannon(); buildScene(); buildDrone(); generateObstacles(); generateGrid(); refreshLineColors();
-  gameState='START';
-  animate();
-};
+window.onload=function(){ setupThree(); setupControls(); cfg=SURVEY_DIFF[selDiff]; setupCannon(); buildScene(); buildDrone(); generateObstacles(); generateGrid(); refreshLineColors(); gameState='START'; animate(); };
 </script>
 </body>
 </html>
