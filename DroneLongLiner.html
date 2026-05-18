@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DRONE LONG-LINER</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<title>DRONE LONG-LINER v1.2</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"></noscript>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#000; overflow:hidden; font-family:'Press Start 2P',cursive; }
@@ -99,6 +100,9 @@ canvas { display:block; }
 
 /* CABLE SNAP NOTICE */
 #snap-notice { position:absolute; top:20%; left:50%; transform:translateX(-50%); color:#ff4444; font-size:11px; display:none; z-index:90; text-shadow:0 0 12px #ff4444; }
+/* DEBUG CONSOLE */
+#dbg-console { position:absolute; top:0; left:0; width:350px; background:rgba(0,0,0,0.93); color:#00ff00; font-size:9px; font-family:monospace; padding:8px 10px; z-index:200; display:none; pointer-events:none; border-right:1px solid #00ff00; border-bottom:1px solid #00ff00; max-height:440px; overflow-y:auto; line-height:1.65; }
+#dbg-toggle { position:absolute; bottom:5px; right:5px; background:rgba(0,0,0,0.75); border:1px solid #00ff00; color:#00ff00; font-family:monospace; font-size:9px; padding:4px 8px; z-index:201; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -220,14 +224,21 @@ canvas { display:block; }
     </div>
   </div>
 
+  <!-- Streak -->
   <div id="streak-popup"></div>
+  <!-- Countdown -->
   <div id="countdown"></div>
+  <!-- Survey deviation widget -->
   <div id="dev-widget"><div id="dev-h"></div><div id="dev-v"></div><div id="dev-dot"></div></div>
+  <!-- Longline payload position widget -->
   <div id="payload-widget"><div id="pw-h"></div><div id="pw-v"></div><div id="pw-dot"></div><div id="pw-label">PAYLOAD</div></div>
+  <!-- Flash -->
   <div id="flash-white"></div>
   <div id="flash-red"></div>
   <div id="new-best">★ NEW BEST! ★</div>
   <div id="snap-notice">⚡ CABLE SNAPPED!</div>
+  <div id="dbg-console"></div>
+  <button id="dbg-toggle">DBG [` ]</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -235,6 +246,7 @@ canvas { display:block; }
 <script>
 'use strict';
 
+// --- CONSTANTS & CONFIG ---
 var SURVEY_DIFF = {
   EASY:   { wind:0,   turb:0,   zoneObs:0,  spacing:25, targetAlt:15, speed:14, multCap:3 },
   MEDIUM: { wind:2.5, turb:0.5, zoneObs:3,  spacing:20, targetAlt:15, speed:12, multCap:5 },
@@ -248,120 +260,277 @@ var LL_DIFF = {
   EXPERT:       { dHP:0,   pHP:0,   wind:12,  turb:3.0, speed:8,  instant:true  }
 };
 
+// Survey zone
 var SZ = { ox:-100, oz:-100, w:200, d:200 };
-var BASE_PTS=100, MAX_LAT_FACTOR=0.5, MAX_ALT_DEV=5, DMG=30, INVIC_MS=250, YAW_SPD=1.6, WORLD_BOUND=290;
-var LL_SEGS=24, LL_SEG_LEN=2.5, LL_ITERS=18, LL_DAMP=0.984, LL_PAYLOAD_M=20, LL_SNAP_N=12000;
-var LL_PROX_THRES=12, LL_PROX_RATE=8, LL_SMOOTH_RATE=2, LL_MISSION_DUR=180, LL_INVIC=0.5;
+var BASE_PTS       = 100;
+var MAX_LAT_FACTOR = 0.5;
+var MAX_ALT_DEV    = 5;
+var DMG            = 30;
+var INVIC_MS       = 250;
+var YAW_SPD        = 1.6;
+var WORLD_BOUND    = 290;
 
+// Long-line constants
+var LL_SEGS       = 24;       // 24 segments × 2.5m = 60m
+var LL_SEG_LEN    = 2.5;
+var LL_ITERS      = 18;       // constraint iterations
+var LL_DAMP       = 0.984;
+var LL_PAYLOAD_M  = 20;       // kg
+var LL_SNAP_N     = 12000;    // N to snap cable (high = rarely snaps)
+var LL_PROX_THRES = 12;       // payload AGL for max bonus
+var LL_PROX_RATE  = 8;        // pts/sec at max proximity
+var LL_SMOOTH_RATE= 2;        // pts/sec max smoothness bonus
+var LL_MISSION_DUR= 180;      // seconds
+var LL_INVIC      = 0.5;      // invincibility seconds after payload/cable hit
+
+// --- STATE VARIABLES ---
 var scene, camera, renderer, clock, world;
-var droneGroup, droneBody, droneMesh, rotors=[], obstacles=[], surveyLines=[], lineObjs=[], ghostDrone, particles=[];
-var gameMode='SURVEY', selDiff='EASY', llSelDiff='BEGINNER', cfg=SURVEY_DIFF.EASY, llCfg=LL_DIFF.BEGINNER, gameState='START';
-var curLine=0, numLines=0, lineAcc=0, lineFrames=0, streak=0, totalPts=0, maxPts=0, health=100, lastHit=-9999, breakdown=[];
-var cablePoints=[], cableBuf=null, cableMesh=null, payloadMesh=null;
-var llDroneHP=100, llPayloadHP=100, llScore=0, proxBonus=0, swingRMS=0, lineTension=0, cableSnapped=false;
-var missionTime=0, llDmgTimer=-999, llTurbines=[], llPowerlines=[], llObstacles=[];
-var keys={}, windAngle=0, simTime=0, shakeTimer=0, hitTimer=0;
-var _v3a=new THREE.Vector3(), _v3c=new THREE.Vector3();
+var droneGroup, droneBody, droneMesh;
+var rotors    = [];
+var obstacles = [];
+var surveyLines = [], lineObjs = [], ghostDrone;
+var particles   = [];
 
-function setupThree(){
-  scene=new THREE.Scene(); scene.background=new THREE.Color(0x87ceeb); scene.fog=new THREE.Fog(0x87ceeb,220,520);
-  camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000); camera.position.set(0,22,32);
-  renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth,window.innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-  document.getElementById('game-container').appendChild(renderer.domElement); clock=new THREE.Clock();
+var gameMode  = 'SURVEY';   // 'SURVEY' | 'LONGLINE'
+var selDiff   = 'EASY';
+var llSelDiff = 'BEGINNER';
+var cfg       = SURVEY_DIFF.EASY;
+var llCfg     = LL_DIFF.BEGINNER;
+var gameState = 'START';
+
+// Survey state
+var curLine = 0, numLines = 0, lineAcc = 0, lineFrames = 0;
+var streak = 0, totalPts = 0, maxPts = 0;
+var health = 100, lastHit = -9999, breakdown = [];
+
+// Longline state
+var cablePoints  = [];      // Verlet points {x,y,z,px,py,pz}
+var cableBuf     = null;    // Float32Array for cable geometry
+var cableMesh    = null;
+var payloadMesh  = null;
+var llDroneHP    = 100;
+var llPayloadHP  = 100;
+var llScore      = 0;
+var proxBonus    = 0;
+var swingRMS     = 0;
+var lineTension  = 0;
+var cableSnapped = false;
+var missionTime  = 0;
+var llDmgTimer   = -999;
+var llTurbines   = [];      // {x,z,towerH,bladeR,angle,rpm,hub,group}
+var llPowerlines = [];      // {ax,ay,az,bx,by,bz,r} line segments for collision
+var llObstacles  = [];      // Cannon bodies specific to LL course
+
+// Shared state
+var keys = {}, windAngle = 0, simTime = 0, shakeTimer = 0, hitTimer = 0;
+var _v3a = new THREE.Vector3(), _v3c = new THREE.Vector3();
+
+// --- DEBUG CONSOLE ---
+var dbg=(function(){
+  var msgs=[],_fps=0,_fc=0,_lt=performance.now();
+  function _render(){
+    var el=document.getElementById('dbg-console');
+    if(!el||el.style.display==='none') return;
+    var h='<b>DRONE LONG-LINER v1.2</b><br>';
+    h+='FPS:'+_fps.toFixed(0)+' DPR:'+(renderer?renderer.getPixelRatio().toFixed(2):'—')+'<br>';
+    h+='State:'+gameState+' Mode:'+gameMode+'<br>';
+    if(renderer){var ri=renderer.info;h+='Calls:'+ri.render.calls+' Tris:'+ri.render.triangles+' Geo:'+ri.memory.geometries+'<br>';}
+    h+='WebGL:'+(renderer?(renderer.capabilities.isWebGL2?'2':'1'):'none')+'<br>';
+    if(droneBody){var p=droneBody.position;h+='Drone:'+p.x.toFixed(1)+','+p.y.toFixed(1)+','+p.z.toFixed(1)+'<br>';}
+    h+='<hr style="border-color:#00ff00;margin:3px 0">';
+    for(var i=0;i<msgs.length;i++){h+=msgs[i]+'<br>';}
+    el.innerHTML=h;
+  }
+  return {
+    tick:function(now){_fc++;if(now-_lt>=1000){_fps=_fc*1000/(now-_lt);_fc=0;_lt=now;_render();}},
+    log:function(msg){msgs.push('['+simTime.toFixed(1)+'s] '+msg);if(msgs.length>14)msgs.shift();_render();},
+    toggle:function(){var el=document.getElementById('dbg-console');if(!el)return;el.style.display=el.style.display==='none'?'block':'none';if(el.style.display!=='none')_render();},
+    render:_render
+  };
+})();
+window.onerror=function(msg,src,line){dbg.log('ERR L'+line+': '+String(msg).substring(0,80));return false;};
+
+// --- THREE.JS SETUP ---
+function setupThree() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x87ceeb);
+  scene.fog = new THREE.Fog(0x87ceeb, 220, 520);
+  camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera.position.set(0,22,32);
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
+  } catch(e) {
+    dbg.log('AA renderer failed, retrying: '+e.message);
+    renderer = new THREE.WebGLRenderer({ antialias:false });
+  }
+  // Cap DPR at 2 — prevents GPU OOM on high-DPI/Steam Deck displays
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  document.getElementById('game-container').appendChild(renderer.domElement);
+  clock = new THREE.Clock();
+  dbg.log('THREE r128 | WebGL'+(renderer.capabilities.isWebGL2?'2':'1')+' | DPR:'+renderer.getPixelRatio().toFixed(2)+' | UA:'+navigator.userAgent.substring(0,40));
 }
-function setupCannon(){
-  world=new CANNON.World(); world.gravity.set(0,-9.82,0); world.broadphase=new CANNON.NaiveBroadphase(); world.solver.iterations=10;
-  var gp=new CANNON.Body({mass:0}); gp.addShape(new CANNON.Plane()); gp.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2); world.addBody(gp);
+
+// --- CANNON.JS SETUP ---
+function setupCannon() {
+  world = new CANNON.World();
+  world.gravity.set(0,-9.82,0);
+  world.broadphase = new CANNON.NaiveBroadphase();
+  world.solver.iterations = 10;
+  var gp = new CANNON.Body({ mass:0 });
+  gp.addShape(new CANNON.Plane());
+  gp.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+  world.addBody(gp);
 }
-function buildScene(){
+
+// --- SCENE OBJECTS ---
+function buildScene() {
   scene.add(new THREE.HemisphereLight(0x87ceeb,0x2d5a1b,0.65));
-  var sun=new THREE.DirectionalLight(0xffffff,0.88); sun.position.set(80,150,80); sun.castShadow=true;
-  sun.shadow.mapSize.width=sun.shadow.mapSize.height=2048; sun.shadow.camera.near=0.5; sun.shadow.camera.far=600;
-  sun.shadow.camera.left=-300; sun.shadow.camera.right=300; sun.shadow.camera.top=300; sun.shadow.camera.bottom=-300; scene.add(sun);
-  var ground=new THREE.Mesh(new THREE.PlaneGeometry(600,600),new THREE.MeshLambertMaterial({color:0x2d5a1b}));
+  var sun = new THREE.DirectionalLight(0xffffff,0.88);
+  sun.position.set(80,150,80); sun.castShadow = true;
+  sun.shadow.mapSize.width = sun.shadow.mapSize.height = 2048;
+  sun.shadow.camera.near=0.5; sun.shadow.camera.far=600;
+  sun.shadow.camera.left=-300; sun.shadow.camera.right=300;
+  sun.shadow.camera.top=300; sun.shadow.camera.bottom=-300;
+  scene.add(sun);
+  var ground = new THREE.Mesh(new THREE.PlaneGeometry(600,600), new THREE.MeshLambertMaterial({color:0x2d5a1b}));
   ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
 }
-function buildDrone(){
-  droneGroup=new THREE.Group();
-  var bodyMat=new THREE.MeshLambertMaterial({color:0x2a2a2a});
-  droneMesh=new THREE.Mesh(new THREE.BoxGeometry(1.2,0.3,1.2),bodyMat); droneMesh.castShadow=true; droneGroup.add(droneMesh);
-  var armMat=new THREE.MeshLambertMaterial({color:0x404040});
+
+// --- DRONE BUILD ---
+function buildDrone() {
+  droneGroup = new THREE.Group();
+  var bodyMat = new THREE.MeshLambertMaterial({color:0x2a2a2a});
+  droneMesh = new THREE.Mesh(new THREE.BoxGeometry(1.2,0.3,1.2), bodyMat);
+  droneMesh.castShadow=true; droneGroup.add(droneMesh);
+  var armMat = new THREE.MeshLambertMaterial({color:0x404040});
   [[-0.7,0.7,Math.PI/4],[0.7,0.7,-Math.PI/4],[-0.7,-0.7,-Math.PI/4],[0.7,-0.7,Math.PI/4]].forEach(function(a){
     var arm=new THREE.Mesh(new THREE.BoxGeometry(0.85,0.07,0.11),armMat);
     arm.position.set(a[0],0.02,a[1]); arm.rotation.y=a[2]; arm.castShadow=true; droneGroup.add(arm);
   });
-  var rMat=new THREE.MeshLambertMaterial({color:0x0088ff,transparent:true,opacity:0.55}); rotors=[];
+  var rMat=new THREE.MeshLambertMaterial({color:0x0088ff,transparent:true,opacity:0.55});
+  rotors=[];
   [[-1.1,1.1],[1.1,1.1],[-1.1,-1.1],[1.1,-1.1]].forEach(function(r){
     var rot=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,0.05,12),rMat);
     rot.position.set(r[0],0.12,r[1]); droneGroup.add(rot); rotors.push(rot);
   });
-  var sx=gameMode==='SURVEY'?SZ.ox-20:-30, sy=gameMode==='SURVEY'?cfg.targetAlt:45, sz=gameMode==='SURVEY'?SZ.oz+cfg.spacing*0.5:0;
-  droneGroup.position.set(sx,sy,sz); scene.add(droneGroup);
-  ghostDrone=new THREE.Mesh(new THREE.BoxGeometry(1.5,0.4,1.5),new THREE.MeshBasicMaterial({color:0xffff00,wireframe:true,transparent:true,opacity:0.35}));
-  ghostDrone.visible=(gameMode==='SURVEY'); scene.add(ghostDrone);
+  // Start position depends on mode
+  var sx = gameMode==='SURVEY' ? SZ.ox-20 : -30;
+  var sy = gameMode==='SURVEY' ? cfg.targetAlt : 45;
+  var sz = gameMode==='SURVEY' ? SZ.oz+cfg.spacing*0.5 : 0;
+  droneGroup.position.set(sx,sy,sz);
+  scene.add(droneGroup);
+  ghostDrone=new THREE.Mesh(new THREE.BoxGeometry(1.5,0.4,1.5), new THREE.MeshBasicMaterial({color:0xffff00,wireframe:true,transparent:true,opacity:0.35}));
+  ghostDrone.visible = (gameMode==='SURVEY');
+  scene.add(ghostDrone);
   droneBody=new CANNON.Body({mass:1,linearDamping:0.75,angularDamping:0.999});
   droneBody.addShape(new CANNON.Box(new CANNON.Vec3(0.6,0.15,0.6)));
   droneBody.position.set(droneGroup.position.x,droneGroup.position.y,droneGroup.position.z);
-  world.addBody(droneBody); droneBody.addEventListener('collide',onCollide);
+  world.addBody(droneBody);
+  droneBody.addEventListener('collide',onCollide);
 }
 
-function mkPineTree(x,z){
-  var g=new THREE.Group(), tM=new THREE.MeshLambertMaterial({color:0x3d1f00});
-  var tr=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.3,2.2,6),tM); tr.position.y=1.1; tr.castShadow=true; g.add(tr);
+// --- OBSTACLE HELPERS ---
+function mkPineTree(x,z) {
+  var g=new THREE.Group();
+  var tM=new THREE.MeshLambertMaterial({color:0x3d1f00});
+  var tr=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.3,2.2,6),tM);
+  tr.position.y=1.1; tr.castShadow=true; g.add(tr);
   var fM=new THREE.MeshLambertMaterial({color:0x1a5c28});
-  [[2.0,3.2,3.5],[1.4,2.6,5.6],[0.85,2.0,7.2]].forEach(function(t){ var f=new THREE.Mesh(new THREE.ConeGeometry(t[0],t[1],7),fM); f.position.y=t[2]; f.castShadow=true; g.add(f); });
+  [[2.0,3.2,3.5],[1.4,2.6,5.6],[0.85,2.0,7.2]].forEach(function(t){
+    var f=new THREE.Mesh(new THREE.ConeGeometry(t[0],t[1],7),fM);
+    f.position.y=t[2]; f.castShadow=true; g.add(f);
+  });
   g.position.set(x,0,z); scene.add(g);
-  var b=new CANNON.Body({mass:0}); b.addShape(new CANNON.Cylinder(0.25,0.35,2.2,6),new CANNON.Vec3(0,1.1,0));
-  b.addShape(new CANNON.Sphere(2.4),new CANNON.Vec3(0,5.5,0)); b.position.set(x,0,z); world.addBody(b); obstacles.push(b);
+  var b=new CANNON.Body({mass:0});
+  b.addShape(new CANNON.Cylinder(0.25,0.35,2.2,6),new CANNON.Vec3(0,1.1,0));
+  b.addShape(new CANNON.Sphere(2.4),new CANNON.Vec3(0,5.5,0));
+  b.position.set(x,0,z); world.addBody(b); obstacles.push(b);
 }
-function mkRock(x,z){
-  var s=0.9+Math.random()*1.1, geo=new THREE.DodecahedronGeometry(s,0), pos=geo.attributes.position;
-  for(var i=0;i<pos.count;i++){ pos.setX(i,pos.getX(i)+(Math.random()-0.5)*0.28); pos.setY(i,pos.getY(i)+(Math.random()-0.5)*0.28); pos.setZ(i,pos.getZ(i)+(Math.random()-0.5)*0.28); }
+function mkRock(x,z) {
+  var s=0.9+Math.random()*1.1;
+  var geo=new THREE.DodecahedronGeometry(s,0);
+  var pos=geo.attributes.position;
+  for(var i=0;i<pos.count;i++){
+    pos.setX(i,pos.getX(i)+(Math.random()-0.5)*0.28);
+    pos.setY(i,pos.getY(i)+(Math.random()-0.5)*0.28);
+    pos.setZ(i,pos.getZ(i)+(Math.random()-0.5)*0.28);
+  }
   pos.needsUpdate=true; geo.computeVertexNormals();
-  var mesh=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color:0x888888})); mesh.position.set(x,s*0.55,z); mesh.castShadow=true; mesh.receiveShadow=true; scene.add(mesh);
-  var b=new CANNON.Body({mass:0}); b.addShape(new CANNON.Sphere(s*0.88)); b.position.set(x,s*0.55,z); world.addBody(b); obstacles.push(b);
+  var mesh=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color:0x888888}));
+  mesh.position.set(x,s*0.55,z); mesh.castShadow=true; mesh.receiveShadow=true; scene.add(mesh);
+  var b=new CANNON.Body({mass:0});
+  b.addShape(new CANNON.Sphere(s*0.88)); b.position.set(x,s*0.55,z);
+  world.addBody(b); obstacles.push(b);
 }
-function mkPole(x,z){
-  var g=new THREE.Group(), pM=new THREE.MeshLambertMaterial({color:0x7a6340});
-  var pole=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.15,12,6),pM); pole.position.y=6; pole.castShadow=true; g.add(pole);
+function mkPole(x,z) {
+  var g=new THREE.Group();
+  var pM=new THREE.MeshLambertMaterial({color:0x7a6340});
+  var pole=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.15,12,6),pM);
+  pole.position.y=6; pole.castShadow=true; g.add(pole);
   var arm=new THREE.Mesh(new THREE.BoxGeometry(3.2,0.1,0.1),pM); arm.position.y=11.6; g.add(arm);
   g.position.set(x,0,z); scene.add(g);
-  var b=new CANNON.Body({mass:0}); b.addShape(new CANNON.Cylinder(0.12,0.18,12,6),new CANNON.Vec3(0,6,0));
-  b.position.set(x,0,z); world.addBody(b); obstacles.push(b); return {x:x,z:z,h:12};
+  var b=new CANNON.Body({mass:0});
+  b.addShape(new CANNON.Cylinder(0.12,0.18,12,6),new CANNON.Vec3(0,6,0));
+  b.position.set(x,0,z); world.addBody(b); obstacles.push(b);
+  return {x:x,z:z,h:12};
 }
-function mkWire(p1,p2){
-  var s=new THREE.Vector3(p1.x,p1.h-0.4,p1.z), e=new THREE.Vector3(p2.x,p2.h-0.4,p2.z);
+function mkWire(p1,p2) {
+  var s=new THREE.Vector3(p1.x,p1.h-0.4,p1.z);
+  var e=new THREE.Vector3(p2.x,p2.h-0.4,p2.z);
   var m=s.clone().add(e).multiplyScalar(0.5); m.y-=2.2;
   var pts=new THREE.QuadraticBezierCurve3(s,m,e).getPoints(22);
   scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x2a2a2a})));
-  for(var i=0;i<pts.length;i+=4){ var wb=new CANNON.Body({mass:0}); wb.addShape(new CANNON.Sphere(0.16)); wb.position.set(pts[i].x,pts[i].y,pts[i].z); world.addBody(wb); obstacles.push(wb); }
+  for(var i=0;i<pts.length;i+=4){
+    var wb=new CANNON.Body({mass:0}); wb.addShape(new CANNON.Sphere(0.16));
+    wb.position.set(pts[i].x,pts[i].y,pts[i].z); world.addBody(wb); obstacles.push(wb);
+  }
 }
-function outsideZone(){ var x,z; do{ x=(Math.random()-0.5)*540; z=(Math.random()-0.5)*540; } while(x>SZ.ox-22&&x<SZ.ox+SZ.w+22&&z>SZ.oz-22&&z<SZ.oz+SZ.d+22); return {x:x,z:z}; }
-function generateObstacles(){
+
+// --- SURVEY OBSTACLE GENERATION ---
+function outsideZone() {
+  var x,z;
+  do{ x=(Math.random()-0.5)*540; z=(Math.random()-0.5)*540; }
+  while(x>SZ.ox-22&&x<SZ.ox+SZ.w+22&&z>SZ.oz-22&&z<SZ.oz+SZ.d+22);
+  return {x:x,z:z};
+}
+function generateObstacles() {
   for(var i=0;i<38;i++){ var p=outsideZone(); mkPineTree(p.x,p.z); }
   for(var j=0;j<22;j++){ var q=outsideZone(); mkRock(q.x,q.z); }
   var poles=[]; for(var k=0;k<4;k++){ var r=outsideZone(); poles.push(mkPole(r.x,r.z)); }
   mkWire(poles[0],poles[1]); mkWire(poles[2],poles[3]);
-  for(var n=0;n<cfg.zoneObs;n++){ var x=SZ.ox+10+Math.random()*(SZ.w-20),z=SZ.oz+10+Math.random()*(SZ.d-20); if(Math.random()<0.5) mkPineTree(x,z); else mkRock(x,z); }
+  for(var n=0;n<cfg.zoneObs;n++){
+    var x=SZ.ox+10+Math.random()*(SZ.w-20), z=SZ.oz+10+Math.random()*(SZ.d-20);
+    if(Math.random()<0.5) mkPineTree(x,z); else mkRock(x,z);
+  }
 }
-function generateGrid(){
+
+// --- SURVEY GRID GENERATION ---
+function generateGrid() {
   numLines=Math.floor(SZ.d/cfg.spacing); surveyLines=[]; breakdown=[];
+  // Survey zone outline
   var zp=[new THREE.Vector3(SZ.ox,0.18,SZ.oz),new THREE.Vector3(SZ.ox+SZ.w,0.18,SZ.oz),new THREE.Vector3(SZ.ox+SZ.w,0.18,SZ.oz+SZ.d),new THREE.Vector3(SZ.ox,0.18,SZ.oz+SZ.d),new THREE.Vector3(SZ.ox,0.18,SZ.oz)];
   scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(zp),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.35})));
   for(var i=0;i<numLines;i++){
-    var z=SZ.oz+cfg.spacing*0.5+i*cfg.spacing, fr=(i%2===1);
-    var st=new THREE.Vector3(fr?SZ.ox+SZ.w:SZ.ox,cfg.targetAlt,z), en=new THREE.Vector3(fr?SZ.ox:SZ.ox+SZ.w,cfg.targetAlt,z);
-    surveyLines.push({start:st,end:en,dir:en.clone().sub(st).normalize()}); breakdown.push({accuracy:0,points:0,mult:1});
+    var z=SZ.oz+cfg.spacing*0.5+i*cfg.spacing;
+    var fr=(i%2===1);
+    var st=new THREE.Vector3(fr?SZ.ox+SZ.w:SZ.ox,cfg.targetAlt,z);
+    var en=new THREE.Vector3(fr?SZ.ox:SZ.ox+SZ.w,cfg.targetAlt,z);
+    surveyLines.push({start:st,end:en,dir:en.clone().sub(st).normalize()});
+    breakdown.push({accuracy:0,points:0,mult:1});
   }
-  maxPts=numLines*BASE_PTS*cfg.multCap; document.getElementById('h-total').textContent=numLines; lineObjs=[];
+  maxPts=numLines*BASE_PTS*cfg.multCap;
+  document.getElementById('h-total').textContent=numLines;
+  lineObjs=[];
   for(var k=0;k<numLines;k++){
     var lp=[surveyLines[k].start.clone().setY(0.18),surveyLines[k].end.clone().setY(0.18)];
     var lo=new THREE.Line(new THREE.BufferGeometry().setFromPoints(lp),new THREE.LineBasicMaterial({color:0x444444,transparent:true,opacity:0.45}));
     scene.add(lo); lineObjs.push(lo);
   }
 }
-function refreshLineColors(){
+function refreshLineColors() {
   for(var i=0;i<lineObjs.length;i++){
     var m=lineObjs[i].material;
     if(i<curLine){ m.color.set(breakdown[i].accuracy>=0.7?0x00aa00:0xaa0000); m.opacity=0.85; }
@@ -372,34 +541,57 @@ function refreshLineColors(){
   }
 }
 
-function initCable(){
+// --- LONGLINE CABLE SIMULATION ---
+function initCable() {
   var ax=droneBody.position.x, ay=droneBody.position.y-0.2, az=droneBody.position.z;
   cablePoints=[];
-  for(var i=0;i<=LL_SEGS;i++){ var y=ay-i*LL_SEG_LEN; cablePoints.push({x:ax,y:Math.max(0.3,y),z:az,px:ax,py:Math.max(0.3,y),pz:az}); }
+  for(var i=0;i<=LL_SEGS;i++){
+    var y=ay-i*LL_SEG_LEN;
+    cablePoints.push({x:ax,y:Math.max(0.3,y),z:az,px:ax,py:Math.max(0.3,y),pz:az});
+  }
   cableSnapped=false; lineTension=0; swingRMS=0;
+
+  // Cable visual
   if(cableMesh){ scene.remove(cableMesh); if(cableMesh.geometry) cableMesh.geometry.dispose(); }
   cableBuf=new Float32Array((LL_SEGS+1)*3);
-  var cGeo=new THREE.BufferGeometry(); cGeo.setAttribute('position',new THREE.BufferAttribute(cableBuf,3));
-  cableMesh=new THREE.Line(cGeo,new THREE.LineBasicMaterial({color:0xffaa00})); cableMesh.frustumCulled=false; scene.add(cableMesh);
+  var cGeo=new THREE.BufferGeometry();
+  cGeo.setAttribute('position',new THREE.BufferAttribute(cableBuf,3));
+  cableMesh=new THREE.Line(cGeo,new THREE.LineBasicMaterial({color:0xffaa00}));
+  cableMesh.frustumCulled=false; scene.add(cableMesh);
+
+  // Payload mesh
   if(payloadMesh){ scene.remove(payloadMesh); if(payloadMesh.geometry) payloadMesh.geometry.dispose(); }
   payloadMesh=new THREE.Mesh(new THREE.SphereGeometry(0.55,10,10),new THREE.MeshLambertMaterial({color:0xff6600}));
   payloadMesh.castShadow=true; scene.add(payloadMesh);
 }
-function stepCable(dt){
+
+function stepCable(dt) {
   if(cableSnapped||cablePoints.length===0) return;
   var ax=droneBody.position.x, ay=droneBody.position.y-0.2, az=droneBody.position.z;
-  var grav=9.82*dt*dt, windX=0, windZ=0;
-  if(llCfg.wind>0){ windAngle+=dt*0.1*llCfg.turb; windX=llCfg.wind*Math.sin(simTime*0.35+windAngle)*dt*dt; windZ=llCfg.wind*0.55*Math.cos(simTime*0.28+windAngle*0.7)*dt*dt; }
-  for(var i=1;i<=LL_SEGS;i++){
-    var p=cablePoints[i], vx=(p.x-p.px)*LL_DAMP, vy=(p.y-p.py)*LL_DAMP, vz=(p.z-p.pz)*LL_DAMP, wf=(i/LL_SEGS);
-    if(i===LL_SEGS){ vx*=0.93; vz*=0.93; }
-    p.px=p.x; p.py=p.y; p.pz=p.z; p.x+=vx+windX*wf; p.y+=vy-grav; p.z+=vz+windZ*wf;
+  var grav=9.82*dt*dt;
+  var windX=0,windZ=0;
+  if(llCfg.wind>0){
+    windAngle+=dt*0.1*llCfg.turb;
+    windX=llCfg.wind*Math.sin(simTime*0.35+windAngle)*dt*dt;
+    windZ=llCfg.wind*0.55*Math.cos(simTime*0.28+windAngle*0.7)*dt*dt;
   }
+  // Verlet integrate (skip point 0)
+  for(var i=1;i<=LL_SEGS;i++){
+    var p=cablePoints[i];
+    var vx=(p.x-p.px)*LL_DAMP, vy=(p.y-p.py)*LL_DAMP, vz=(p.z-p.pz)*LL_DAMP;
+    var wf=(i/LL_SEGS); // wind more at bottom
+    if(i===LL_SEGS){ vx*=0.93; vz*=0.93; } // extra drag on payload
+    p.px=p.x; p.py=p.y; p.pz=p.z;
+    p.x+=vx+windX*wf; p.y+=vy-grav; p.z+=vz+windZ*wf;
+  }
+  // Constraint iterations
   for(var iter=0;iter<LL_ITERS;iter++){
     cablePoints[0].x=ax; cablePoints[0].y=ay; cablePoints[0].z=az;
     for(var i=0;i<LL_SEGS;i++){
-      var a=cablePoints[i], b=cablePoints[i+1], dx=b.x-a.x, dy=b.y-a.y, dz=b.z-a.z;
-      var dist=Math.sqrt(dx*dx+dy*dy+dz*dz); if(dist<0.001) continue;
+      var a=cablePoints[i], b=cablePoints[i+1];
+      var dx=b.x-a.x, dy=b.y-a.y, dz=b.z-a.z;
+      var dist=Math.sqrt(dx*dx+dy*dy+dz*dz);
+      if(dist<0.001) continue;
       var corr=(dist-LL_SEG_LEN)/dist;
       if(i===0){ b.x-=dx*corr; b.y-=dy*corr; b.z-=dz*corr; }
       else{ var h=corr*0.5; a.x+=dx*h; a.y+=dy*h; a.z+=dz*h; b.x-=dx*h; b.y-=dy*h; b.z-=dz*h; }
@@ -407,209 +599,376 @@ function stepCable(dt){
     for(var i=0;i<=LL_SEGS;i++){ if(cablePoints[i].y<0.3){ cablePoints[i].y=0.3; cablePoints[i].py=0.31; } }
   }
   cablePoints[0].x=ax; cablePoints[0].y=ay; cablePoints[0].z=az;
-  var p1=cablePoints[1], dx=p1.x-ax, dy=p1.y-ay, dz=p1.z-az, d=Math.sqrt(dx*dx+dy*dy+dz*dz);
+
+  // Tension force on drone
+  var p1=cablePoints[1];
+  var dx=p1.x-ax, dy=p1.y-ay, dz=p1.z-az;
+  var d=Math.sqrt(dx*dx+dy*dy+dz*dz);
   if(d>0.01){
-    lineTension=(LL_PAYLOAD_M*9.82*0.65)+(Math.max(0,d-LL_SEG_LEN)*700);
+    var stretch=Math.max(0,d-LL_SEG_LEN);
+    var base=LL_PAYLOAD_M*9.82*0.65;
+    var spring=stretch*700;
+    lineTension=base+spring;
     if(LL_SNAP_N>0&&lineTension>LL_SNAP_N){ snapCable(); return; }
     droneBody.applyForce(new CANNON.Vec3(dx/d*lineTension,dy/d*lineTension,dz/d*lineTension),droneBody.position);
   }
+
+  // Update visual
   for(var i=0;i<=LL_SEGS;i++){ cableBuf[i*3]=cablePoints[i].x; cableBuf[i*3+1]=cablePoints[i].y; cableBuf[i*3+2]=cablePoints[i].z; }
   cableMesh.geometry.attributes.position.needsUpdate=true;
-  var last=cablePoints[LL_SEGS]; payloadMesh.position.set(last.x,last.y,last.z);
+  // Payload mesh
+  var last=cablePoints[LL_SEGS];
+  payloadMesh.position.set(last.x,last.y,last.z);
 }
+
 function snapCable(){
-  cableSnapped=true; if(cableMesh) cableMesh.material.color.set(0x444444);
+  cableSnapped=true;
+  if(cableMesh) cableMesh.material.color.set(0x444444);
   document.getElementById('snap-notice').style.display='block';
   setTimeout(function(){ document.getElementById('snap-notice').style.display='none'; },2000);
   if(llCfg.instant) endRound('CABLE SNAPPED');
 }
 
+// --- LONGLINE OBSTACLES ---
 function mkLLPylon(x,z,h){
-  var g=new THREE.Group(), pM=new THREE.MeshLambertMaterial({color:0x666666});
-  var pole=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.26,h,6),pM); pole.position.y=h*0.5; pole.castShadow=true; g.add(pole);
+  var g=new THREE.Group();
+  var pM=new THREE.MeshLambertMaterial({color:0x666666});
+  var pole=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.26,h,6),pM);
+  pole.position.y=h*0.5; pole.castShadow=true; g.add(pole);
   var arm=new THREE.Mesh(new THREE.BoxGeometry(3.5,0.14,0.14),pM); arm.position.y=h-0.3; g.add(arm);
   g.position.set(x,0,z); scene.add(g);
-  var b=new CANNON.Body({mass:0}); b.addShape(new CANNON.Cylinder(0.2,0.28,h,6),new CANNON.Vec3(0,h*0.5,0));
+  var b=new CANNON.Body({mass:0});
+  b.addShape(new CANNON.Cylinder(0.2,0.28,h,6),new CANNON.Vec3(0,h*0.5,0));
   b.position.set(x,0,z); world.addBody(b); obstacles.push(b); llObstacles.push(b);
 }
+
 function mkLLPowerline(x1,z1,x2,z2,h,sag){
   mkLLPylon(x1,z1,h); mkLLPylon(x2,z2,h);
-  var sg=sag||3.5, nPts=24, ptsA=[], ptsB=[];
+  var sg=sag||3.5;
+  var nPts=24;
+  var ptsA=[], ptsB=[];
   for(var i=0;i<=nPts;i++){
-    var t=i/nPts, x=x1+(x2-x1)*t, z=z1+(z2-z1)*t, y=h-sg*4*t*(1-t);
-    ptsA.push(new THREE.Vector3(x,y,z)); ptsB.push(new THREE.Vector3(x+0.9,y,z+0.1));
+    var t=i/nPts;
+    var x=x1+(x2-x1)*t, z=z1+(z2-z1)*t;
+    var y=h-sg*4*t*(1-t); // parabolic sag
+    ptsA.push(new THREE.Vector3(x,y,z));
+    ptsB.push(new THREE.Vector3(x+0.9,y,z+0.1));
   }
   var wMat=new THREE.LineBasicMaterial({color:0x222222});
   scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(ptsA),wMat));
   scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(ptsB),wMat));
+  // Store segments for manual collision
   for(var i=0;i<nPts;i++){
     llPowerlines.push({ax:ptsA[i].x,ay:ptsA[i].y,az:ptsA[i].z,bx:ptsA[i+1].x,by:ptsA[i+1].y,bz:ptsA[i+1].z,r:0.35});
     llPowerlines.push({ax:ptsB[i].x,ay:ptsB[i].y,az:ptsB[i].z,bx:ptsB[i+1].x,by:ptsB[i+1].y,bz:ptsB[i+1].z,r:0.35});
   }
 }
+
 function mkLLTurbine(x,z){
-  var tH=26+Math.random()*12, bladeR=15+Math.random()*5, rpm=(8+Math.random()*10)/60, initAngle=Math.random()*Math.PI*2;
-  var g=new THREE.Group(), tMat=new THREE.MeshLambertMaterial({color:0xdddddd});
-  var tower=new THREE.Mesh(new THREE.CylinderGeometry(0.65,1.05,tH,8),tMat); tower.position.y=tH*0.5; tower.castShadow=true; g.add(tower);
-  var nacelle=new THREE.Mesh(new THREE.BoxGeometry(4,2.4,2.4),new THREE.MeshLambertMaterial({color:0xeeeeee})); nacelle.position.y=tH; g.add(nacelle);
-  var hubGrp=new THREE.Group(); hubGrp.position.set(0,tH,1.4); hubGrp.rotation.z=initAngle;
+  var tH=26+Math.random()*12;
+  var bladeR=15+Math.random()*5;
+  var rpm=(8+Math.random()*10)/60; // rotations per second
+  var initAngle=Math.random()*Math.PI*2;
+  var g=new THREE.Group();
+  var tMat=new THREE.MeshLambertMaterial({color:0xdddddd});
+  var tower=new THREE.Mesh(new THREE.CylinderGeometry(0.65,1.05,tH,8),tMat);
+  tower.position.y=tH*0.5; tower.castShadow=true; g.add(tower);
+  var nacelle=new THREE.Mesh(new THREE.BoxGeometry(4,2.4,2.4),new THREE.MeshLambertMaterial({color:0xeeeeee}));
+  nacelle.position.y=tH; g.add(nacelle);
+  var hubGrp=new THREE.Group();
+  hubGrp.position.set(0,tH,1.4);
+  hubGrp.rotation.z=initAngle;
   var bMat=new THREE.MeshLambertMaterial({color:0xf2f2f2});
   for(var b=0;b<3;b++){
     var bg=new THREE.Group(); bg.rotation.z=b*Math.PI*2/3;
-    var blade=new THREE.Mesh(new THREE.BoxGeometry(1.2,bladeR,0.22),bMat); blade.position.y=bladeR*0.5; blade.castShadow=true; bg.add(blade); hubGrp.add(bg);
+    var blade=new THREE.Mesh(new THREE.BoxGeometry(1.2,bladeR,0.22),bMat);
+    blade.position.y=bladeR*0.5; blade.castShadow=true; bg.add(blade); hubGrp.add(bg);
   }
   g.add(hubGrp); g.position.set(x,0,z); scene.add(g);
-  var tb=new CANNON.Body({mass:0}); tb.addShape(new CANNON.Cylinder(0.7,1.1,tH,8),new CANNON.Vec3(0,tH*0.5,0));
+  // Cannon tower body
+  var tb=new CANNON.Body({mass:0});
+  tb.addShape(new CANNON.Cylinder(0.7,1.1,tH,8),new CANNON.Vec3(0,tH*0.5,0));
   tb.position.set(x,0,z); world.addBody(tb); obstacles.push(tb); llObstacles.push(tb);
   llTurbines.push({x:x,z:z,towerH:tH,bladeR:bladeR,hubY:tH,angle:initAngle,rpm:rpm,hub:hubGrp,group:g});
 }
+
 function generateLLCourse(){
-  for(var i=0;i<18;i++){ var rx=(Math.random()-0.5)*380,rz=(Math.random()-0.5)*380; if(Math.random()<0.6) mkPineTree(rx,rz); else mkRock(rx,rz); }
-  mkLLPowerline(-110,-140,-110,140,22,3.5); mkLLPowerline(110,-140,110,140,18,3.0);
-  mkLLPowerline(-160,60,160,60,26,4.0); mkLLPowerline(-160,-70,160,-70,14,2.5); mkLLPowerline(40,-180,40,180,20,3.0);
-  mkLLTurbine(-170,90); mkLLTurbine(170,-130); mkLLTurbine(200,70);
+  // Scenery trees and rocks
+  for(var i=0;i<18;i++){
+    var rx=(Math.random()-0.5)*380, rz=(Math.random()-0.5)*380;
+    if(Math.random()<0.6) mkPineTree(rx,rz); else mkRock(rx,rz);
+  }
+  // Powerlines at varied heights (low = challenging because 60m cable)
+  mkLLPowerline(-110,-140,-110, 140, 22, 3.5);
+  mkLLPowerline( 110,-140, 110, 140, 18, 3.0);
+  mkLLPowerline(-160,  60, 160,  60, 26, 4.0);
+  mkLLPowerline(-160, -70, 160, -70, 14, 2.5); // lowest - very challenging
+  mkLLPowerline(  40,-180,  40, 180, 20, 3.0);
+  // Wind turbines
+  mkLLTurbine(-170,  90);
+  mkLLTurbine( 170, -130);
+  mkLLTurbine( 200,  70);
 }
 
+// --- COLLISION HELPERS ---
 function ptSegDist(px,py,pz,ax,ay,az,bx,by,bz){
-  var abx=bx-ax,aby=by-ay,abz=bz-az,apx=px-ax,apy=py-ay,apz=pz-az,ab2=abx*abx+aby*aby+abz*abz;
+  var abx=bx-ax,aby=by-ay,abz=bz-az;
+  var apx=px-ax,apy=py-ay,apz=pz-az;
+  var ab2=abx*abx+aby*aby+abz*abz;
   if(ab2<0.001) return Math.sqrt(apx*apx+apy*apy+apz*apz);
   var t=Math.max(0,Math.min(1,(apx*abx+apy*aby+apz*abz)/ab2));
-  var cx=ax+t*abx-px,cy=ay+t*aby-py,cz=az+t*abz-pz; return Math.sqrt(cx*cx+cy*cy+cz*cz);
+  var cx=ax+t*abx-px, cy=ay+t*aby-py, cz=az+t*abz-pz;
+  return Math.sqrt(cx*cx+cy*cy+cz*cz);
 }
+
 function checkPLHit(px,py,pz,r){
-  for(var i=0;i<llPowerlines.length;i++){ var pl=llPowerlines[i]; if(ptSegDist(px,py,pz,pl.ax,pl.ay,pl.az,pl.bx,pl.by,pl.bz)<pl.r+r) return true; } return false;
+  for(var i=0;i<llPowerlines.length;i++){
+    var pl=llPowerlines[i];
+    if(ptSegDist(px,py,pz,pl.ax,pl.ay,pl.az,pl.bx,pl.by,pl.bz)<pl.r+r) return true;
+  }
+  return false;
 }
+
 function checkTurbineHit(px,py,pz){
   for(var i=0;i<llTurbines.length;i++){
-    var t=llTurbines[i], dz2=pz-(t.z+1.4); if(Math.abs(dz2)>2.8) continue;
-    var dx=px-t.x,dy=py-t.hubY,xyDist=Math.sqrt(dx*dx+dy*dy);
+    var t=llTurbines[i];
+    var dz2=pz-(t.z+1.4); if(Math.abs(dz2)>2.8) continue; // blade plane check
+    var dx=px-t.x, dy=py-t.hubY;
+    var xyDist=Math.sqrt(dx*dx+dy*dy);
     if(xyDist>t.bladeR+1.5||xyDist<1.2) continue;
     var pAngle=Math.atan2(dy,dx);
     for(var b=0;b<3;b++){
-      var bAngle=t.angle+b*Math.PI*2/3,diff=pAngle-bAngle;
-      diff=((diff%(Math.PI*2))+Math.PI*2)%(Math.PI*2); if(diff>Math.PI) diff=Math.PI*2-diff;
+      var bAngle=t.angle+b*Math.PI*2/3;
+      var diff=pAngle-bAngle;
+      diff=((diff%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+      if(diff>Math.PI) diff=Math.PI*2-diff;
       if(diff<0.22) return true;
     }
-  } return false;
+  }
+  return false;
 }
 
+// --- CONTROLS ---
 function setupControls(){
-  document.addEventListener('keydown',function(e){ keys[e.code]=true; if(e.code==='Escape') togglePause(); if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault(); });
+  document.addEventListener('keydown',function(e){
+    keys[e.code]=true;
+    if(e.code==='Escape') togglePause();
+    if(e.key==='`'||e.code==='Backquote') dbg.toggle();
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
+  });
   document.addEventListener('keyup',function(e){ keys[e.code]=false; });
 }
-function getMultiplier(){ var s=streak,c=cfg.multCap; if(s>=8) return Math.min(5,c); if(s>=5) return Math.min(3,c); if(s>=3) return Math.min(2,c); if(s>=1) return Math.min(1.5,c); return 1; }
+
+// --- PHYSICS UPDATE ---
+function getMultiplier(){
+  var s=streak,c=cfg.multCap;
+  if(s>=8) return Math.min(5,c); if(s>=5) return Math.min(3,c);
+  if(s>=3) return Math.min(2,c); if(s>=1) return Math.min(1.5,c); return 1;
+}
+
 function updateDrone(dt){
   if(gameState!=='PLAYING') return;
   droneBody.applyForce(new CANNON.Vec3(0,9.82*droneBody.mass,0),droneBody.position);
-  var speed=(gameMode==='LONGLINE'?llCfg.speed:cfg.speed), boost=(keys['ShiftLeft']||keys['ShiftRight'])?1.5:1.0, spd=speed*boost;
-  var yaw=droneGroup.rotation.y, cY=Math.cos(yaw), sY=Math.sin(yaw), tvx=0, tvz=0;
+  var speed=(gameMode==='LONGLINE'?llCfg.speed:cfg.speed);
+  var boost=(keys['ShiftLeft']||keys['ShiftRight'])?1.5:1.0;
+  var spd=speed*boost;
+  var yaw=droneGroup.rotation.y;
+  var cY=Math.cos(yaw),sY=Math.sin(yaw);
+  var tvx=0,tvz=0;
   if(keys['KeyW']){tvx-=sY*spd;tvz-=cY*spd;} if(keys['KeyS']){tvx+=sY*spd;tvz+=cY*spd;}
   if(keys['KeyA']){tvx-=cY*spd;tvz+=sY*spd;} if(keys['KeyD']){tvx+=cY*spd;tvz-=sY*spd;}
-  var al=Math.min(1,dt*9); droneBody.velocity.x+=(tvx-droneBody.velocity.x)*al; droneBody.velocity.z+=(tvz-droneBody.velocity.z)*al;
-  var tvy=0; if(keys['ArrowUp']) tvy=spd*0.75; if(keys['ArrowDown']) tvy=-spd*0.75;
+  var al=Math.min(1,dt*9);
+  droneBody.velocity.x+=(tvx-droneBody.velocity.x)*al;
+  droneBody.velocity.z+=(tvz-droneBody.velocity.z)*al;
+  var tvy=0;
+  if(keys['ArrowUp'])   tvy= spd*0.75;
+  if(keys['ArrowDown']) tvy=-spd*0.75;
   droneBody.velocity.y+=(tvy-droneBody.velocity.y)*Math.min(1,dt*7);
-  if(keys['KeyQ']) droneGroup.rotation.y+=YAW_SPD*dt; if(keys['KeyE']) droneGroup.rotation.y-=YAW_SPD*dt;
+  if(keys['KeyQ']) droneGroup.rotation.y+=YAW_SPD*dt;
+  if(keys['KeyE']) droneGroup.rotation.y-=YAW_SPD*dt;
   var q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),droneGroup.rotation.y);
   droneBody.quaternion.set(q.x,q.y,q.z,q.w);
-  if(gameMode==='SURVEY'&&cfg.wind>0){ windAngle+=dt*0.1*cfg.turb; droneBody.applyForce(new CANNON.Vec3(cfg.wind*Math.sin(simTime*0.35+windAngle),0,cfg.wind*0.55*Math.cos(simTime*0.28+windAngle*0.7)),droneBody.position); }
+
+  // Survey mode wind
+  if(gameMode==='SURVEY'&&cfg.wind>0){
+    windAngle+=dt*0.1*cfg.turb;
+    droneBody.applyForce(new CANNON.Vec3(cfg.wind*Math.sin(simTime*0.35+windAngle),0,cfg.wind*0.55*Math.cos(simTime*0.28+windAngle*0.7)),droneBody.position);
+  }
+  // Longline wind applied in stepCable
+
   var bp=droneBody.position;
-  if(bp.x<-WORLD_BOUND){bp.x=-WORLD_BOUND;droneBody.velocity.x=0;} if(bp.x>WORLD_BOUND){bp.x=WORLD_BOUND;droneBody.velocity.x=0;}
-  if(bp.z<-WORLD_BOUND){bp.z=-WORLD_BOUND;droneBody.velocity.z=0;} if(bp.z>WORLD_BOUND){bp.z=WORLD_BOUND;droneBody.velocity.z=0;}
+  if(bp.x<-WORLD_BOUND){bp.x=-WORLD_BOUND;droneBody.velocity.x=0;}
+  if(bp.x> WORLD_BOUND){bp.x= WORLD_BOUND;droneBody.velocity.x=0;}
+  if(bp.z<-WORLD_BOUND){bp.z=-WORLD_BOUND;droneBody.velocity.z=0;}
+  if(bp.z> WORLD_BOUND){bp.z= WORLD_BOUND;droneBody.velocity.z=0;}
   if(bp.y<1){bp.y=1;droneBody.velocity.y=Math.max(0,droneBody.velocity.y);}
-  droneGroup.position.copy(bp); droneGroup.rotation.x=0; droneGroup.rotation.z=0;
+  droneGroup.position.copy(bp);
+  droneGroup.rotation.x=0; droneGroup.rotation.z=0;
   for(var i=0;i<rotors.length;i++) rotors[i].rotation.y+=dt*22*(i%2===0?1:-1);
 }
+
 function onCollide(evt){
   if(obstacles.indexOf(evt.body)<0) return;
-  var now=performance.now(); if(now-lastHit<INVIC_MS) return; lastHit=now;
+  var now=performance.now();
+  if(now-lastHit<INVIC_MS) return;
+  lastHit=now;
   if(gameMode==='LONGLINE'){
     if(llCfg.instant){ endRound('DRONE DESTROYED'); return; }
-    llDroneHP=Math.max(0,llDroneHP-DMG); if(llDroneHP<=0){ endRound('DRONE DESTROYED'); return; }
+    llDroneHP=Math.max(0,llDroneHP-DMG);
+    if(llDroneHP<=0){ endRound('DRONE DESTROYED'); return; }
   } else {
-    health=Math.max(0,health-DMG); streak=0; refreshStreakUI(); if(health<=0){ endRound('DRONE DESTROYED'); return; }
+    health=Math.max(0,health-DMG); streak=0; refreshStreakUI();
+    if(health<=0){ endRound('DRONE DESTROYED'); return; }
   }
-  hitTimer=0.22; droneMesh.material.emissive=new THREE.Color(0xff2200);
+  hitTimer=0.22;
+  droneMesh.material.emissive=new THREE.Color(0xff2200);
   setTimeout(function(){ if(droneMesh) droneMesh.material.emissive.set(0x000000); },220);
-  shakeTimer=0.32; spawnParticles(droneBody.position); updateHUD();
+  shakeTimer=0.32; spawnParticles(droneBody.position);
+  updateHUD();
 }
+
+// --- PARTICLES ---
 function spawnParticles(pos){
   for(var i=0;i<13;i++){
     var pm=new THREE.MeshBasicMaterial({color:new THREE.Color().setHSL(Math.random(),1,0.55),transparent:true});
     var p=new THREE.Mesh(new THREE.SphereGeometry(0.07+Math.random()*0.1,4,4),pm);
-    p.position.set(pos.x,pos.y,pos.z); p.userData.vel=new THREE.Vector3((Math.random()-0.5)*11,Math.random()*8+2,(Math.random()-0.5)*11);
+    p.position.set(pos.x,pos.y,pos.z);
+    p.userData.vel=new THREE.Vector3((Math.random()-0.5)*11,Math.random()*8+2,(Math.random()-0.5)*11);
     p.userData.life=0.75+Math.random()*0.45; scene.add(p); particles.push(p);
   }
 }
 function tickParticles(dt){
   for(var i=particles.length-1;i>=0;i--){
-    var p=particles[i]; p.userData.vel.y-=14*dt; p.position.addScaledVector(p.userData.vel,dt); p.userData.life-=dt;
+    var p=particles[i]; p.userData.vel.y-=14*dt;
+    p.position.addScaledVector(p.userData.vel,dt); p.userData.life-=dt;
     p.material.opacity=Math.max(0,p.userData.life*1.2);
     if(p.userData.life<=0){ scene.remove(p); p.geometry.dispose(); p.material.dispose(); particles.splice(i,1); }
   }
 }
 
+// --- SURVEY SCORING ---
 function updateScoring(dt){
   if(gameState!=='PLAYING'||curLine>=numLines) return;
-  var line=surveyLines[curLine], dp=droneBody.position;
-  var dx=dp.x-line.start.x, dz=dp.z-line.start.z, lvx=line.end.x-line.start.x, lvz=line.end.z-line.start.z;
+  var line=surveyLines[curLine];
+  var dp=droneBody.position;
+  var dx=dp.x-line.start.x, dz=dp.z-line.start.z;
+  var lvx=line.end.x-line.start.x, lvz=line.end.z-line.start.z;
   var len=Math.sqrt(lvx*lvx+lvz*lvz), lnx=lvx/len, lnz=lvz/len;
   var t=Math.max(0,Math.min(1,(dx*lnx+dz*lnz)/len));
   var ix=line.start.x+lnx*t*len, iz=line.start.z+lnz*t*len;
-  var latDev=Math.sqrt((dp.x-ix)*(dp.x-ix)+(dp.z-iz)*(dp.z-iz)), altDev=Math.abs(dp.y-cfg.targetAlt), maxLat=cfg.spacing*MAX_LAT_FACTOR;
+  var latDev=Math.sqrt((dp.x-ix)*(dp.x-ix)+(dp.z-iz)*(dp.z-iz));
+  var altDev=Math.abs(dp.y-cfg.targetAlt);
+  var maxLat=cfg.spacing*MAX_LAT_FACTOR;
   lineAcc+=Math.max(0,1-(latDev/maxLat)-(altDev/MAX_ALT_DEV)); lineFrames++;
   ghostDrone.position.set(ix,cfg.targetAlt,iz);
-  var wx=38+Math.min(1,latDev/maxLat)*34*(dp.x>ix?1:-1), wy=38+Math.min(1,altDev/MAX_ALT_DEV)*34*(dp.y<cfg.targetAlt?1:-1);
-  var dot=document.getElementById('dev-dot'); dot.style.left=wx+'px'; dot.style.top=wy+'px';
+  var wx=38+Math.min(1,latDev/maxLat)*34*(dp.x>ix?1:-1);
+  var wy=38+Math.min(1,altDev/MAX_ALT_DEV)*34*(dp.y<cfg.targetAlt?1:-1);
+  var dot=document.getElementById('dev-dot');
+  dot.style.left=wx+'px'; dot.style.top=wy+'px';
   dot.style.background=(latDev<1&&altDev<0.5)?'#00ff00':latDev>maxLat*0.8?'#ff0000':'#ffff00';
   document.getElementById('line-prog-fill').style.width=(t*100)+'%';
   if(t>=0.98||_v3a.set(dp.x,dp.y,dp.z).distanceTo(line.end)<8) commitLine();
 }
+
 function commitLine(){
   if(curLine>=numLines) return;
-  var acc=lineFrames>0?Math.min(1,lineAcc/lineFrames):0; if(acc>=0.7) streak++; else streak=0;
-  var mult=getMultiplier(), pts=Math.round(BASE_PTS*acc*mult); totalPts+=pts; breakdown[curLine]={accuracy:acc,points:pts,mult:mult};
-  curLine++; lineAcc=0; lineFrames=0; refreshStreakUI(); refreshLineColors(); updateHUD();
+  var acc=lineFrames>0?Math.min(1,lineAcc/lineFrames):0;
+  if(acc>=0.7) streak++; else streak=0;
+  var mult=getMultiplier(), pts=Math.round(BASE_PTS*acc*mult);
+  totalPts+=pts; breakdown[curLine]={accuracy:acc,points:pts,mult:mult};
+  curLine++; lineAcc=0; lineFrames=0;
+  refreshStreakUI(); refreshLineColors(); updateHUD();
   if(curLine>=numLines) setTimeout(function(){ endRound('SURVEY COMPLETE'); },600);
 }
+
 function refreshStreakUI(){
   var el=document.getElementById('streak-popup'), mult=getMultiplier();
   if(streak>=3){
     el.style.display='block'; el.textContent='×'+mult+' STREAK!';
     el.style.color=streak>=8?'#ff00ff':streak>=5?'#ff4400':'#ff8800'; el.classList.add('pulsing');
     var fw=document.getElementById('flash-white'); fw.style.opacity='0.13'; setTimeout(function(){fw.style.opacity='0';},55);
-  } else { el.style.display=streak>0?'block':'none'; el.textContent=streak>0?'×'+mult:''; el.style.color='#888'; el.classList.remove('pulsing'); }
+  } else {
+    el.style.display=streak>0?'block':'none'; el.textContent=streak>0?'×'+mult:'';
+    el.style.color='#888'; el.classList.remove('pulsing');
+  }
 }
 
+// --- LONGLINE SCORING ---
 function updateLLScoring(dt){
   if(gameState!=='PLAYING') return;
-  missionTime+=dt; if(missionTime>=LL_MISSION_DUR){ endRound('MISSION COMPLETE'); return; }
-  var last=cablePoints[LL_SEGS], first=cablePoints[0], payloadAGL=last?last.y:0;
-  proxBonus=cableSnapped?0:Math.max(0,(LL_PROX_THRES-payloadAGL)/LL_PROX_THRES); llScore+=proxBonus*LL_PROX_RATE*dt;
-  if(last&&first){ var swingD=Math.sqrt(Math.pow(last.x-first.x,2)+Math.pow(last.z-first.z,2)); swingRMS=swingRMS*0.97+swingD*0.03; llScore+=Math.max(0,1-swingRMS/30)*LL_SMOOTH_RATE*dt; }
+  missionTime+=dt;
+  if(missionTime>=LL_MISSION_DUR){ endRound('MISSION COMPLETE'); return; }
+
+  var last=cablePoints[LL_SEGS];
+  var first=cablePoints[0];
+  var payloadAGL=last?last.y:0;
+
+  // Proximity bonus (payload near ground)
+  proxBonus=cableSnapped?0:Math.max(0,(LL_PROX_THRES-payloadAGL)/LL_PROX_THRES);
+  llScore+=proxBonus*LL_PROX_RATE*dt;
+
+  // Smoothness bonus (low swing)
+  if(last&&first){
+    var swingD=Math.sqrt(Math.pow(last.x-first.x,2)+Math.pow(last.z-first.z,2));
+    swingRMS=swingRMS*0.97+swingD*0.03;
+    var smoothF=Math.max(0,1-swingRMS/30);
+    llScore+=smoothF*LL_SMOOTH_RATE*dt;
+  }
+
   if(cableSnapped) return;
+
+  // Check every 3rd cable point vs powerlines
   var now=simTime;
   if(last&&now-llDmgTimer>LL_INVIC){
-    for(var i=3;i<=LL_SEGS;i+=3){ var p=cablePoints[i]; if(checkPLHit(p.x,p.y,p.z,0.3)){ applyLLDamage('CABLE_POWERLINE',i); break; } }
+    for(var i=3;i<=LL_SEGS;i+=3){
+      var p=cablePoints[i];
+      if(checkPLHit(p.x,p.y,p.z,0.3)){
+        applyLLDamage('CABLE_POWERLINE',i); break;
+      }
+    }
+    // Payload vs powerlines
     if(last&&checkPLHit(last.x,last.y,last.z,0.6)) applyLLDamage('PAYLOAD_POWERLINE',LL_SEGS);
+    // Payload vs turbines
     if(last&&checkTurbineHit(last.x,last.y,last.z)) applyLLDamage('PAYLOAD_TURBINE',LL_SEGS);
-    for(var i=6;i<=LL_SEGS-3;i+=6){ var p=cablePoints[i]; if(checkTurbineHit(p.x,p.y,p.z)){ applyLLDamage('CABLE_TURBINE',i); break; } }
-    if(last&&last.y<=0.35){ var vy=Math.abs(last.y-last.py)/dt; if(vy>4) applyLLDamage('IMPACT',LL_SEGS); }
+    // Cable vs turbines (sample)
+    for(var i=6;i<=LL_SEGS-3;i+=6){
+      var p=cablePoints[i];
+      if(checkTurbineHit(p.x,p.y,p.z)){ applyLLDamage('CABLE_TURBINE',i); break; }
+    }
+    // Payload ground impact with velocity
+    if(last&&last.y<=0.35){
+      var vy=Math.abs(last.y-last.py)/dt;
+      if(vy>4){
+        var imp=vy*LL_PAYLOAD_M*0.4;
+        applyLLDamage('IMPACT',LL_SEGS);
+      }
+    }
   }
+
+  // Payload widget
   if(last&&first){
-    var relX=last.x-first.x,relZ=last.z-first.z,maxSwing=30;
-    var wx2=45+Math.min(1,Math.abs(relX)/maxSwing)*40*(relX>0?1:-1), wy2=45+Math.min(1,Math.abs(relZ)/maxSwing)*40*(relZ>0?1:-1);
-    document.getElementById('pw-dot').style.left=wx2+'px'; document.getElementById('pw-dot').style.top=wy2+'px';
+    var relX=last.x-first.x, relZ=last.z-first.z;
+    var maxSwing=30;
+    var wx2=45+Math.min(1,Math.abs(relX)/maxSwing)*40*(relX>0?1:-1);
+    var wy2=45+Math.min(1,Math.abs(relZ)/maxSwing)*40*(relZ>0?1:-1);
+    document.getElementById('pw-dot').style.left=wx2+'px';
+    document.getElementById('pw-dot').style.top=wy2+'px';
   }
 }
+
 function applyLLDamage(type,seg){
-  var now=simTime; if(now-llDmgTimer<LL_INVIC) return; llDmgTimer=now;
+  var now=simTime;
+  if(now-llDmgTimer<LL_INVIC) return;
+  llDmgTimer=now;
   if(llCfg.instant){ endRound('CONTACT: '+type.replace('_',' ')); return; }
-  var isPayload=type.indexOf('PAYLOAD')>=0||type==='IMPACT', dmg=type==='IMPACT'?20:25;
+  var isPayload=type.indexOf('PAYLOAD')>=0||type==='IMPACT';
+  var dmg=type==='IMPACT'?20:25;
   if(isPayload){
     llPayloadHP=Math.max(0,llPayloadHP-dmg);
     if(payloadMesh){ payloadMesh.material.emissive=new THREE.Color(0xff2200); setTimeout(function(){if(payloadMesh)payloadMesh.material.emissive.set(0x000000);},200); }
     if(llPayloadHP<=0){ endRound('PAYLOAD DESTROYED'); return; }
   } else {
+    // Cable hit: damage payload and cause jerk
     llPayloadHP=Math.max(0,llPayloadHP-15);
     if(cableMesh){ cableMesh.material.color.set(0xff4400); setTimeout(function(){if(cableMesh)cableMesh.material.color.set(0xffaa00);},200); }
     if(llPayloadHP<=0){ endRound('PAYLOAD DESTROYED'); return; }
@@ -617,131 +976,261 @@ function applyLLDamage(type,seg){
   spawnParticles(cablePoints[seg]||droneBody.position);
 }
 
+// --- HUD UPDATE ---
 function updateHUD(){
   if(gameMode==='SURVEY'){
-    document.getElementById('h-score').textContent=totalPts; document.getElementById('h-line').textContent=Math.min(curLine+1,numLines);
-    document.getElementById('h-hp').textContent=health; document.getElementById('h-streak').textContent='×'+getMultiplier();
-    if(droneBody){ document.getElementById('h-alt').textContent=droneBody.position.y.toFixed(1); var v=droneBody.velocity; document.getElementById('h-spd').textContent=Math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z).toFixed(1); }
-    var fill=document.getElementById('health-fill'); fill.style.width=health+'%'; fill.style.background=health>60?'#00ff00':health>30?'#ffff00':'#ff0000';
+    document.getElementById('h-score').textContent=totalPts;
+    document.getElementById('h-line').textContent=Math.min(curLine+1,numLines);
+    document.getElementById('h-hp').textContent=health;
+    document.getElementById('h-streak').textContent='×'+getMultiplier();
+    if(droneBody){
+      document.getElementById('h-alt').textContent=droneBody.position.y.toFixed(1);
+      var v=droneBody.velocity;
+      document.getElementById('h-spd').textContent=Math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z).toFixed(1);
+    }
+    var fill=document.getElementById('health-fill');
+    fill.style.width=health+'%';
+    fill.style.background=health>60?'#00ff00':health>30?'#ffff00':'#ff0000';
   } else {
     var payloadAGL=cablePoints.length>LL_SEGS?cablePoints[LL_SEGS].y:0;
     document.getElementById('ll-payload-alt').textContent=payloadAGL.toFixed(1);
     document.getElementById('ll-drone-alt').textContent=droneBody?droneBody.position.y.toFixed(1):'0.0';
-    document.getElementById('ll-score').textContent=Math.floor(llScore); document.getElementById('ll-prox').textContent=Math.round(proxBonus*100)+'%';
+    document.getElementById('ll-score').textContent=Math.floor(llScore);
+    document.getElementById('ll-prox').textContent=Math.round(proxBonus*100)+'%';
     document.getElementById('ll-time').textContent=Math.max(0,Math.ceil(LL_MISSION_DUR-missionTime));
-    var tenPct=Math.min(100,(lineTension/450)*100), tFill=document.getElementById('ll-ten-fill');
-    tFill.style.width=tenPct+'%'; tFill.style.background=tenPct>80?'#ff0000':tenPct>50?'#ffff00':'#00ffff';
-    var dFill=document.getElementById('ll-dhp-fill'); dFill.style.width=Math.max(0,llDroneHP)+'%'; dFill.style.background=llDroneHP>60?'#00ff00':llDroneHP>30?'#ffff00':'#ff0000';
-    var pFill=document.getElementById('ll-php-fill'); pFill.style.width=Math.max(0,llPayloadHP)+'%'; pFill.style.background=llPayloadHP>60?'#00ff00':llPayloadHP>30?'#ffff00':'#ff0000';
-    var arrows=['→','↗','↑','↖','←','↙','↓','↘'], aidx=Math.round(((windAngle*180/Math.PI)%360+360)%360/45)%8;
-    document.getElementById('ll-wind-dir').textContent=arrows[aidx]; document.getElementById('ll-wind-spd').textContent=llCfg.wind.toFixed(0);
+    var tenPct=Math.min(100,(lineTension/450)*100);
+    var tFill=document.getElementById('ll-ten-fill');
+    tFill.style.width=tenPct+'%';
+    tFill.style.background=tenPct>80?'#ff0000':tenPct>50?'#ffff00':'#00ffff';
+    var dFill=document.getElementById('ll-dhp-fill');
+    dFill.style.width=Math.max(0,llDroneHP)+'%';
+    dFill.style.background=llDroneHP>60?'#00ff00':llDroneHP>30?'#ffff00':'#ff0000';
+    var pFill=document.getElementById('ll-php-fill');
+    pFill.style.width=Math.max(0,llPayloadHP)+'%';
+    pFill.style.background=llPayloadHP>60?'#00ff00':llPayloadHP>30?'#ffff00':'#ff0000';
+    var arrows=['→','↗','↑','↖','←','↙','↓','↘'];
+    var aidx=Math.round(((windAngle*180/Math.PI)%360+360)%360/45)%8;
+    document.getElementById('ll-wind-dir').textContent=arrows[aidx];
+    document.getElementById('ll-wind-spd').textContent=llCfg.wind.toFixed(0);
   }
-}
-function updateCamera(dt){
-  if(!droneGroup) return;
-  var yaw=droneGroup.rotation.y, tx=droneGroup.position.x+Math.sin(yaw)*22, ty=droneGroup.position.y+12, tz=droneGroup.position.z+Math.cos(yaw)*22;
-  if(shakeTimer>0){ shakeTimer-=dt; var sh=shakeTimer*0.9; tx+=(Math.random()-0.5)*sh; ty+=(Math.random()-0.5)*sh*0.4; tz+=(Math.random()-0.5)*sh; }
-  camera.position.lerp(_v3c.set(tx,ty,tz),Math.min(1,dt*3)); camera.lookAt(droneGroup.position);
 }
 
-function startCountdown(){
-  gameState='COUNTDOWN'; var el=document.getElementById('countdown'); el.style.display='block'; var n=3; el.textContent=n;
-  var iv=setInterval(function(){ n--; if(n>0){ el.textContent=n; } else{ el.textContent='GO!'; clearInterval(iv); setTimeout(function(){ el.style.display='none'; gameState='PLAYING'; },620); } },800);
+// --- CAMERA ---
+function updateCamera(dt){
+  if(!droneGroup) return;
+  var yaw=droneGroup.rotation.y;
+  var tx=droneGroup.position.x+Math.sin(yaw)*22;
+  var ty=droneGroup.position.y+12;
+  var tz=droneGroup.position.z+Math.cos(yaw)*22;
+  if(shakeTimer>0){ shakeTimer-=dt; var sh=shakeTimer*0.9; tx+=(Math.random()-0.5)*sh; ty+=(Math.random()-0.5)*sh*0.4; tz+=(Math.random()-0.5)*sh; }
+  camera.position.lerp(_v3c.set(tx,ty,tz),Math.min(1,dt*3));
+  camera.lookAt(droneGroup.position);
 }
+
+// --- GAME FLOW ---
+function startCountdown(){
+  gameState='COUNTDOWN';
+  var el=document.getElementById('countdown'); el.style.display='block'; var n=3; el.textContent=n;
+  var iv=setInterval(function(){ n--;
+    if(n>0){ el.textContent=n; }
+    else{ el.textContent='GO!'; clearInterval(iv); setTimeout(function(){ el.style.display='none'; gameState='PLAYING'; },620); }
+  },800);
+}
+
 function startGame(){
-  document.getElementById('start-screen').style.display='none'; document.getElementById('end-screen').style.display='none';
-  document.getElementById('snap-notice').style.display='none'; document.getElementById('new-best').style.display='none'; document.getElementById('streak-popup').style.display='none';
+  if(!renderer){ dbg.log('WARN: startGame before renderer init'); return; }
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('end-screen').style.display='none';
+  document.getElementById('snap-notice').style.display='none';
+  document.getElementById('new-best').style.display='none';
+  document.getElementById('streak-popup').style.display='none';
+
   if(gameMode==='SURVEY'){
-    cfg=SURVEY_DIFF[selDiff]; document.getElementById('hud').style.display='block'; document.getElementById('hud-ll').style.display='none';
-    document.getElementById('dev-widget').style.display='block'; document.getElementById('payload-widget').style.display='none';
+    cfg=SURVEY_DIFF[selDiff];
+    document.getElementById('hud').style.display='block';
+    document.getElementById('hud-ll').style.display='none';
+    document.getElementById('dev-widget').style.display='block';
+    document.getElementById('payload-widget').style.display='none';
   } else {
-    llCfg=LL_DIFF[llSelDiff]; document.getElementById('hud').style.display='none'; document.getElementById('hud-ll').style.display='block';
-    document.getElementById('dev-widget').style.display='none'; document.getElementById('payload-widget').style.display='block';
+    llCfg=LL_DIFF[llSelDiff];
+    document.getElementById('hud').style.display='none';
+    document.getElementById('hud-ll').style.display='block';
+    document.getElementById('dev-widget').style.display='none';
+    document.getElementById('payload-widget').style.display='block';
   }
+
   cleanupGame(); setupCannon(); buildScene(); buildDrone();
+
   if(gameMode==='SURVEY'){
     generateObstacles(); generateGrid(); refreshLineColors();
     curLine=0; lineAcc=0; lineFrames=0; streak=0; totalPts=0; health=100;
     document.getElementById('line-prog-fill').style.width='0%';
   } else {
-    llDroneHP=llCfg.instant?Infinity:llCfg.dHP; llPayloadHP=llCfg.instant?Infinity:llCfg.pHP;
+    llDroneHP=llCfg.instant?Infinity:llCfg.dHP;
+    llPayloadHP=llCfg.instant?Infinity:llCfg.pHP;
     llScore=0; proxBonus=0; swingRMS=0; missionTime=0; llDmgTimer=-999;
     generateLLCourse(); initCable();
   }
+
   lastHit=-9999; windAngle=0; simTime=0; shakeTimer=0; hitTimer=0;
   updateHUD(); if(gameMode==='SURVEY') refreshStreakUI();
   startCountdown();
 }
+
 function endRound(reason){
   gameState='END';
-  document.getElementById('hud').style.display='none'; document.getElementById('hud-ll').style.display='none';
-  document.getElementById('dev-widget').style.display='none'; document.getElementById('payload-widget').style.display='none'; document.getElementById('streak-popup').style.display='none';
-  var pct,grade,color;
-  if(gameMode==='SURVEY'){ pct=Math.min(100,Math.round((totalPts/Math.max(1,maxPts))*100)); }
-  else{ var maxLL=LL_PROX_RATE*LL_MISSION_DUR*0.85+LL_SMOOTH_RATE*LL_MISSION_DUR*0.75; pct=Math.min(100,Math.round((llScore/maxLL)*100)); }
-  if(pct>=95){grade='A+';color='#00ffff';} else if(pct>=85){grade='A';color='#00ff88';} else if(pct>=70){grade='B';color='#88ff00';}
-  else if(pct>=50){grade='C';color='#ffff00';} else if(pct>=30){grade='D';color='#ff8800';} else{grade='F';color='#ff3333';}
-  var key='droneLineSim_best_'+gameMode+'_'+(gameMode==='SURVEY'?selDiff:llSelDiff), prev=parseInt(localStorage.getItem(key)||'0');
+  document.getElementById('hud').style.display='none';
+  document.getElementById('hud-ll').style.display='none';
+  document.getElementById('dev-widget').style.display='none';
+  document.getElementById('payload-widget').style.display='none';
+  document.getElementById('streak-popup').style.display='none';
+
+  var pct, grade, color;
+  if(gameMode==='SURVEY'){
+    pct=Math.min(100,Math.round((totalPts/Math.max(1,maxPts))*100));
+  } else {
+    // Max possible LL score ≈ LL_PROX_RATE * LL_MISSION_DUR * 0.8 + smoothness
+    var maxLL=LL_PROX_RATE*LL_MISSION_DUR*0.85+LL_SMOOTH_RATE*LL_MISSION_DUR*0.75;
+    pct=Math.min(100,Math.round((llScore/maxLL)*100));
+  }
+
+  if(pct>=95){grade='A+';color='#00ffff';}
+  else if(pct>=85){grade='A';color='#00ff88';}
+  else if(pct>=70){grade='B';color='#88ff00';}
+  else if(pct>=50){grade='C';color='#ffff00';}
+  else if(pct>=30){grade='D';color='#ff8800';}
+  else{grade='F';color='#ff3333';}
+
+  var key='droneLineSim_best_'+gameMode+'_'+(gameMode==='SURVEY'?selDiff:llSelDiff);
+  var prev=parseInt(localStorage.getItem(key)||'0');
   if(pct>prev){ localStorage.setItem(key,pct); document.getElementById('new-best').style.display='block'; setTimeout(function(){document.getElementById('new-best').style.display='none';},3500); }
+
   document.getElementById('end-reason').textContent=reason;
   var ge=document.getElementById('grade-el'); ge.textContent=grade; ge.style.color=color; ge.className='grade-big grade-anim';
   document.getElementById('score-el').textContent=pct+'% COMPLETION';
   document.getElementById('best-el').textContent='BEST: '+Math.max(pct,prev)+'% | '+(gameMode==='SURVEY'?('PTS: '+totalPts):('SCORE: '+Math.floor(llScore)));
-  var bkHead=document.getElementById('bk-head'), tbody=document.getElementById('bk-body'); tbody.innerHTML=''; bkHead.innerHTML='';
+
+  var bkHead=document.getElementById('bk-head');
+  var tbody=document.getElementById('bk-body');
+  tbody.innerHTML=''; bkHead.innerHTML='';
+
   if(gameMode==='SURVEY'){
     bkHead.innerHTML='<th>LINE</th><th>ACC</th><th>PTS</th><th>MULT</th>';
     for(var i=0;i<curLine;i++){
-      var bd=breakdown[i],tr=document.createElement('tr');
+      var bd=breakdown[i]; var tr=document.createElement('tr');
       tr.innerHTML='<td>'+(i+1)+'</td><td>'+Math.round(bd.accuracy*100)+'%</td><td>'+bd.points+'</td><td>×'+bd.mult+'</td>';
       tr.style.color=bd.accuracy>=0.7?'#88ff88':'#ff8888'; tbody.appendChild(tr);
     }
   } else {
     bkHead.innerHTML='<th>METRIC</th><th>VALUE</th>';
-    [['SCORE',Math.floor(llScore)],['TIME',Math.ceil(missionTime)+'s'],['PAYLOAD HP',Math.max(0,llPayloadHP)],['CABLE',cableSnapped?'SNAPPED':'INTACT']].forEach(function(r){ var tr=document.createElement('tr'); tr.innerHTML='<td>'+r[0]+'</td><td>'+r[1]+'</td>'; tbody.appendChild(tr); });
+    var rows=[
+      ['SCORE',Math.floor(llScore)],['TIME',Math.ceil(missionTime)+'s'],
+      ['PAYLOAD HP',Math.max(0,llPayloadHP)],['CABLE',cableSnapped?'SNAPPED':'INTACT']
+    ];
+    rows.forEach(function(r){ var tr=document.createElement('tr'); tr.innerHTML='<td>'+r[0]+'</td><td>'+r[1]+'</td>'; tbody.appendChild(tr); });
   }
   document.getElementById('end-screen').style.display='flex';
 }
+
 function togglePause(){
   if(gameState==='PLAYING'){ gameState='PAUSED'; document.getElementById('pause-screen').style.display='flex'; }
   else if(gameState==='PAUSED'){ gameState='PLAYING'; document.getElementById('pause-screen').style.display='none'; clock.getDelta(); }
 }
 
-function disposeNode(n){ if(n.geometry) n.geometry.dispose(); if(n.material){ Array.isArray(n.material)?n.material.forEach(function(m){m.dispose();}):n.material.dispose(); } if(n.children) n.children.forEach(disposeNode); }
+// --- CLEANUP ---
+function disposeNode(n){
+  if(n.geometry) n.geometry.dispose();
+  if(n.material){ Array.isArray(n.material)?n.material.forEach(function(m){m.dispose();}):n.material.dispose(); }
+  if(n.children) n.children.forEach(disposeNode);
+}
 function cleanupGame(){
   if(scene){ var ch=scene.children.slice(); ch.forEach(function(c){ scene.remove(c); disposeNode(c); }); }
   if(world){ var bodies=world.bodies.slice(); bodies.forEach(function(b){ world.remove(b); }); }
-  obstacles=[]; surveyLines=[]; lineObjs=[]; particles=[]; rotors=[]; llTurbines=[]; llPowerlines=[]; llObstacles=[];
-  droneGroup=null; droneBody=null; droneMesh=null; ghostDrone=null; cablePoints=[]; cableMesh=null; cableBuf=null; payloadMesh=null;
+  obstacles=[]; surveyLines=[]; lineObjs=[]; particles=[]; rotors=[];
+  llTurbines=[]; llPowerlines=[]; llObstacles=[];
+  droneGroup=null; droneBody=null; droneMesh=null; ghostDrone=null;
+  cablePoints=[]; cableMesh=null; cableBuf=null; payloadMesh=null;
 }
 
+// --- ANIMATION LOOP ---
 function animate(){
-  requestAnimationFrame(animate); var dt=Math.min(clock.getDelta(),0.05); simTime+=dt;
+  requestAnimationFrame(animate);
+  var dt=Math.min(clock.getDelta(),0.05);
+  simTime+=dt;
+
+  // Animate turbines every frame
   for(var i=0;i<llTurbines.length;i++){ var t=llTurbines[i]; t.angle+=t.rpm*Math.PI*2*dt; t.hub.rotation.z=t.angle; }
+
   if(gameState==='PLAYING'){
-    world.step(1/60,dt,3); updateDrone(dt);
-    if(gameMode==='SURVEY'){ updateScoring(dt); } else { stepCable(dt); updateLLScoring(dt); }
+    world.step(1/60,dt,3);
+    updateDrone(dt);
+    if(gameMode==='SURVEY'){ updateScoring(dt); }
+    else { stepCable(dt); updateLLScoring(dt); }
     tickParticles(dt); updateHUD();
   } else { tickParticles(dt); }
+
   updateCamera(dt);
   if(hitTimer>0){ hitTimer-=dt; document.getElementById('flash-red').style.opacity=Math.max(0,hitTimer*1.6*0.38); }
+  dbg.tick(performance.now());
   renderer.render(scene,camera);
 }
 
-window.addEventListener('resize',function(){ if(!camera||!renderer) return; camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); });
+// --- EVENT LISTENERS & INIT ---
+window.addEventListener('resize',function(){
+  if(!camera||!renderer) return;
+  camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
+
+// Mode tab switching
 document.querySelectorAll('.mode-tab').forEach(function(btn){
   btn.addEventListener('click',function(){
-    document.querySelectorAll('.mode-tab').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); gameMode=btn.dataset.mode;
+    document.querySelectorAll('.mode-tab').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    gameMode=btn.dataset.mode;
     document.getElementById('survey-diff-section').style.display=(gameMode==='SURVEY')?'block':'none';
     document.getElementById('ll-diff-section').style.display=(gameMode==='LONGLINE')?'block':'none';
   });
 });
-document.querySelectorAll('[data-diff]').forEach(function(c){ c.addEventListener('click',function(){ document.querySelectorAll('[data-diff]').forEach(function(x){ x.classList.remove('sel'); }); c.classList.add('sel'); selDiff=c.dataset.diff; }); });
-document.querySelectorAll('[data-lldiff]').forEach(function(c){ c.addEventListener('click',function(){ document.querySelectorAll('[data-lldiff]').forEach(function(x){ x.classList.remove('sel'); }); c.classList.add('sel'); llSelDiff=c.dataset.lldiff; }); });
+
+// Survey diff cards
+document.querySelectorAll('[data-diff]').forEach(function(c){
+  c.addEventListener('click',function(){
+    document.querySelectorAll('[data-diff]').forEach(function(x){ x.classList.remove('sel'); });
+    c.classList.add('sel'); selDiff=c.dataset.diff;
+  });
+});
+
+// Longline diff cards
+document.querySelectorAll('[data-lldiff]').forEach(function(c){
+  c.addEventListener('click',function(){
+    document.querySelectorAll('[data-lldiff]').forEach(function(x){ x.classList.remove('sel'); });
+    c.classList.add('sel'); llSelDiff=c.dataset.lldiff;
+  });
+});
+
 document.getElementById('start-btn').addEventListener('click',startGame);
 document.getElementById('try-btn').addEventListener('click',startGame);
-document.getElementById('diff-btn').addEventListener('click',function(){ document.getElementById('end-screen').style.display='none'; document.getElementById('start-screen').style.display='flex'; });
+document.getElementById('diff-btn').addEventListener('click',function(){
+  document.getElementById('end-screen').style.display='none';
+  document.getElementById('start-screen').style.display='flex';
+});
 
-window.onload=function(){ setupThree(); setupControls(); cfg=SURVEY_DIFF[selDiff]; setupCannon(); buildScene(); buildDrone(); generateObstacles(); generateGrid(); refreshLineColors(); gameState='START'; animate(); };
+document.getElementById('dbg-toggle').addEventListener('click', dbg.toggle);
+
+// Use DOMContentLoaded instead of window.onload.
+// window.onload waits for ALL external resources including fonts.
+// On Firefox/Brave with Google Fonts blocked or slow (privacy/tracking protection),
+// window.onload can be delayed indefinitely — clicking Start before it fires
+// calls buildScene() while scene===null, causing a silent crash.
+// DOMContentLoaded fires as soon as the DOM + synchronous scripts (Three.js, Cannon.js) are ready.
+document.addEventListener('DOMContentLoaded', function(){
+  setupThree(); setupControls();
+  cfg=SURVEY_DIFF[selDiff];
+  setupCannon(); buildScene(); buildDrone(); generateObstacles(); generateGrid(); refreshLineColors();
+  gameState='START'; animate();
+  dbg.log('Init OK. Press ` to toggle debug console.');
+});
 </script>
 </body>
 </html>
