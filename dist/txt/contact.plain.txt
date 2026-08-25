@@ -1,0 +1,19 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+│              ╔═╗ ╔═╗ ╔╦╗ ╔═╗ ╦═╗ ╔╗╔ ╔═╗ ╔╦╗ ╦ ╔═╗ ╔╗╔               │
+│              ║ ╦ ╠═╣ ║║║ ║╣  ╠╦╝ ║║║ ╠═╣  ║  ║ ║ ║ ║║║               │
+│              ╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝               │
+│                                                   INC.               │
+│                                                                      │
+│             drones · websites · ground-control software              │
+│                     Federal corporation, Canada                      │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│                                                                      │
+│ email   TODO:LUKAS                                                   │
+│ web     https://gamernation.ca                                       │
+│ sec     https://gamernation.ca/.well-known/security.txt              │
+│                                                                      │
+│ GamerNation Inc. — Federal corporation, Canada.                      │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘

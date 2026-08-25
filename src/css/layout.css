@@ -1,0 +1,225 @@
+/* layout.css — status bar, hero, modules, footer, terminal, responsive
+   (plan §1.3, §2, §6.1, §9). Mobile-first; breakpoints at 600/900/1200. */
+
+/* ── sticky status bar ────────────────────────────────────────────────── */
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 94;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: var(--bar-h);
+  padding: 0.25rem calc(0.75rem + env(safe-area-inset-right)) 0.25rem calc(0.75rem + env(safe-area-inset-left));
+  padding-top: max(0.25rem, env(safe-area-inset-top));
+  background: rgba(5, 7, 10, 0.92);
+  border-bottom: 1px solid var(--phos-dim);
+}
+
+.brand {
+  color: var(--phos);
+  text-decoration: none;
+  font-size: var(--fs-1);
+  letter-spacing: 0.12em;
+}
+
+.bar-nav { display: flex; gap: 0.5rem; }
+
+.bar-btn,
+.key {
+  color: var(--amber);
+  letter-spacing: 0.12em;
+  font-size: var(--fs-1);
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.6rem;
+  text-decoration: none;
+}
+
+.bar-btn[aria-pressed="true"] { color: var(--phos); }
+.bar-btn:hover, .key:hover { color: var(--cyan); }
+
+/* ── hero / boot sequence ─────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: calc(92svh - var(--bar-h));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 3rem 1rem;
+  overflow: hidden;
+}
+
+.hero > * { position: relative; z-index: 2; }
+
+canvas.rain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.5;
+}
+
+.wordmark {
+  font-size: clamp(0.5rem, 2.1vw, 1rem);
+  line-height: 1.25;
+  color: var(--phos);
+  overflow-x: auto;
+}
+
+.typed { font-size: var(--fs-3); color: var(--paper); max-width: 42ch; margin: 0; }
+.typed::after { content: "▮"; color: var(--phos); animation: gn-blink 1s steps(1) infinite; }
+html.calm .typed::after { animation: none; }
+@media (prefers-reduced-motion: reduce) { .typed::after { animation: none; } }
+
+@keyframes gn-blink { 50% { opacity: 0; } }
+
+.hero-actions { display: flex; flex-wrap: wrap; gap: 1rem; margin: 0; }
+
+/* ── modules ──────────────────────────────────────────────────────────── */
+.mod { padding: 2.5rem 1rem 3.5rem; }
+
+.mod-rule {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--phos-dim);
+  font-size: var(--fs-0);
+  letter-spacing: 0.12em;
+  margin-bottom: 2rem;
+}
+
+.rule-line { flex: 1; border-top: 1px solid var(--phos-dim); }
+
+.mod-rule span:last-child { color: var(--amber); }
+
+.mod-body { display: grid; grid-template-columns: 1fr; gap: 1.5rem; align-items: center; }
+
+.mod-viz { position: relative; }
+
+canvas.iso {
+  width: 100%;
+  max-height: 320px;
+  aspect-ratio: 4 / 3;
+}
+
+.iso-fallback {
+  border: 1px dashed var(--phos-dim);
+  color: var(--phos-dim);
+  padding: 2.5rem 1rem;
+  text-align: center;
+  font-size: var(--fs-1);
+}
+
+.lede { max-width: 52ch; }
+
+.rows li {
+  display: grid;
+  grid-template-columns: 6ch 1fr;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid rgba(27, 127, 56, 0.45);
+  max-width: 60ch;
+}
+
+.rows .k { color: var(--amber); letter-spacing: 0.12em; font-size: var(--fs-1); padding-top: 0.15em; }
+.rows .v { color: var(--paper); }
+
+/* ── footer ───────────────────────────────────────────────────────────── */
+.foot {
+  padding: 2.5rem 1rem calc(2.5rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--phos-dim);
+}
+
+.status { color: var(--amber); font-size: var(--fs-0); letter-spacing: 0.08em; margin-top: 2rem; }
+.todo { color: var(--amber); }
+
+/* ── in-browser terminal (plan §6.1) ──────────────────────────────────── */
+.term {
+  position: fixed;
+  inset: 0;
+  z-index: 96;
+  display: flex;
+  flex-direction: column;
+  background: var(--void);
+  padding: calc(0.75rem + env(safe-area-inset-top)) calc(0.75rem + env(safe-area-inset-right)) calc(0.75rem + env(safe-area-inset-bottom)) calc(0.75rem + env(safe-area-inset-left));
+}
+
+.term[hidden] { display: none; }
+body.term-open { overflow: hidden; }
+
+.term-out {
+  flex: 1;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--phos);
+  font-size: var(--fs-1);
+  line-height: 1.5;
+}
+
+.term-out .t-dim { color: var(--phos-dim); }
+.term-out .t-amber { color: var(--amber); }
+.term-out .t-err { color: var(--magenta); }
+.term-out .t-paper { color: var(--paper); }
+
+.term-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.term-quick button {
+  border: 1px solid var(--phos-dim);
+  color: var(--phos);
+  padding: 0.4rem 0.9rem;
+  min-height: 44px;
+}
+
+.term-in-row {
+  display: flex;
+  align-items: center;
+  gap: 1ch;
+  border-top: 1px solid var(--phos-dim);
+  padding-top: 0.5rem;
+}
+
+.term-ps1 { color: var(--amber); white-space: nowrap; }
+
+.term-in {
+  flex: 1;
+  background: none;
+  border: 0;
+  color: var(--paper);
+  font: inherit;
+  caret-color: var(--phos);
+  min-height: 44px;
+}
+.term-in:focus { outline: none; }
+.term-in-row:focus-within { border-top-color: var(--phos); }
+
+/* ── responsive ───────────────────────────────────────────────────────── */
+@media (min-width: 600px) {
+  .mod { padding-left: 2rem; padding-right: 2rem; }
+  .hero { padding-left: 2rem; padding-right: 2rem; }
+  .foot { padding-left: 2rem; padding-right: 2rem; }
+}
+
+@media (min-width: 900px) {
+  .mod-body { grid-template-columns: minmax(0, 26rem) 1fr; gap: 3rem; }
+  canvas.iso { max-height: 380px; aspect-ratio: 1 / 1; }
+  /* alternate canvas side per module */
+  .mod:nth-of-type(odd) .mod-viz { order: 2; }
+  .mod, .hero, .foot { padding-left: 3rem; padding-right: 3rem; }
+  .term-quick { display: none; }
+}
+
+@media (min-width: 1200px) {
+  .mod-body, .hero > *, .foot > *, .mod-rule { max-width: 1100px; margin-left: auto; margin-right: auto; }
+  .mod-rule { margin-bottom: 2rem; }
+}

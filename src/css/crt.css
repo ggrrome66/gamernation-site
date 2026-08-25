@@ -1,0 +1,130 @@
+/* crt.css — scanlines, vignette, flicker, phantom glare (plan §5.1–5.2)
+   Pi rule: transform/opacity animation only. No filter, no backdrop-filter. */
+
+/* scanlines — fixed, static, cheap */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  background: repeating-linear-gradient(rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px);
+}
+
+/* flicker — a faint phosphor wash whose opacity steps between 0.97 and 1.0 */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 91;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 35%, rgba(57, 255, 106, 0.05), transparent 70%);
+  animation: gn-flicker 6s steps(9) infinite;
+}
+
+@keyframes gn-flicker {
+  0%   { opacity: 1; }
+  18%  { opacity: 0.97; }
+  36%  { opacity: 1; }
+  57%  { opacity: 0.98; }
+  71%  { opacity: 0.97; }
+  100% { opacity: 1; }
+}
+
+/* vignette + "curvature" — one baked radial gradient and an inset shadow.
+   No SVG displacement, no border-radius warping (plan §5.1). */
+.crt-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 92;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, transparent 62%, rgba(0, 0, 0, 0.5) 100%);
+  box-shadow: inset 0 0 5rem rgba(0, 0, 0, 0.65);
+}
+
+/* phosphor bloom — text-shadow only, never blur() */
+.glare,
+.wordmark,
+.brand,
+.key {
+  text-shadow: 0 0 2px currentColor, 0 0 8px rgba(57, 255, 106, 0.35);
+}
+
+/* ── phantom glare: the signature (plan §5.2) ─────────────────────────── */
+.glare {
+  position: relative;
+  font-size: var(--fs-5);
+  color: var(--phos);
+}
+
+.glare > span[aria-hidden] { position: relative; z-index: 2; }
+
+.glare::before,
+.glare::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.45;
+  mix-blend-mode: screen;
+  text-shadow: none;
+}
+
+.glare::before {
+  color: var(--magenta);
+  transform: translate(-2px, 0);
+  animation: gn-drift-a 6s ease-in-out infinite alternate;
+}
+
+.glare::after {
+  color: var(--cyan);
+  transform: translate(2px, 0);
+  animation: gn-drift-b 7.4s ease-in-out infinite alternate;
+}
+
+@keyframes gn-drift-a {
+  from { transform: translate(-2px, 0); }
+  to   { transform: translate(-3px, 1px); }
+}
+
+@keyframes gn-drift-b {
+  from { transform: translate(2px, 0); }
+  to   { transform: translate(3px, -1px); }
+}
+
+/* hover/focus: ghosts jump apart fast, snap back — arcade, not fade */
+.glare:hover::before,
+.glare:focus-within::before {
+  animation: none;
+  transform: translate(-6px, 0);
+  transition: transform 90ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.glare:hover::after,
+.glare:focus-within::after {
+  animation: none;
+  transform: translate(6px, 0);
+  transition: transform 90ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+/* ── stillness: reduced motion or the manual ▮ kill switch ────────────── */
+@media (prefers-reduced-motion: reduce) {
+  body::after { animation: none; }
+  .glare::before, .glare::after { animation: none; transition: none; }
+  .glare:hover::before, .glare:focus-within::before { transform: translate(-2px, 0); }
+  .glare:hover::after, .glare:focus-within::after { transform: translate(2px, 0); }
+}
+
+html.calm body::after { animation: none; }
+html.calm .glare::before, html.calm .glare::after { animation: none; transition: none; }
+html.calm .glare:hover::before, html.calm .glare:focus-within::before { transform: translate(-2px, 0); }
+html.calm .glare:hover::after, html.calm .glare:focus-within::after { transform: translate(2px, 0); }
+
+/* high contrast preference: drop the atmosphere to near-zero (plan §9) */
+@media (prefers-contrast: more) {
+  body::before, body::after, .crt-vignette { opacity: 0.05; }
+  .glare::before, .glare::after { opacity: 0.06; }
+  .glare, .wordmark, .brand, .key { text-shadow: none; }
+}

@@ -1,0 +1,5 @@
+# TODO:LUKAS — confirm the contact mailbox before deploy (RFC 9116).
+Contact: mailto:TODO@gamernation.ca
+Expires: 2027-06-21T01:15:32.921Z
+Preferred-Languages: en
+Canonical: https://gamernation.ca/.well-known/security.txt

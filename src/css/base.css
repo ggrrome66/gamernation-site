@@ -1,0 +1,108 @@
+/* base.css — reset, tokens, type scale, a11y primitives (plan §1.1–1.2, §9) */
+
+:root {
+  --void: #05070A;
+  --phos: #39FF6A;
+  --phos-dim: #1B7F38;
+  --amber: #FFB000;
+  --magenta: #FF3CA0;
+  --cyan: #22D3EE;
+  --paper: #C8FFD4;
+  --font-ui: ui-monospace, "SFMono-Regular", "Cascadia Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  /* type scale 0.75 / 0.875 / 1 / 1.25 / 1.75 / 2.75rem, clamped for mobile */
+  --fs-0: 0.75rem;
+  --fs-1: 0.875rem;
+  --fs-2: 1rem;
+  --fs-3: 1.25rem;
+  --fs-4: clamp(1.35rem, 4vw, 1.75rem);
+  --fs-5: clamp(1.8rem, 7vw, 2.75rem);
+  --bar-h: 40px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--void);
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: var(--fs-2);
+  line-height: 1.55;
+  color: var(--paper);
+  background: var(--void);
+}
+
+h1, h2, h3 {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1.15;
+  margin: 0 0 0.6em;
+}
+
+p { margin: 0 0 1em; }
+
+a { color: var(--phos); text-underline-offset: 3px; }
+a:hover { color: var(--cyan); }
+
+code {
+  font-family: inherit;
+  color: var(--amber);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* author display rules must never resurrect [hidden] elements */
+[hidden] { display: none !important; }
+
+canvas { display: block; max-width: 100%; }
+pre { margin: 0; }
+ul { margin: 0; padding: 0; list-style: none; }
+
+/* keyboard focus is always visible (plan §9) */
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
+/* visually hidden, screen-reader readable */
+.vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* skip link — first focusable element */
+.skip {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  z-index: 120;
+  background: var(--void);
+  color: var(--amber);
+  padding: 0.6rem 1rem;
+}
+.skip:focus { left: 0; }
+
+::selection {
+  background: var(--phos-dim);
+  color: var(--void);
+  text-shadow: none;
+}

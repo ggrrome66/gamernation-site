@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{DESC}}">
+<meta name="color-scheme" content="dark">
+<title>{{NAME}} — {{TAG}}</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/app.css">
+<script src="/app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+
+<header class="bar">
+  <a class="brand" href="#top">[{{NAME_UPPER}}]</a>
+  <nav class="bar-nav" aria-label="site controls">
+    <button id="btn-term" class="bar-btn" hidden aria-pressed="false">TERM</button>
+    <button id="btn-calm" class="bar-btn" hidden aria-pressed="false" aria-label="pause ambient motion">▮</button>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="hero" id="top" aria-label="boot sequence">
+    <h1 class="vh">{{NAME}} — {{TAG}}</h1>
+    <pre class="wordmark" aria-hidden="true">{{BANNER}}</pre>
+    <p class="typed" id="typed">{{BOOT}}</p>
+    <p class="hero-actions">
+      <a class="key" href="#mod-air">[ ENTER ]</a>
+      <button class="key" id="btn-term2" hidden>[ ~ FOR TERMINAL ]</button>
+    </p>
+  </section>
+
+{{MODULES}}
+</main>
+
+<footer class="foot" id="contact">
+  <div class="mod-rule" aria-hidden="true"><span>MOD.FF</span><span class="rule-line"></span><span>LINK</span></div>
+  <h2 class="glare" data-text="CONTACT"><span aria-hidden="true">CONTACT</span><span class="vh">Contact</span></h2>
+  <p>{{NAME}} — {{JURISDICTION}}.</p>
+  <p class="contact-line">email: {{EMAIL_HTML}}</p>
+  <p class="curl-line">this page works from a real terminal too: <code>$ curl {{DOMAIN}}</code></p>
+  <p><a href="/.well-known/security.txt">security.txt</a></p>
+  <p class="status" id="status">{{STAMP}} · NODE: {{NODE}} · TLS: <span id="tls">—</span> · UPTIME <span id="up">—</span></p>
+</footer>
+
+<div class="crt-vignette" aria-hidden="true"></div>
+</body>
+</html>
