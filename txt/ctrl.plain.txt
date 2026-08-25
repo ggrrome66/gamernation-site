@@ -1,0 +1,33 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+│              ╔═╗ ╔═╗ ╔╦╗ ╔═╗ ╦═╗ ╔╗╔ ╔═╗ ╔╦╗ ╦ ╔═╗ ╔╗╔               │
+│              ║ ╦ ╠═╣ ║║║ ║╣  ╠╦╝ ║║║ ╠═╣  ║  ║ ║ ║ ║║║               │
+│              ╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝               │
+│                                                   INC.               │
+│                                                                      │
+│             drones · websites · ground-control software              │
+│                     Federal corporation, Canada                      │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│                                                                      │
+│ MOD.03 · CTRL — CUSTOM DRONE SOFTWARE                                │
+│                                                                      │
+│ Ground-station and fleet-management software written to fit an       │
+│ operator's actual workflow — not someone else's dashboard.           │
+│                                                                      │
+│ PLAN                                                                 │
+│   Mission planning built around how your crews actually fly.         │
+│                                                                      │
+│ WATCH                                                                │
+│   Live asset monitoring and telemetry capture at the ground station. │
+│                                                                      │
+│ KEEP                                                                 │
+│   Post-flight data handling — capture, organize, and hand back the   │
+│   record that matters.                                               │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│                                                                      │
+│ index: curl gamernation.ca                                           │
+│ contact: curl gamernation.ca/txt/contact.txt                         │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘

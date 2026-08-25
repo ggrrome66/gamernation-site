@@ -1,0 +1,36 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+│              ╔═╗ ╔═╗ ╔╦╗ ╔═╗ ╦═╗ ╔╗╔ ╔═╗ ╔╦╗ ╦ ╔═╗ ╔╗╔               │
+│              ║ ╦ ╠═╣ ║║║ ║╣  ╠╦╝ ║║║ ╠═╣  ║  ║ ║ ║ ║║║               │
+│              ╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝               │
+│                                                   INC.               │
+│                                                                      │
+│             drones · websites · ground-control software              │
+│                     Federal corporation, Canada                      │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│                                                                      │
+│ MOD.01 · AIR  Drones & drone services                                │
+│   Purpose-built small UAS — designed, built, flown, and taught, end  │
+│   to end.                                                            │
+│   → curl gamernation.ca/txt/air.txt                                  │
+│                                                                      │
+│ MOD.02 · NET  Websites & social for small businesses                 │
+│   Hand-built sites that load on bad rural connections and cheap      │
+│   phones — this very page is the demo, running on a single-board     │
+│   computer.                                                          │
+│   → curl gamernation.ca/txt/net.txt                                  │
+│                                                                      │
+│ MOD.03 · CTRL  Custom drone software                                 │
+│   Ground-station and fleet-management software written to fit an     │
+│   operator's actual workflow — not someone else's dashboard.         │
+│   → curl gamernation.ca/txt/ctrl.txt                                 │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│                                                                      │
+│ contact   TODO:LUKAS                                                 │
+│ no colours? append ?plain or fetch /txt/index.plain.txt              │
+│ graphical: https://gamernation.ca                                    │
+│ served static from a raspberry pi                                    │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘

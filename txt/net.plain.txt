@@ -1,0 +1,35 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+│              ╔═╗ ╔═╗ ╔╦╗ ╔═╗ ╦═╗ ╔╗╔ ╔═╗ ╔╦╗ ╦ ╔═╗ ╔╗╔               │
+│              ║ ╦ ╠═╣ ║║║ ║╣  ╠╦╝ ║║║ ╠═╣  ║  ║ ║ ║ ║║║               │
+│              ╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝               │
+│                                                   INC.               │
+│                                                                      │
+│             drones · websites · ground-control software              │
+│                     Federal corporation, Canada                      │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│                                                                      │
+│ MOD.02 · NET — WEBSITES & SOCIAL FOR SMALL BUSINESSES                │
+│                                                                      │
+│ Hand-built sites that load on bad rural connections and cheap phones │
+│ — this very page is the demo, running on a single-board computer.    │
+│                                                                      │
+│ SITES                                                                │
+│   Small, fast, hand-built pages. No bloated themes, no third-party   │
+│   trackers, no surprise invoices for plugins.                        │
+│                                                                      │
+│ SOCIAL                                                               │
+│   Ongoing social updates handled on a schedule, so a small operator  │
+│   isn't drafting posts at 11pm.                                      │
+│                                                                      │
+│ HOST                                                                 │
+│   Set up to run cheap and keep running — the same way this site runs │
+│   on a Raspberry Pi.                                                 │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│                                                                      │
+│ index: curl gamernation.ca                                           │
+│ contact: curl gamernation.ca/txt/contact.txt                         │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘

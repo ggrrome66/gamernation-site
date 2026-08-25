@@ -1,0 +1,36 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+│              ╔═╗ ╔═╗ ╔╦╗ ╔═╗ ╦═╗ ╔╗╔ ╔═╗ ╔╦╗ ╦ ╔═╗ ╔╗╔               │
+│              ║ ╦ ╠═╣ ║║║ ║╣  ╠╦╝ ║║║ ╠═╣  ║  ║ ║ ║ ║║║               │
+│              ╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝               │
+│                                                   INC.               │
+│                                                                      │
+│             drones · websites · ground-control software              │
+│                     Federal corporation, Canada                      │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│                                                                      │
+│ MOD.01 · AIR — DRONES & DRONE SERVICES                               │
+│                                                                      │
+│ Purpose-built small UAS — designed, built, flown, and taught, end to │
+│ end.                                                                 │
+│                                                                      │
+│ BUILD                                                                │
+│   Airframe design, fabrication, integration, and bring-up of         │
+│   purpose-built small UAS.                                           │
+│                                                                      │
+│ FLY                                                                  │
+│   Survey and inspection flights flown to a plan, with data delivered │
+│   — not just imagery dumped.                                         │
+│                                                                      │
+│ TRAIN                                                                │
+│   Three tiers — Basic, Advanced, and Complex — the last built around │
+│   a 4-inch, single-cell (1S) recon platform for emergency services.  │
+│   Certification and flight-review wording: TODO:LUKAS.               │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│                                                                      │
+│ index: curl gamernation.ca                                           │
+│ contact: curl gamernation.ca/txt/contact.txt                         │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘

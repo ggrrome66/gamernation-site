@@ -1,0 +1,36 @@
+[38;5;29m┌──────────────────────────────────────────────────────────────────────┐[0m
+[38;5;29m│ [0m                                                                    [38;5;29m │[0m
+[38;5;29m│ [0m             [38;5;84m[1m╔═╗ ╔═╗ ╔╦╗ ╔═╗ ╦═╗ ╔╗╔ ╔═╗ ╔╦╗ ╦ ╔═╗ ╔╗╔[0m              [38;5;29m │[0m
+[38;5;29m│ [0m             [38;5;84m[1m║ ╦ ╠═╣ ║║║ ║╣  ╠╦╝ ║║║ ╠═╣  ║  ║ ║ ║ ║║║[0m              [38;5;29m │[0m
+[38;5;29m│ [0m             [38;5;84m[1m╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝[0m              [38;5;29m │[0m
+[38;5;29m│ [0m             [38;5;84m[1m                                     INC.[0m              [38;5;29m │[0m
+[38;5;29m│ [0m                                                                    [38;5;29m │[0m
+[38;5;29m│ [0m            [38;5;214mdrones · websites · ground-control software[0m             [38;5;29m │[0m
+[38;5;29m│ [0m                    [38;5;29mFederal corporation, Canada[0m                     [38;5;29m │[0m
+[38;5;29m│ [0m                                                                    [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;29m────────────────────────────────────────────────────────────────────[0m[38;5;29m │[0m
+[38;5;29m│ [0m                                                                    [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;214mMOD.01 · AIR[0m  [38;5;84m[1mDrones & drone services[0m                               [38;5;29m │[0m
+[38;5;29m│ [0m  Purpose-built small UAS — designed, built, flown, and taught, end [38;5;29m │[0m
+[38;5;29m│ [0m  to end.                                                           [38;5;29m │[0m
+[38;5;29m│ [0m  [38;5;29m→ curl gamernation.ca/txt/air.txt[0m                                 [38;5;29m │[0m
+[38;5;29m│ [0m                                                                    [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;214mMOD.02 · NET[0m  [38;5;84m[1mWebsites & social for small businesses[0m                [38;5;29m │[0m
+[38;5;29m│ [0m  Hand-built sites that load on bad rural connections and cheap     [38;5;29m │[0m
+[38;5;29m│ [0m  phones — this very page is the demo, running on a single-board    [38;5;29m │[0m
+[38;5;29m│ [0m  computer.                                                         [38;5;29m │[0m
+[38;5;29m│ [0m  [38;5;29m→ curl gamernation.ca/txt/net.txt[0m                                 [38;5;29m │[0m
+[38;5;29m│ [0m                                                                    [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;214mMOD.03 · CTRL[0m  [38;5;84m[1mCustom drone software[0m                                [38;5;29m │[0m
+[38;5;29m│ [0m  Ground-station and fleet-management software written to fit an    [38;5;29m │[0m
+[38;5;29m│ [0m  operator's actual workflow — not someone else's dashboard.        [38;5;29m │[0m
+[38;5;29m│ [0m  [38;5;29m→ curl gamernation.ca/txt/ctrl.txt[0m                                [38;5;29m │[0m
+[38;5;29m│ [0m                                                                    [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;29m────────────────────────────────────────────────────────────────────[0m[38;5;29m │[0m
+[38;5;29m│ [0m                                                                    [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;214mcontact[0m   [38;5;205mTODO:LUKAS[0m                                                [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;29mno colours? append ?plain or fetch /txt/index.plain.txt[0m             [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;29mgraphical: https://gamernation.ca[0m                                   [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;29mserved static from a raspberry pi[0m                                   [38;5;29m │[0m
+[38;5;29m│ [0m                                                                    [38;5;29m │[0m
+[38;5;29m└──────────────────────────────────────────────────────────────────────┘[0m
