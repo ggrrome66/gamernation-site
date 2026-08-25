@@ -93,7 +93,22 @@ html.calm .typed::after { animation: none; }
   margin-bottom: 2rem;
 }
 
-.rule-line { flex: 1; border-top: 1px solid var(--phos-dim); }
+.rule-line { flex: 1; position: relative; overflow: hidden; border-top: 1px solid var(--phos-dim); }
+
+/* Aperture-style scan sweeping along the section rule */
+.rule-line::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 26%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.calm) .rule-line::after { animation: gn-scan 6s linear infinite; }
+}
+@keyframes gn-scan { from { transform: translateX(-30%); } to { transform: translateX(400%); } }
 
 .mod-rule span:last-child { color: var(--amber); }
 
@@ -101,7 +116,29 @@ html.calm .typed::after { animation: none; }
 
 .mod-viz { position: relative; }
 
+/* twin portal glow (orange + blue) breathing behind the isometric canvas */
+.mod-viz::before {
+  content: "";
+  position: absolute;
+  inset: -6% -4%;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(6px);
+  background:
+    radial-gradient(42% 52% at 33% 62%, rgba(255, 176, 0, 0.11), transparent 70%),
+    radial-gradient(42% 52% at 67% 40%, rgba(34, 211, 238, 0.11), transparent 70%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.calm) .mod-viz::before { animation: gn-portal 9s ease-in-out infinite alternate; }
+}
+@keyframes gn-portal {
+  from { opacity: 0.5; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1.03); }
+}
+
 canvas.iso {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-height: 320px;
   aspect-ratio: 4 / 3;

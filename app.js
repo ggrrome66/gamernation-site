@@ -62,6 +62,8 @@ const S30 = 0.5;
 const REV = (2 * Math.PI) / 14000;        // one revolution per ~14s
 const FILL = ["#07240f", "#124f23", "#1b7f38", "#27b04f"]; // 4 flat shades
 const PHOS = "#39ff6a", MAG = "#ff3ca0", CYN = "#22d3ee", EDGE = "#0a2f16";
+const ORN = "#ffb000";                     // portal-orange accent (amber)
+const TAU = 2 * Math.PI;
 function M() { return { v: [], e: [], f: [] }; }
 function box(m, cx, cy, cz, w, h, d, sh) {
 const s = m.v.length, X = w / 2, Y = h / 2, Z = d / 2;
@@ -79,7 +81,7 @@ const s = m.v.length, X = w / 2, Y = h / 2, Z = d / 2;
 function disc(m, cx, cy, cz, r, n, sh) {
 const s = m.v.length, face = [];
 for (let i = 0; i < n; i++) {
-const a = (i / n) * 2 * Math.PI;
+const a = (i / n) * TAU;
 m.v.push([cx + Math.cos(a) * r, cy, cz + Math.sin(a) * r]);
 m.e.push([s + i, s + ((i + 1) % n)]);
 face.push(s + i);
@@ -87,19 +89,33 @@ face.push(s + i);
 face.push(sh);
 m.f.push(face);
 }
+function finalize(m) {
+let baseY = 1e9, rad = 0;
+for (const v of m.v) {
+baseY = Math.min(baseY, v[1]);
+rad = Math.max(rad, Math.hypot(v[0], v[2]));
+}
+m.baseY = baseY;
+m.rad = rad;
+return m;
+}
 function quad() {                          // MOD.01 — 4-arm multirotor
 const m = M();
 box(m, 0, 0, 0, 1.1, 0.42, 1.1, 2);      // fuselage
 box(m, 0, 0.32, 0, 0.55, 0.24, 0.55, 1); // stack
+box(m, 0, 0.0, 0.72, 0.34, 0.2, 0.3, 3); // front camera pod
 box(m, 1.5, 0, 0, 1.5, 0.14, 0.18, 1);   // arms (+ frame)
 box(m, -1.5, 0, 0, 1.5, 0.14, 0.18, 1);
 box(m, 0, 0, 1.5, 0.18, 0.14, 1.5, 1);
 box(m, 0, 0, -1.5, 0.18, 0.14, 1.5, 1);
-[[2.1, 0], [-2.1, 0], [0, 2.1], [0, -2.1]].forEach(p => {
-box(m, p[0], 0.16, p[1], 0.3, 0.3, 0.3, 3);   // motors
-disc(m, p[0], 0.4, p[1], 0.8, 8, 0);          // prop discs
-});
-return m;
+box(m, 0.85, -0.34, 0, 0.12, 0.3, 1.7, 1); // landing skids
+box(m, -0.85, -0.34, 0, 0.12, 0.3, 1.7, 1);
+[[2.1, 0], [-2.1, 0], [0, 2.1], [0, -2.1]].forEach(p =>
+box(m, p[0], 0.16, p[1], 0.3, 0.3, 0.3, 3));  // motors
+m.core = [0, 0.5, 0];
+m.motors = [[2.1, 0.4, 0, 1], [-2.1, 0.4, 0, -1],
+[0, 0.4, 2.1, -1], [0, 0.4, -2.1, 1]];
+return finalize(m);
 }
 function crt() {                           // MOD.02 — CRT + keyboard
 const m = M();
@@ -108,7 +124,8 @@ box(m, 0, 0.62, 0.78, 1.7, 1.2, 0.14, 3);// screen
 box(m, 0, -0.42, -0.2, 1.4, 0.28, 1.2, 1);// stand
 box(m, 0, -0.66, 1.0, 2.5, 0.16, 1.0, 2); // keyboard
 box(m, 0, -0.54, 1.0, 2.3, 0.1, 0.8, 3);  // keycaps
-return m;
+m.core = [0, 0.62, 0.9];                   // screen glow / signal source
+return finalize(m);
 }
 function rack() {                          // MOD.03 — ground station
 const m = M();
@@ -118,7 +135,9 @@ box(m, -0.6, -0.62, 0.84, 0.8, 0.35, 0.1, 1); // panels
 box(m, 0.65, -0.62, 0.84, 0.6, 0.35, 0.1, 1);
 box(m, 0.95, 1.15, -0.5, 0.08, 1.5, 0.08, 1); // antenna mast
 disc(m, 0.95, 1.92, -0.5, 0.3, 6, 3);         // antenna cap
-return m;
+m.core = [0, 0.15, 0.92];                      // display strip glow
+m.radar = [0.95, 1.9, -0.5];                   // sweep origin (mast top)
+return finalize(m);
 }
 const MODELS = { quad, crt, rack };
 const units = [];
@@ -132,14 +151,14 @@ return [(x - z) * C30, (x + z) * S30 - v[1], x + z];
 function measure(u) {
 let mx = 0, top = 1e9, bot = -1e9;
 for (let i = 0; i < 24; i++) {
-const rot = (i / 24) * 2 * Math.PI;
+const rot = (i / 24) * TAU;
 for (const v of u.model.v) {
 const p = project(v, rot);
 mx = Math.max(mx, Math.abs(p[0]));
 top = Math.min(top, p[1]); bot = Math.max(bot, p[1]);
 }
 }
-u.scale = Math.min(u.w / (2 * mx), u.h / (bot - top)) * 0.86;
+u.scale = Math.min(u.w / (2.3 * mx), u.h / (bot - top)) * 0.82;
 u.midY = (top + bot) / 2;
 }
 function strokeEdges(ctx, u, P, dx, dy, color, alpha) {
@@ -155,14 +174,122 @@ ctx.lineTo(dx + b[0] * u.scale, dy + b[1] * u.scale);
 ctx.stroke();
 ctx.globalAlpha = 1;
 }
+function dot(ctx, x, y, r, color, glow) {
+ctx.save();
+ctx.fillStyle = color;
+ctx.shadowColor = color;
+ctx.shadowBlur = glow;
+ctx.beginPath();
+ctx.arc(x, y, r, 0, TAU);
+ctx.fill();
+ctx.restore();
+}
+function ray(ctx, a, b, color, w, alpha, glow) {
+ctx.save();
+ctx.strokeStyle = color;
+ctx.globalAlpha = alpha;
+ctx.lineWidth = w;
+if (glow) { ctx.shadowColor = color; ctx.shadowBlur = glow; }
+ctx.beginPath();
+ctx.moveTo(a[0], a[1]);
+ctx.lineTo(b[0], b[1]);
+ctx.stroke();
+ctx.restore();
+}
+function portalArc(ctx, put, r, y, phase, color) {
+ctx.save();
+ctx.strokeStyle = color;
+ctx.shadowColor = color;
+ctx.shadowBlur = 8;
+ctx.lineWidth = 2;
+ctx.beginPath();
+for (let a = 0; a <= 0.75; a += 0.09) {
+const p = put([Math.cos(phase + a) * r, y, Math.sin(phase + a) * r]);
+a ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+}
+ctx.stroke();
+ctx.restore();
+}
+function ring(ctx, u, put, now) {
+const m = u.model, y = m.baseY - 0.1, r = m.rad * 1.14;
+ctx.save();
+ctx.strokeStyle = EDGE;
+ctx.lineWidth = 1;
+ctx.beginPath();
+for (let i = 0; i <= 40; i++) {
+const p = put([Math.cos(i / 40 * TAU) * r, y, Math.sin(i / 40 * TAU) * r]);
+i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+}
+ctx.stroke();
+ctx.restore();
+portalArc(ctx, put, r, y, now / 1500, ORN);
+portalArc(ctx, put, r, y, Math.PI - now / 1500, CYN);
+}
+function core(ctx, u, now, put) {
+if (!u.model.core) return;
+const c = put(u.model.core);
+dot(ctx, c[0], c[1], 2.4 + (Math.sin(now / 500) * 0.5 + 0.5) * 2.6, ORN, 12);
+}
+function fxQuad(ctx, u, now, put) {
+for (const mo of u.model.motors) {
+const y = mo[1], r = 0.85, spin = now / 90 * mo[3];
+const c = put([mo[0], y, mo[2]]);
+ctx.save();                              // faint prop-wash disc
+ctx.strokeStyle = CYN;
+ctx.globalAlpha = 0.14;
+ctx.beginPath();
+for (let i = 0; i <= 16; i++) {
+const a = i / 16 * TAU;
+const p = put([mo[0] + Math.cos(a) * r, y, mo[2] + Math.sin(a) * r]);
+i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+}
+ctx.stroke();
+ctx.restore();
+for (let b = 0; b < 2; b++) {             // two blades
+const a = spin + b * Math.PI;
+const e = put([mo[0] + Math.cos(a) * r, y, mo[2] + Math.sin(a) * r]);
+ray(ctx, c, e, CYN, 2, 0.9, 6);
+}
+}
+}
+function fxCrt(ctx, u, now, put) {
+const c = put(u.model.core), cols = [CYN, ORN, MAG];
+for (let i = 0; i < 3; i++) {
+const a = now / 1500 + (i / 3) * TAU;
+const y = 0.25 + Math.sin(now / 700 + i * 2) * 0.55;
+const p = put([Math.cos(a) * 2.5, y, Math.sin(a) * 2.5]);
+ray(ctx, c, p, cols[i], 1, 0.22, 0);
+dot(ctx, p[0], p[1], 2.6, cols[i], 8);
+}
+}
+function fxRack(ctx, u, now, put) {
+const o = put(u.model.radar), a = now / 900;
+const tip = put([u.model.radar[0] + Math.cos(a) * 2.1, u.model.radar[1] - 0.6,
+u.model.radar[2] + Math.sin(a) * 2.1]);
+ray(ctx, o, tip, CYN, 1.5, 0.5, 8);
+dot(ctx, tip[0], tip[1], 2.4, CYN, 8);
+const a2 = now / 2200, r2 = 2.7, y2 = 1.0;
+const cx = Math.cos(a2) * r2, cz = Math.sin(a2) * r2;
+const d = put([cx, y2, cz]);
+for (const off of [[0.36, 0], [-0.36, 0], [0, 0.36], [0, -0.36]])
+ray(ctx, d, put([cx + off[0], y2, cz + off[1]]), ORN, 1, 0.75, 0);
+dot(ctx, d[0], d[1], 2, ORN, 8);
+}
+const FX = { quad: fxQuad, crt: fxCrt, rack: fxRack };
 function draw(u, now) {
 const ctx = u.ctx, w = u.w, h = u.h;
 const glitch = u.glitchUntil > now;
 const jolt = glitch && u.jolt ? u.jolt : 0;
-const ox = w / 2 + jolt, oy = h / 2 - u.midY * u.scale;
+const bob = glitch ? 0 : Math.sin(now / 900) * h * 0.012;
+const ox = w / 2 + jolt, oy = h / 2 - u.midY * u.scale + bob;
 ctx.clearRect(0, 0, w, h);
 const P = u.model.v.map(v => project(v, u.rot));
 if (!glitch) {
+const put = v => {
+const p = project(v, u.rot);
+return [ox + p[0] * u.scale, oy + p[1] * u.scale];
+};
+ring(ctx, u, put, now);                  // platform ring, behind model
 const faces = u.model.f
 .map(f => {
 let d = 0;
@@ -185,6 +312,8 @@ ctx.fill();
 ctx.strokeStyle = EDGE;
 ctx.stroke();
 }
+(FX[u.kind] || fxQuad)(ctx, u, now, put); // model-specific accents
+core(ctx, u, now, put);                   // pulsing power core, on top
 } else {
 strokeEdges(ctx, u, P, ox - 1, oy, MAG, 0.6);
 strokeEdges(ctx, u, P, ox + 1, oy, CYN, 0.6);
@@ -253,9 +382,10 @@ loop();
 : null;
 list.forEach(cv => {
 cv.hidden = false;
+const kind = cv.dataset.model || "quad";
 const u = {
-canvas: cv, ctx: cv.getContext("2d"),
-model: (MODELS[cv.dataset.model] || quad)(),
+canvas: cv, ctx: cv.getContext("2d"), kind,
+model: (MODELS[kind] || quad)(),
 rot: 0.7, on: !io,
 glitchUntil: 0, nextGlitch: 7000 + Math.random() * 8000,
 jolt: 0, slices: 2, w: 0, h: 0, scale: 1, midY: 0
