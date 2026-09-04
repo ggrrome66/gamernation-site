@@ -5,7 +5,7 @@
 │              ╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝               │
 │                                                   INC.               │
 │                                                                      │
-│             drones · websites · ground-control software              │
+│        drones · training · websites · ground-control software        │
 │                     Federal corporation, Canada                      │
 │                                                                      │
 │ ──────────────────────────────────────────────────────────────────── │
@@ -24,9 +24,10 @@
 │   — not just imagery dumped.                                         │
 │                                                                      │
 │ TRAIN                                                                │
-│   Three tiers — Basic, Advanced, and Complex — the last built around │
-│   a 4-inch, single-cell (1S) recon platform for emergency services.  │
-│   Certification and flight-review wording: TODO:LUKAS.               │
+│   Live flight tiers (Basic / Advanced / Complex) on a 4-inch,        │
+│   single-cell (1S) recon platform for emergency services —           │
+│   certification wording TODO:LUKAS. Software survey trainer: see     │
+│   MOD.02 TRAIN.                                                      │
 │                                                                      │
 │ ──────────────────────────────────────────────────────────────────── │
 │                                                                      │

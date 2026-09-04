@@ -5,12 +5,12 @@
 │              ╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝               │
 │                                                   INC.               │
 │                                                                      │
-│             drones · websites · ground-control software              │
+│        drones · training · websites · ground-control software        │
 │                     Federal corporation, Canada                      │
 │                                                                      │
 │ ──────────────────────────────────────────────────────────────────── │
 │                                                                      │
-│ MOD.03 · CTRL — CUSTOM DRONE SOFTWARE                                │
+│ MOD.04 · CTRL — CUSTOM DRONE SOFTWARE                                │
 │                                                                      │
 │ Ground-station and fleet-management software written to fit an       │
 │ operator's actual workflow — not someone else's dashboard.           │

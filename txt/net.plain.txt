@@ -5,12 +5,12 @@
 │              ╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝               │
 │                                                   INC.               │
 │                                                                      │
-│             drones · websites · ground-control software              │
+│        drones · training · websites · ground-control software        │
 │                     Federal corporation, Canada                      │
 │                                                                      │
 │ ──────────────────────────────────────────────────────────────────── │
 │                                                                      │
-│ MOD.02 · NET — WEBSITES & SOCIAL FOR SMALL BUSINESSES                │
+│ MOD.03 · NET — WEBSITES & SOCIAL FOR SMALL BUSINESSES                │
 │                                                                      │
 │ Hand-built sites that load on bad rural connections and cheap phones │
 │ — this very page is the demo, running on a single-board computer.    │

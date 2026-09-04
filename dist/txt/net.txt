@@ -5,12 +5,12 @@
 [38;5;29m│ [0m             [38;5;84m[1m╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝[0m              [38;5;29m │[0m
 [38;5;29m│ [0m             [38;5;84m[1m                                     INC.[0m              [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
-[38;5;29m│ [0m            [38;5;214mdrones · websites · ground-control software[0m             [38;5;29m │[0m
+[38;5;29m│ [0m       [38;5;214mdrones · training · websites · ground-control software[0m       [38;5;29m │[0m
 [38;5;29m│ [0m                    [38;5;29mFederal corporation, Canada[0m                     [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
 [38;5;29m│ [0m[38;5;29m────────────────────────────────────────────────────────────────────[0m[38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
-[38;5;29m│ [0m[38;5;214m[1mMOD.02 · NET — WEBSITES & SOCIAL FOR SMALL BUSINESSES[0m               [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;214m[1mMOD.03 · NET — WEBSITES & SOCIAL FOR SMALL BUSINESSES[0m               [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
 [38;5;29m│ [0m[38;5;84mHand-built sites that load on bad rural connections and cheap phones[0m[38;5;29m │[0m
 [38;5;29m│ [0m[38;5;84m— this very page is the demo, running on a single-board computer.[0m   [38;5;29m │[0m

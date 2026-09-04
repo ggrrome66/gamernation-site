@@ -5,7 +5,7 @@
 │              ╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝               │
 │                                                   INC.               │
 │                                                                      │
-│             drones · websites · ground-control software              │
+│        drones · training · websites · ground-control software        │
 │                     Federal corporation, Canada                      │
 │                                                                      │
 │ ──────────────────────────────────────────────────────────────────── │

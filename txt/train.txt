@@ -10,22 +10,24 @@
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
 [38;5;29m│ [0m[38;5;29m────────────────────────────────────────────────────────────────────[0m[38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
-[38;5;29m│ [0m[38;5;214m[1mMOD.03 · NET — WEBSITES & SOCIAL FOR SMALL BUSINESSES[0m               [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;214m[1mMOD.02 · TRAIN — DRONE SURVEY TRAINING SIM[0m                          [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
-[38;5;29m│ [0m[38;5;84mHand-built sites that load on bad rural connections and cheap phones[0m[38;5;29m │[0m
-[38;5;29m│ [0m[38;5;84m— this very page is the demo, running on a single-board computer.[0m   [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;84mLong-distance survey flying for field operators — weather, traffic,[0m [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;84mwildlife, and the checks before and after you leave the ground. In[0m  [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;84mdevelopment.[0m                                                        [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
-[38;5;29m│ [0m[38;5;214mSITES[0m                                                               [38;5;29m │[0m
-[38;5;29m│ [0m  Small, fast, hand-built pages. No bloated themes, no third-party  [38;5;29m │[0m
-[38;5;29m│ [0m  trackers, no surprise invoices for plugins.                       [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;214mCORE[0m                                                                [38;5;29m │[0m
+[38;5;29m│ [0m  Realism-first sim for long-range survey work: plan the flight, fly[38;5;29m │[0m
+[38;5;29m│ [0m  the corridor, bring the data home.                                [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
-[38;5;29m│ [0m[38;5;214mSOCIAL[0m                                                              [38;5;29m │[0m
-[38;5;29m│ [0m  Ongoing social updates handled on a schedule, so a small operator [38;5;29m │[0m
-[38;5;29m│ [0m  isn't drafting posts at 11pm.                                     [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;214mDRILL[0m                                                               [38;5;29m │[0m
+[38;5;29m│ [0m  Weather systems, air traffic, wildlife avoidance (birds, bears),  [38;5;29m │[0m
+[38;5;29m│ [0m  plus preflight and postflight inspection until they stick.        [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
-[38;5;29m│ [0m[38;5;214mHOST[0m                                                                [38;5;29m │[0m
-[38;5;29m│ [0m  Set up to run cheap and keep running — the same way this site runs[38;5;29m │[0m
-[38;5;29m│ [0m  on a Raspberry Pi.                                                [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;214mPLAY[0m                                                                [38;5;29m │[0m
+[38;5;29m│ [0m  Optional arcade layers for cloud avoidance and ID tasks;          [38;5;29m │[0m
+[38;5;29m│ [0m  Minecraft-like familiarity so crews learn fast. Windows PC first. [38;5;29m │[0m
+[38;5;29m│ [0m  Steam / direct / agency path: TODO:LUKAS.                         [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
 [38;5;29m│ [0m[38;5;29m────────────────────────────────────────────────────────────────────[0m[38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m

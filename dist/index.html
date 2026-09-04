@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="GamerNation Inc. — drones · websites · ground-control software. Federal corporation, Canada.">
+<meta name="description" content="GamerNation Inc. — drones · training · websites · ground-control software. Federal corporation, Canada.">
 <meta name="color-scheme" content="dark">
-<title>GamerNation Inc. — drones · websites · ground-control software</title>
+<title>GamerNation Inc. — drones · training · websites · ground-control software</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="app.css">
 <script src="app.js" defer></script>
@@ -23,7 +23,7 @@
 
 <main id="main">
   <section class="hero" id="top" aria-label="boot sequence">
-    <h1 class="vh">GamerNation Inc. — drones · websites · ground-control software</h1>
+    <h1 class="vh">GamerNation Inc. — drones · training · websites · ground-control software</h1>
     <pre class="wordmark" aria-hidden="true">╔═╗ ╔═╗ ╔╦╗ ╔═╗ ╦═╗ ╔╗╔ ╔═╗ ╔╦╗ ╦ ╔═╗ ╔╗╔
 ║ ╦ ╠═╣ ║║║ ║╣  ╠╦╝ ║║║ ╠═╣  ║  ║ ║ ║ ║║║
 ╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝
@@ -48,14 +48,33 @@
         <ul class="rows">
         <li><span class="k">BUILD</span><span class="v">Airframe design, fabrication, integration, and bring-up of purpose-built small UAS.</span></li>
         <li><span class="k">FLY</span><span class="v">Survey and inspection flights flown to a plan, with data delivered — not just imagery dumped.</span></li>
-        <li><span class="k">TRAIN</span><span class="v">Three tiers — Basic, Advanced, and Complex — the last built around a 4-inch, single-cell (1S) recon platform for emergency services. Certification and flight-review wording: <span class="todo">TODO:LUKAS</span>.</span></li>
+        <li><span class="k">TRAIN</span><span class="v">Live flight tiers (Basic / Advanced / Complex) on a 4-inch, single-cell (1S) recon platform for emergency services — certification wording <span class="todo">TODO:LUKAS</span>. Software survey trainer: see MOD.02 TRAIN.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="mod" id="mod-train" aria-labelledby="h-train">
+    <div class="mod-rule" aria-hidden="true"><span>MOD.02</span><span class="rule-line"></span><span>TRAIN</span></div>
+    <div class="mod-body">
+      <div class="mod-viz">
+        <canvas class="iso" data-model="crt" width="320" height="240" aria-label="Rotating isometric render of a CRT monitor used as a training station" hidden></canvas>
+        <noscript><p class="iso-fallback">[ MODEL: CRT — training console schematic. Enable JS to see it rotate. ]</p></noscript>
+      </div>
+      <div class="mod-copy">
+        <h2 class="glare" id="h-train" data-text="TRAIN"><span aria-hidden="true">TRAIN</span><span class="vh">TRAIN — Drone survey training sim</span></h2>
+        <p class="lede">Long-distance survey flying for field operators — weather, traffic, wildlife, and the checks before and after you leave the ground. In development.</p>
+        <ul class="rows">
+        <li><span class="k">CORE</span><span class="v">Realism-first sim for long-range survey work: plan the flight, fly the corridor, bring the data home.</span></li>
+        <li><span class="k">DRILL</span><span class="v">Weather systems, air traffic, wildlife avoidance (birds, bears), plus preflight and postflight inspection until they stick.</span></li>
+        <li><span class="k">PLAY</span><span class="v">Optional arcade layers for cloud avoidance and ID tasks; Minecraft-like familiarity so crews learn fast. Windows PC first. Steam / direct / agency path: <span class="todo">TODO:LUKAS</span>.</span></li>
         </ul>
       </div>
     </div>
   </section>
 
   <section class="mod" id="mod-net" aria-labelledby="h-net">
-    <div class="mod-rule" aria-hidden="true"><span>MOD.02</span><span class="rule-line"></span><span>NET</span></div>
+    <div class="mod-rule" aria-hidden="true"><span>MOD.03</span><span class="rule-line"></span><span>NET</span></div>
     <div class="mod-body">
       <div class="mod-viz">
         <canvas class="iso" data-model="crt" width="320" height="240" aria-label="Rotating isometric render of a CRT monitor and keyboard" hidden></canvas>
@@ -74,7 +93,7 @@
   </section>
 
   <section class="mod" id="mod-ctrl" aria-labelledby="h-ctrl">
-    <div class="mod-rule" aria-hidden="true"><span>MOD.03</span><span class="rule-line"></span><span>CTRL</span></div>
+    <div class="mod-rule" aria-hidden="true"><span>MOD.04</span><span class="rule-line"></span><span>CTRL</span></div>
     <div class="mod-body">
       <div class="mod-viz">
         <canvas class="iso" data-model="rack" width="320" height="240" aria-label="Rotating isometric render of a ground-station case with antenna mast" hidden></canvas>
@@ -100,7 +119,7 @@
   <p class="contact-line">email: <span class="todo">TODO:LUKAS</span></p>
   <p class="curl-line">this page works from a real terminal too: <code>$ curl gamernation.ca</code></p>
   <p><a href=".well-known/security.txt">security.txt</a></p>
-  <p class="status" id="status">BUILD 2026-08-25 · NODE: rpi · TLS: <span id="tls">—</span> · UPTIME <span id="up">—</span></p>
+  <p class="status" id="status">BUILD 2026-09-04 · NODE: rpi · TLS: <span id="tls">—</span> · UPTIME <span id="up">—</span></p>
 </footer>
 
 <div class="crt-vignette" aria-hidden="true"></div>
