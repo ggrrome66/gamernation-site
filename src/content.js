@@ -41,7 +41,7 @@ export const SITE = {
       fallback: "[ MODEL: QUAD — 4-arm multirotor schematic. Enable JS to see it rotate. ]"
     },
     {
-      id: "train", num: "02", chan: "TRAIN", model: "crt",
+      id: "train", num: "02", chan: "TRAIN", model: "sim",
       title: "Drone survey training sim",
       lede: "Long-distance survey flying for field operators — weather, traffic, wildlife, and the checks before and after you leave the ground. In development.",
       rows: [
@@ -49,8 +49,8 @@ export const SITE = {
         { k: "DRILL", v: "Weather systems, air traffic, wildlife avoidance (birds, bears), plus preflight and postflight inspection until they stick." },
         { k: "PLAY", v: "Optional arcade layers for cloud avoidance and ID tasks; Minecraft-like familiarity so crews learn fast. Windows PC first. Steam / direct / agency path: TODO:LUKAS." }
       ],
-      alt: "Rotating isometric render of a CRT monitor used as a training station",
-      fallback: "[ MODEL: CRT — training console schematic. Enable JS to see it rotate. ]"
+      alt: "Rotating isometric render of a survey-sim console with map screen, sticks, and a trainee drone",
+      fallback: "[ MODEL: SIM — survey training console schematic. Enable JS to see it rotate. ]"
     },
     {
       id: "net", num: "03", chan: "NET", model: "crt",
