@@ -5,7 +5,7 @@
 [38;5;29m│ [0m             [38;5;84m[1m╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝[0m              [38;5;29m │[0m
 [38;5;29m│ [0m             [38;5;84m[1m                                     INC.[0m              [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
-[38;5;29m│ [0m            [38;5;214mdrones · websites · ground-control software[0m             [38;5;29m │[0m
+[38;5;29m│ [0m       [38;5;214mdrones · training · websites · ground-control software[0m       [38;5;29m │[0m
 [38;5;29m│ [0m                    [38;5;29mFederal corporation, Canada[0m                     [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
 [38;5;29m│ [0m[38;5;29m────────────────────────────────────────────────────────────────────[0m[38;5;29m │[0m
@@ -15,13 +15,19 @@
 [38;5;29m│ [0m  to end.                                                           [38;5;29m │[0m
 [38;5;29m│ [0m  [38;5;29m→ curl gamernation.ca/txt/air.txt[0m                                 [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
-[38;5;29m│ [0m[38;5;214mMOD.02 · NET[0m  [38;5;84m[1mWebsites & social for small businesses[0m                [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;214mMOD.02 · TRAIN[0m  [38;5;84m[1mDrone survey training sim[0m                           [38;5;29m │[0m
+[38;5;29m│ [0m  Long-distance survey flying for field operators — weather,        [38;5;29m │[0m
+[38;5;29m│ [0m  traffic, wildlife, and the checks before and after you leave the  [38;5;29m │[0m
+[38;5;29m│ [0m  ground. In development.                                           [38;5;29m │[0m
+[38;5;29m│ [0m  [38;5;29m→ curl gamernation.ca/txt/train.txt[0m                               [38;5;29m │[0m
+[38;5;29m│ [0m                                                                    [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;214mMOD.03 · NET[0m  [38;5;84m[1mWebsites & social for small businesses[0m                [38;5;29m │[0m
 [38;5;29m│ [0m  Hand-built sites that load on bad rural connections and cheap     [38;5;29m │[0m
 [38;5;29m│ [0m  phones — this very page is the demo, running on a single-board    [38;5;29m │[0m
 [38;5;29m│ [0m  computer.                                                         [38;5;29m │[0m
 [38;5;29m│ [0m  [38;5;29m→ curl gamernation.ca/txt/net.txt[0m                                 [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
-[38;5;29m│ [0m[38;5;214mMOD.03 · CTRL[0m  [38;5;84m[1mCustom drone software[0m                                [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;214mMOD.04 · CTRL[0m  [38;5;84m[1mCustom drone software[0m                                [38;5;29m │[0m
 [38;5;29m│ [0m  Ground-station and fleet-management software written to fit an    [38;5;29m │[0m
 [38;5;29m│ [0m  operator's actual workflow — not someone else's dashboard.        [38;5;29m │[0m
 [38;5;29m│ [0m  [38;5;29m→ curl gamernation.ca/txt/ctrl.txt[0m                                [38;5;29m │[0m

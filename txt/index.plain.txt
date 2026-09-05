@@ -5,7 +5,7 @@
 │              ╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝               │
 │                                                   INC.               │
 │                                                                      │
-│             drones · websites · ground-control software              │
+│        drones · training · websites · ground-control software        │
 │                     Federal corporation, Canada                      │
 │                                                                      │
 │ ──────────────────────────────────────────────────────────────────── │
@@ -15,13 +15,19 @@
 │   to end.                                                            │
 │   → curl gamernation.ca/txt/air.txt                                  │
 │                                                                      │
-│ MOD.02 · NET  Websites & social for small businesses                 │
+│ MOD.02 · TRAIN  Drone survey training sim                            │
+│   Long-distance survey flying for field operators — weather,         │
+│   traffic, wildlife, and the checks before and after you leave the   │
+│   ground. In development.                                            │
+│   → curl gamernation.ca/txt/train.txt                                │
+│                                                                      │
+│ MOD.03 · NET  Websites & social for small businesses                 │
 │   Hand-built sites that load on bad rural connections and cheap      │
 │   phones — this very page is the demo, running on a single-board     │
 │   computer.                                                          │
 │   → curl gamernation.ca/txt/net.txt                                  │
 │                                                                      │
-│ MOD.03 · CTRL  Custom drone software                                 │
+│ MOD.04 · CTRL  Custom drone software                                 │
 │   Ground-station and fleet-management software written to fit an     │
 │   operator's actual workflow — not someone else's dashboard.         │
 │   → curl gamernation.ca/txt/ctrl.txt                                 │

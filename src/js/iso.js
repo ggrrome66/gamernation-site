@@ -63,17 +63,17 @@ const Iso = (() => {
 
   function quad() {                          // MOD.01 — 4-arm multirotor
     const m = M();
-    box(m, 0, 0, 0, 1.1, 0.42, 1.1, 2);      // fuselage
+    box(m, 0, 0, 0, 1.1, 0.42, 1.1, 2);
     box(m, 0, 0.32, 0, 0.55, 0.24, 0.55, 1); // stack
     box(m, 0, 0.0, 0.72, 0.34, 0.2, 0.3, 3); // front camera pod
     box(m, 1.5, 0, 0, 1.5, 0.14, 0.18, 1);   // arms (+ frame)
     box(m, -1.5, 0, 0, 1.5, 0.14, 0.18, 1);
     box(m, 0, 0, 1.5, 0.18, 0.14, 1.5, 1);
     box(m, 0, 0, -1.5, 0.18, 0.14, 1.5, 1);
-    box(m, 0.85, -0.34, 0, 0.12, 0.3, 1.7, 1); // landing skids
+    box(m, 0.85, -0.34, 0, 0.12, 0.3, 1.7, 1);
     box(m, -0.85, -0.34, 0, 0.12, 0.3, 1.7, 1);
     [[2.1, 0], [-2.1, 0], [0, 2.1], [0, -2.1]].forEach(p =>
-      box(m, p[0], 0.16, p[1], 0.3, 0.3, 0.3, 3));  // motors
+      box(m, p[0], 0.16, p[1], 0.3, 0.3, 0.3, 3)); 
     m.core = [0, 0.5, 0];
     // motor plane centre + spin direction (alternating, like a real quad)
     m.motors = [[2.1, 0.4, 0, 1], [-2.1, 0.4, 0, -1],
@@ -105,7 +105,40 @@ const Iso = (() => {
     return finalize(m);
   }
 
-  const MODELS = { quad, crt, rack };
+
+  function sim() {                           // TRAIN — console + trainee quad
+    const m = M();
+    box(m, 0, -0.7, 0.2, 3.0, 0.26, 1.7, 1);
+    box(m, 0, 0.2, -0.45, 2.4, 1.5, 0.16, 2);
+    box(m, 0, 0.28, -0.32, 2.05, 1.15, 0.06, 3); // map face
+    box(m, -0.95, -0.35, 0.95, 0.42, 0.4, 0.42, 2);
+    box(m, 0.95, -0.35, 0.95, 0.42, 0.4, 0.42, 2);
+    box(m, -0.95, 0.05, 0.95, 0.14, 0.42, 0.14, 3);
+    box(m, 0.95, 0.05, 0.95, 0.14, 0.42, 0.14, 3);
+
+    const dy = 1.85, dz = 0.55;
+    box(m, 0, dy, dz, 0.85, 0.32, 0.85, 2);
+    box(m, 0, dy + 0.26, dz, 0.42, 0.18, 0.42, 1);
+    box(m, 0, dy, dz + 0.55, 0.26, 0.16, 0.24, 3);
+    box(m, 1.15, dy, dz, 1.15, 0.11, 0.14, 1);    box(m, -1.15, dy, dz, 1.15, 0.11, 0.14, 1);
+    box(m, 0, dy, dz + 1.15, 0.14, 0.11, 1.15, 1);
+    box(m, 0, dy, dz - 1.15, 0.14, 0.11, 1.15, 1);
+    box(m, 0.65, dy - 0.26, dz, 0.1, 0.24, 1.3, 1);
+    box(m, -0.65, dy - 0.26, dz, 0.1, 0.24, 1.3, 1);
+    [[1.6, dz], [-1.6, dz], [0, dz + 1.6], [0, dz - 1.6]].forEach(p =>
+      box(m, p[0], dy + 0.12, p[1], 0.24, 0.24, 0.24, 3));
+
+    m.core = [0, 0.28, -0.25];
+    m.map = { cx: 0, cy: 0.28, cz: -0.25, hw: 0.95, hh: 0.5 };
+    m.drone = [0, dy + 0.4, dz];
+    m.motors = [
+      [1.6, dy + 0.28, dz, 1], [-1.6, dy + 0.28, dz, -1],
+      [0, dy + 0.28, dz + 1.6, -1], [0, dy + 0.28, dz - 1.6, 1]
+    ];
+    return finalize(m);
+  }
+
+  const MODELS = { quad, crt, rack, sim };
 
   /* ── renderer ──────────────────────────────────────────────────────── */
   const units = [];
@@ -264,7 +297,78 @@ const Iso = (() => {
     dot(ctx, d[0], d[1], 2, ORN, 8);
   }
 
-  const FX = { quad: fxQuad, crt: fxCrt, rack: fxRack };
+
+  // TRAIN — map grid/corridor + prop discs
+  function fxSim(ctx, u, now, put) {
+    const mp = u.model.map || { cx: 0, cy: 0.28, cz: -0.25, hw: 0.95, hh: 0.5 };
+    const c = put(u.model.core);
+    // map grid (survey chart)
+    ctx.save();
+    ctx.strokeStyle = CYN;
+    ctx.globalAlpha = 0.22;
+    ctx.lineWidth = 1;
+    for (let i = -1; i <= 1; i++) {
+      const x = i * mp.hw;
+      const a = put([mp.cx + x, mp.cy, mp.cz - mp.hh]);
+      const b = put([mp.cx + x, mp.cy, mp.cz + mp.hh]);
+      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+      const z = i * mp.hh;
+      const c0 = put([mp.cx - mp.hw, mp.cy, mp.cz + z]);
+      const c1 = put([mp.cx + mp.hw, mp.cy, mp.cz + z]);
+      ctx.beginPath(); ctx.moveTo(c0[0], c0[1]); ctx.lineTo(c1[0], c1[1]); ctx.stroke();
+    }
+    ctx.restore();
+    // survey corridor (two parallel rails + moving tick)
+    const railL = put([mp.cx - 0.28, mp.cy + 0.02, mp.cz - mp.hh]);
+    const railL2 = put([mp.cx - 0.28, mp.cy + 0.02, mp.cz + mp.hh]);
+    const railR = put([mp.cx + 0.28, mp.cy + 0.02, mp.cz - mp.hh]);
+    const railR2 = put([mp.cx + 0.28, mp.cy + 0.02, mp.cz + mp.hh]);
+    ray(ctx, railL, railL2, ORN, 1.5, 0.55, 0);
+    ray(ctx, railR, railR2, ORN, 1.5, 0.55, 0);
+    const t = (now / 2200) % 1;
+    const tickZ = mp.cz - mp.hh + t * (mp.hh * 2);
+    const t0 = put([mp.cx - 0.28, mp.cy + 0.04, tickZ]);
+    const t1 = put([mp.cx + 0.28, mp.cy + 0.04, tickZ]);
+    ray(ctx, t0, t1, CYN, 2, 0.85, 8);
+    // waypoint pins along the corridor
+    const pins = [[-0.55, -0.35], [0.5, 0.1], [-0.15, 0.45]];
+    pins.forEach((p, i) => {
+      const col = [ORN, CYN, MAG][i];
+      const base = put([mp.cx + p[0], mp.cy, mp.cz + p[1]]);
+      const tip = put([mp.cx + p[0], mp.cy + 0.35, mp.cz + p[1]]);
+      ray(ctx, base, tip, col, 1.2, 0.7, 0);
+      dot(ctx, tip[0], tip[1], 2.4, col, 8);
+    });
+    if (u.model.drone) {
+      const d = put(u.model.drone);
+      dot(ctx, d[0], d[1], 2.2, ORN, 10);
+    }
+    // realistic prop wash + blades (same idiom as AIR)
+    if (u.model.motors) {
+      for (const mo of u.model.motors) {
+        const y = mo[1], r = 0.55, spin = now / 85 * mo[3];
+        const ctr = put([mo[0], y, mo[2]]);
+        ctx.save();
+        ctx.strokeStyle = CYN;
+        ctx.globalAlpha = 0.16;
+        ctx.beginPath();
+        for (let i = 0; i <= 12; i++) {
+          const a = i / 12 * TAU;
+          const p = put([mo[0] + Math.cos(a) * r, y, mo[2] + Math.sin(a) * r]);
+          i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+        }
+        ctx.stroke();
+        ctx.restore();
+        for (let bl = 0; bl < 2; bl++) {
+          const a2 = spin + bl * Math.PI;
+          const e = put([mo[0] + Math.cos(a2) * r, y, mo[2] + Math.sin(a2) * r]);
+          ray(ctx, ctr, e, CYN, 2, 0.9, 6);
+        }
+      }
+    }
+  }
+
+  const FX = { quad: fxQuad, crt: fxCrt, rack: fxRack, sim: fxSim };
 
   function draw(u, now) {
     const ctx = u.ctx, w = u.w, h = u.h;

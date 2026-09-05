@@ -10,24 +10,24 @@
 │                                                                      │
 │ ──────────────────────────────────────────────────────────────────── │
 │                                                                      │
-│ MOD.01 · AIR — DRONES & DRONE SERVICES                               │
+│ MOD.02 · TRAIN — DRONE SURVEY TRAINING SIM                           │
 │                                                                      │
-│ Purpose-built small UAS — designed, built, flown, and taught, end to │
-│ end.                                                                 │
+│ Long-distance survey flying for field operators — weather, traffic,  │
+│ wildlife, and the checks before and after you leave the ground. In   │
+│ development.                                                         │
 │                                                                      │
-│ BUILD                                                                │
-│   Airframe design, fabrication, integration, and bring-up of         │
-│   purpose-built small UAS.                                           │
+│ CORE                                                                 │
+│   Realism-first sim for long-range survey work: plan the flight, fly │
+│   the corridor, bring the data home.                                 │
 │                                                                      │
-│ FLY                                                                  │
-│   Survey and inspection flights flown to a plan, with data delivered │
-│   — not just imagery dumped.                                         │
+│ DRILL                                                                │
+│   Weather systems, air traffic, wildlife avoidance (birds, bears),   │
+│   plus preflight and postflight inspection until they stick.         │
 │                                                                      │
-│ TRAIN                                                                │
-│   Live flight tiers (Basic / Advanced / Complex) on a 4-inch,        │
-│   single-cell (1S) recon platform for emergency services —           │
-│   certification wording TODO:LUKAS. Software survey trainer: see     │
-│   MOD.02 TRAIN.                                                      │
+│ PLAY                                                                 │
+│   Optional arcade layers for cloud avoidance and ID tasks;           │
+│   Minecraft-like familiarity so crews learn fast. Windows PC first.  │
+│   Steam / direct / agency path: TODO:LUKAS.                          │
 │                                                                      │
 │ ──────────────────────────────────────────────────────────────────── │
 │                                                                      │

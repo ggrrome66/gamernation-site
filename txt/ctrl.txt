@@ -5,12 +5,12 @@
 [38;5;29m│ [0m             [38;5;84m[1m╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝[0m              [38;5;29m │[0m
 [38;5;29m│ [0m             [38;5;84m[1m                                     INC.[0m              [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
-[38;5;29m│ [0m            [38;5;214mdrones · websites · ground-control software[0m             [38;5;29m │[0m
+[38;5;29m│ [0m       [38;5;214mdrones · training · websites · ground-control software[0m       [38;5;29m │[0m
 [38;5;29m│ [0m                    [38;5;29mFederal corporation, Canada[0m                     [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
 [38;5;29m│ [0m[38;5;29m────────────────────────────────────────────────────────────────────[0m[38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
-[38;5;29m│ [0m[38;5;214m[1mMOD.03 · CTRL — CUSTOM DRONE SOFTWARE[0m                               [38;5;29m │[0m
+[38;5;29m│ [0m[38;5;214m[1mMOD.04 · CTRL — CUSTOM DRONE SOFTWARE[0m                               [38;5;29m │[0m
 [38;5;29m│ [0m                                                                    [38;5;29m │[0m
 [38;5;29m│ [0m[38;5;84mGround-station and fleet-management software written to fit an[0m      [38;5;29m │[0m
 [38;5;29m│ [0m[38;5;84moperator's actual workflow — not someone else's dashboard.[0m          [38;5;29m │[0m
