@@ -105,7 +105,22 @@ const Iso = (() => {
     return finalize(m);
   }
 
-  const MODELS = { quad, crt, rack };
+  function crate() {                         // MOD.04 — container cabin
+    const m = M();
+    box(m, 0, 0, 0, 3.0, 1.2, 1.25, 2);        // 20' high-cube box
+    box(m, 0, 0.66, -0.18, 2.6, 0.12, 0.7, 1); // solar rack
+    box(m, 0, 0.76, -0.18, 2.5, 0.06, 0.62, 0);// panel face (dark)
+    box(m, 1.55, 0, 0.3, 0.1, 0.9, 0.5, 3);    // door end: right leaf
+    box(m, 1.55, 0, -0.3, 0.1, 0.9, 0.5, 3);   // door end: left leaf
+    box(m, -0.9, 0.9, 0.35, 0.12, 0.7, 0.12, 3);// stove flue
+    box(m, 0, -0.66, 0, 3.2, 0.12, 1.45, 0);   // skid / plinth
+    box(m, 0.6, 0.1, 0.66, 0.9, 0.4, 0.06, 3); // front window
+    m.core = [-0.9, 1.3, 0.35];                // flue top (steam glow)
+    m.mast = [-1.9, 0.9, -0.5];                // turbine mast base
+    return finalize(m);
+  }
+
+  const MODELS = { quad, crt, rack, crate };
 
   /* ── renderer ──────────────────────────────────────────────────────── */
   const units = [];
@@ -264,7 +279,27 @@ const Iso = (() => {
     dot(ctx, d[0], d[1], 2, ORN, 8);
   }
 
-  const FX = { quad: fxQuad, crt: fxCrt, rack: fxRack };
+  // MOD.04 — vertical-axis turbine on a mast + rising steam from the flue
+  function fxCrate(ctx, u, now, put) {
+    const b = u.model.mast, top = [b[0], b[1] + 1.1, b[2]];
+    ray(ctx, put(b), put(top), ORN, 1.5, 0.8, 0);
+    for (let i = 0; i < 3; i++) {
+      const a = now / 400 + (i / 3) * TAU;
+      const p = [top[0] + Math.cos(a) * 0.35, top[1], top[2] + Math.sin(a) * 0.35];
+      ray(ctx, put([p[0], p[1] - 0.45, p[2]]), put([p[0], p[1] + 0.05, p[2]]), CYN, 2, 0.85, 4);
+    }
+    const c = u.model.core;
+    for (let i = 0; i < 4; i++) {
+      const t = ((now / 2600) + i / 4) % 1;
+      const p = put([c[0] + Math.sin(t * 9 + i) * 0.12, c[1] + t * 1.1, c[2]]);
+      ctx.save();
+      ctx.globalAlpha = 0.35 * (1 - t);
+      dot(ctx, p[0], p[1], 2 + t * 6, "#c8ffd4", 0);
+      ctx.restore();
+    }
+  }
+
+  const FX = { quad: fxQuad, crt: fxCrt, rack: fxRack, crate: fxCrate };
 
   function draw(u, now) {
     const ctx = u.ctx, w = u.w, h = u.h;

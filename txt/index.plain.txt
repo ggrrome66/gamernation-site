@@ -26,6 +26,13 @@
 │   operator's actual workflow — not someone else's dashboard.         │
 │   → curl gamernation.ca/txt/ctrl.txt                                 │
 │                                                                      │
+│ MOD.04 · ARCH  Container architecture                                │
+│   Retrofitted shipping containers as off-grid cabins, shops, and     │
+│   camps — one box or a whole compound. The configurator on the ARCH  │
+│   page lets you swap interior modules, pick an exterior, and stack   │
+│   units into radical layouts.                                        │
+│   → curl gamernation.ca/txt/arch.txt                                 │
+│                                                                      │
 │ ──────────────────────────────────────────────────────────────────── │
 │                                                                      │
 │ contact   TODO:LUKAS                                                 │

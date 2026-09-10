@@ -27,7 +27,7 @@ const GN = {
   }
 
   /* ▮ kill switch — stops all ambient motion, persists (plan §5.4) */
-  const calmBtn = document.getElementById("btn-calm");
+  const calmBtn = document.getElementById("btn-calm") || document.createElement("button");
   calmBtn.hidden = false;
   calmBtn.setAttribute("aria-pressed", String(GN.calm));
   calmBtn.textContent = GN.calm ? "▯" : "▮";
@@ -44,6 +44,7 @@ const GN = {
   /* terminal toggles: TERM button, hero button, `/~ key, /term route */
   ["btn-term", "btn-term2"].forEach(id => {
     const b = document.getElementById(id);
+    if (!b) return;                            // secondary pages have no hero button
     b.hidden = false;
     b.addEventListener("click", () => {
       Term.toggle();

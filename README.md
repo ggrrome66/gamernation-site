@@ -24,14 +24,45 @@ All copy lives in `src/content.js` — one object feeds the HTML, the
 in-browser terminal, and the ANSI text pages. Edit content there, nowhere else.
 
 ```
-src/content.js          single source of truth (copy, banner, modules)
+src/content.js          single source of truth (copy, banner, modules, MOD.04 data)
 src/index.template.html page shell; build.js fills it from content.js
-src/css/                base (tokens/type) · crt (scanlines/glare) · layout
-src/js/                 boot · iso (3D renderer) · rain · term (TUI)
+src/architecture.template.html
+                        MOD.04 — the container-architecture configurator page
+src/css/                base (tokens/type) · crt (scanlines/glare) · layout · arch
+src/js/                 boot · iso (3D renderer) · rain · term (TUI) · arch (configurator)
 build.js                zero-dependency build + budget gate
 dist/                   generated — do not hand-edit
 deploy/                 nginx.conf · headers.conf · harden.sh
 ```
+
+## MOD.04 — `architecture.html`
+
+An interactive 3D configurator for shipping-container cabins, rendered by a
+hand-rolled canvas-2D perspective renderer in `src/js/arch.js` (same rules
+as the isometric models: no WebGL, no libraries, no inline code). It ships
+as its own bundle (`arch.css` + `arch.js`) on top of `app.css`/`app.js`, so
+the home page's first paint is unchanged; the build gates the page to the
+same 45 KB brotli line.
+
+- **Layouts** — single 20'/40', twin 20', stacked loft, Roman courtyard
+  (2×40' + 2×20'), a 17-unit stepped pyramid, and a walled compound with
+  corner turrets and a central tower.
+- **Exterior** — bare steel, coated, stonework, spray foam, buried/bermed.
+- **Grade** — utilitarian (remote drill ops) or premium (yacht joinery).
+- **Modules** — every bay of every editable unit takes one of 13 modules
+  (berth, galley, wet room, lockers, workbench, micro-farm, power station,
+  water plant, ops desk, drone bay, stove, airlock, open floor). Click a
+  bay in the cutaway to select it; the manifest and spec update live.
+- The configuration lives in the URL hash, so a layout can be shared by
+  link. `curl gamernation.ca/architecture` prints the catalog as ANSI text.
+- Respects the ▮ kill switch and `prefers-reduced-motion` (static frame,
+  no auto-orbit), renders only while on screen, and caps at 24 fps.
+
+## GitHub Pages mirror
+
+The branch root carries an uncompressed copy of `dist/` (`index.html`,
+`architecture.html`, `app.*`, `arch.*`, `txt/`, `.well-known/`) so GitHub
+Pages can serve it. After `node build.js`, refresh the copy before committing.
 
 ## Deploy (Raspberry Pi)
 
@@ -51,8 +82,8 @@ One-time setup on the Pi:
 ## The three terminal surfaces
 
 - **In-browser TUI** — `TERM` button, the `` ` ``/`~` key, or `/term`.
-  Commands: `help ls cd cat whoami contact banner clear exit`, with history
-  and tab-completion.
+  Commands: `help ls cd cat open whoami contact banner clear exit`, with
+  history and tab-completion (`open arch` jumps to the configurator).
 - **curl** — nginx serves pre-rendered ANSI from `dist/txt/` to CLI
   user-agents: `curl gamernation.ca`, `curl gamernation.ca/txt/air.txt`.
   No colours (cmd.exe): append `?plain` or fetch `/txt/index.plain.txt`.

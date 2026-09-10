@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="GamerNation Inc. — Container architecture: off-grid cabins · shops · camps — built from shipping containers. Interactive 3D configurator.">
+<meta name="color-scheme" content="dark">
+<title>Container architecture — GamerNation Inc.</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="arch.css">
+<script src="app.js" defer></script>
+<script src="arch.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+
+<header class="bar">
+  <a class="brand" href="index.html#top">[GAMERNATION INC.]</a>
+  <nav class="bar-nav" aria-label="site controls">
+    <a class="bar-btn" href="index.html#mod-arch">HOME</a>
+    <button id="btn-term" class="bar-btn" hidden aria-pressed="false">TERM</button>
+    <button id="btn-calm" class="bar-btn" hidden aria-pressed="false" aria-label="pause ambient motion">▮</button>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="mod arch-hero" id="top" aria-labelledby="h-arch">
+    <div class="mod-rule" aria-hidden="true"><span>MOD.04</span><span class="rule-line"></span><span>ARCH</span></div>
+    <h1 class="glare" id="h-arch" data-text="ARCH"><span aria-hidden="true">ARCH</span><span class="vh">ARCH — Container architecture</span></h1>
+    <p class="lede">One retrofitted shipping container in a dense mixed-wood forest: a light steam/solar-punk one-bedroom stonework cabin-shop, off grid. Swap the interior modules, change the exterior, then join and stack units into something much bigger.</p>
+    <ul class="arch-how">
+      <li>Drag the render to orbit. Scroll or use the zoom keys. CUTAWAY removes the roof and the walls facing you so the interior is always visible.</li>
+      <li>Each bay of a container holds one module. Pick a unit, then set its bays — every combination is valid; the manifest below updates as you go.</li>
+      <li>The frame is the frame: nothing here needs a structural change to the box except the buried option, which does (see the notes).</li>
+    </ul>
+  </section>
+
+  <section class="mod arch-lab" id="lab" aria-label="interactive configurator">
+    <div class="arch-stage">
+      <canvas id="arch-cv" class="arch" width="960" height="720" tabindex="0" role="img" aria-label="3D render of the configured container cabin in a forest clearing" hidden></canvas>
+      <noscript><p class="arch-fallback">[ RENDER: CONTAINER CABIN — a 20' high-cube in a forest clearing, stone-clad, solar on the roof, copper flue, turbine mast. Enable JS to orbit it and swap the modules. ]</p></noscript>
+      <p class="arch-cap" id="arch-cap" aria-hidden="true"></p>
+      <div class="arch-ctl" role="group" aria-label="camera">
+        <button type="button" id="arch-auto" aria-pressed="true" title="auto-orbit">AUTO</button>
+        <button type="button" id="arch-zin" aria-label="zoom in">+</button>
+        <button type="button" id="arch-zout" aria-label="zoom out">−</button>
+        <button type="button" id="arch-reset" title="reset camera">RST</button>
+      </div>
+      <p class="arch-hud" id="arch-hud" aria-hidden="true"></p>
+    </div>
+
+    <form class="arch-panel" id="arch-form" aria-label="configuration">
+      <fieldset>
+        <legend>VIEW</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="view" value="cut" checked>CUTAWAY</label>
+          <label class="opt"><input type="radio" name="view" value="ext">EXTERIOR</label>
+          <label class="opt" title=""><input type="radio" name="light" value="day">DAY</label>
+          <label class="opt" title=""><input type="radio" name="light" value="dusk" checked>DUSK</label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>LAYOUT</legend>
+        <div class="opts">
+          <label class="opt" title="One 20-foot high-cube. Four bays, a door end, a deck. The base one-bedroom cabin or a single work unit."><input type="radio" name="layout" value="s20" checked>SINGLE 20'</label>
+          <label class="opt" title="One 40-foot high-cube. Eight bays — room for a bedroom, galley, wet room, and a full workshop in one line."><input type="radio" name="layout" value="s40">SINGLE 40'</label>
+          <label class="opt" title="Two 20-foot units side by side with the shared wall opened up: a 4.9 m wide room, eight bays."><input type="radio" name="layout" value="twin">TWIN 20'</label>
+          <label class="opt" title="Two 40-foot units on the ground, a third on top with a roof deck beside it. Sixteen bays down, eight up."><input type="radio" name="layout" value="stack">STACKED LOFT</label>
+          <label class="opt" title="Two 40-foot and two 20-foot units around a central courtyard — an atrium with a planted impluvium in the middle. Twenty-four bays."><input type="radio" name="layout" value="court">ROMAN COURT</label>
+          <label class="opt" title="Seventeen 20-foot units in four stepped tiers, each tier's roof a terraced garden with solar. A ziggurat in the woods."><input type="radio" name="layout" value="pyramid">PYRAMID HOUSE</label>
+          <label class="opt" title="A perimeter wall of 40-foot units stacked two high, a four-high turret at each corner, and a central eight-storey tower with an observation deck."><input type="radio" name="layout" value="compound">WALLED COMPOUND</label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>EXTERIOR</legend>
+        <div class="opts">
+          <label class="opt" title="Weathering (corten-style) steel left as delivered. Cheapest shell; all insulation goes inside, which costs floor width."><input type="radio" name="ext" value="bare">BARE STEEL</label>
+          <label class="opt" title="Elastomeric / ceramic-loaded coating over the corrugation. Reflective, sealed, repaintable. Insulation still inside."><input type="radio" name="ext" value="coated">COATED</label>
+          <label class="opt" title="Stone veneer on a ventilated rail over external insulation. The cabin look: thermal mass, fireproof, quiet."><input type="radio" name="ext" value="stone" checked>STONEWORK</label>
+          <label class="opt" title="Closed-cell spray foam applied outside the box, then clad. Continuous insulation, no thermal bridges, full interior width kept."><input type="radio" name="ext" value="foam">SPRAY FOAM</label>
+          <label class="opt" title="Earth-sheltered: the box sits in a cut with a sod roof and a stone-faced entry. Very stable temperatures. Needs waterproofing, drainage, and reinforcement — see notes."><input type="radio" name="ext" value="buried">BURIED / BERMED</label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>GRADE</legend>
+        <div class="opts">
+          <label class="opt" title="Pure function: insulated shell, skid frame with forklift pockets, steel steps, small windows, original doors, generator-ready. Remote drill operations, survey camps, sites."><input type="radio" name="grade" value="util">UTILITARIAN</label>
+          <label class="opt" title="Yacht-grade joinery: teak deck and rail, glazed end wall, brass and copper fittings, planters, stone plinth. The civilian cabin."><input type="radio" name="grade" value="prem" checked>PREMIUM (YACHT)</label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>MODULES</legend>
+        <div class="arch-unit-row arch-jsonly">
+          <label class="k" for="arch-unit">UNIT</label>
+          <select id="arch-unit"></select>
+        </div>
+        <div class="arch-bays" id="arch-bays"></div>
+        <noscript><p class="arch-hint">Default fit-out, 20': BERTH · GALLEY · WET ROOM · LOCKER WALL. 40': AIRLOCK · WORKBENCH · WORKBENCH · POWER STATION · GALLEY · WET ROOM · BERTH · LOCKER WALL. Enable JS to change them.</p></noscript>
+        <p class="arch-hint arch-jsonly">Click a bay in the cutaway to select it. Every mix is valid.</p>
+      </fieldset>
+      <fieldset>
+        <legend>PRESETS</legend>
+        <div class="arch-presets">
+          <button type="button" data-preset="cabin" title="s20 · stone · prem">FOREST CABIN</button>
+          <button type="button" data-preset="shop" title="s40 · stone · prem">CABIN-SHOP</button>
+          <button type="button" data-preset="drill" title="twin · foam · util">DRILL CAMP</button>
+          <button type="button" data-preset="ops" title="s20 · buried · util">OPS POST</button>
+          <button type="button" data-preset="homestead" title="court · coated · prem">HOMESTEAD</button>
+        </div>
+      </fieldset>
+    </form>
+  </section>
+
+  <section class="mod" id="spec" aria-labelledby="h-spec">
+    <div class="mod-rule" aria-hidden="true"><span>MOD.04.1</span><span class="rule-line"></span><span>SPEC</span></div>
+    <h2 class="glare" id="h-spec" data-text="SPEC"><span aria-hidden="true">SPEC</span><span class="vh">Specification of the current configuration</span></h2>
+    <ul class="rows" id="arch-spec" aria-live="polite">
+      <li><span class="k">UNITS</span><span class="v">1 × ISO high-cube (20') · 1 level · 2.9 m tall</span></li>
+      <li><span class="k">PLAN</span><span class="v">6.1 × 2.4 m footprint · 15 m² gross floor · 4 bays</span></li>
+      <li><span class="k">SHELL</span><span class="v">STONEWORK — Stone veneer on a ventilated rail over external insulation. The cabin look: thermal mass, fireproof, quiet.</span></li>
+      <li><span class="k">GRADE</span><span class="v">PREMIUM (YACHT) — Yacht-grade joinery: teak deck and rail, glazed end wall, brass and copper fittings, planters, stone plinth. The civilian cabin.</span></li>
+      <li><span class="k">LAYOUT</span><span class="v">SINGLE 20' — One 20-foot high-cube. Four bays, a door end, a deck. The base one-bedroom cabin or a single work unit.</span></li>
+    </ul>
+    <pre class="arch-manifest" id="arch-manifest" aria-label="bay manifest"># manifest · single 20' · stonework · premium
+UNIT A        1:stove  2:galley  3:berth  4:wet room
+exterior: solar rack · rain barrel · turbine mast · copper flue · roof vent</pre>
+  </section>
+
+  <section class="mod arch-cat" id="modules" aria-labelledby="h-modules">
+    <div class="mod-rule" aria-hidden="true"><span>MOD.04.2</span><span class="rule-line"></span><span>MODULES</span></div>
+    <h2 class="glare" id="h-modules" data-text="MODULES"><span aria-hidden="true">MODULES</span><span class="vh">Interior modules</span></h2>
+    <p class="lede">Every bay takes one of these. Storage runs floor to ceiling, submarine style; the premium grade swaps steel for teak and brass, the utilitarian grade keeps it painted and bolted.</p>
+    <ul class="rows">
+      <li><span class="k">BERTH</span><span class="v"><span>Full berth over drawer storage, lockers above, reading light, curtain rail. The one bedroom.</span></span></li>
+      <li><span class="k">GALLEY</span><span class="v"><span>Counter, sink, induction hob, fridge drawer, overhead lockers. Compact as a boat galley.</span></span></li>
+      <li><span class="k">WET ROOM</span><span class="v"><span>Shower pan, composting toilet, basin, roof vent. Frosted partition.</span></span></li>
+      <li><span class="k">LOCKER WALL</span><span class="v"><span>Floor-to-ceiling submarine lockers with recessed latches. Where everything lives.</span></span></li>
+      <li><span class="k">WORKBENCH</span><span class="v"><span>Hardwood bench, vise, pegboard wall, tool shelf, task light. The shop.</span></span></li>
+      <li><span class="k">MICRO-FARM</span><span class="v"><span>Three-tier hydroponic racks under grow lights. Greens and herbs year-round; a roof light over the bay outside.</span></span></li>
+      <li><span class="k">POWER STATION</span><span class="v"><span>Battery rack, inverter, charge controller, breaker panel. Feeds the roof solar and the turbine mast.</span></span></li>
+      <li><span class="k">WATER PLANT</span><span class="v"><span>Twin tanks, filter stack, pump, copper runs. Fed from the roof gutter and rain barrel.</span></span></li>
+      <li><span class="k">OPS DESK</span><span class="v"><span>Two screens, radio stack, map board, antenna feed. The ground station — drone operations run from here.</span></span></li>
+      <li><span class="k">DRONE BAY</span><span class="v"><span>Charging shelves for small UAS, battery bank, spares wall. Fleet ready.</span></span></li>
+      <li><span class="k">STOVE</span><span class="v"><span>Small wood stove with a copper flue through the roof, log store, warming bench. The steam-punk heart.</span></span></li>
+      <li><span class="k">AIRLOCK</span><span class="v"><span>Inner door and mudroom: bench, boot rack, drying hooks, grated floor. For cold sites and dirty work.</span></span></li>
+      <li><span class="k">OPEN FLOOR</span><span class="v"><span>Nothing fitted. Flex space, a table, or room for a module you have not chosen yet.</span></span></li>
+    </ul>
+  </section>
+
+  <section class="mod arch-cat" id="radical" aria-labelledby="h-radical">
+    <div class="mod-rule" aria-hidden="true"><span>MOD.04.3</span><span class="rule-line"></span><span>JOIN</span></div>
+    <h2 class="glare" id="h-radical" data-text="JOIN"><span aria-hidden="true">JOIN</span><span class="vh">Joining and stacking units</span></h2>
+    <p class="lede">Boxes join side by side, end to end, and corner-on-corner. The same four moves that make a courtyard make a pyramid.</p>
+    <ul class="rows">
+      <li><span class="k">SINGLE 20'</span><span class="v"><span>One 20-foot high-cube. Four bays, a door end, a deck. The base one-bedroom cabin or a single work unit.</span><button type="button" class="arch-load arch-jsonly" data-layout="s20">[ LOAD ]</button></span></li>
+      <li><span class="k">SINGLE 40'</span><span class="v"><span>One 40-foot high-cube. Eight bays — room for a bedroom, galley, wet room, and a full workshop in one line.</span><button type="button" class="arch-load arch-jsonly" data-layout="s40">[ LOAD ]</button></span></li>
+      <li><span class="k">TWIN 20'</span><span class="v"><span>Two 20-foot units side by side with the shared wall opened up: a 4.9 m wide room, eight bays.</span><button type="button" class="arch-load arch-jsonly" data-layout="twin">[ LOAD ]</button></span></li>
+      <li><span class="k">STACKED LOFT</span><span class="v"><span>Two 40-foot units on the ground, a third on top with a roof deck beside it. Sixteen bays down, eight up.</span><button type="button" class="arch-load arch-jsonly" data-layout="stack">[ LOAD ]</button></span></li>
+      <li><span class="k">ROMAN COURT</span><span class="v"><span>Two 40-foot and two 20-foot units around a central courtyard — an atrium with a planted impluvium in the middle. Twenty-four bays.</span><button type="button" class="arch-load arch-jsonly" data-layout="court">[ LOAD ]</button></span></li>
+      <li><span class="k">PYRAMID HOUSE</span><span class="v"><span>Seventeen 20-foot units in four stepped tiers, each tier's roof a terraced garden with solar. A ziggurat in the woods.</span><button type="button" class="arch-load arch-jsonly" data-layout="pyramid">[ LOAD ]</button></span></li>
+      <li><span class="k">WALLED COMPOUND</span><span class="v"><span>A perimeter wall of 40-foot units stacked two high, a four-high turret at each corner, and a central eight-storey tower with an observation deck.</span><button type="button" class="arch-load arch-jsonly" data-layout="compound">[ LOAD ]</button></span></li>
+    </ul>
+  </section>
+
+  <section class="mod arch-cat" id="notes" aria-labelledby="h-notes">
+    <div class="mod-rule" aria-hidden="true"><span>MOD.04.4</span><span class="rule-line"></span><span>NOTES</span></div>
+    <h2 class="glare" id="h-notes" data-text="NOTES"><span aria-hidden="true">NOTES</span><span class="vh">Notes and caveats</span></h2>
+    <ul class="arch-notes">
+      <li>Dimensions are standard ISO: 20' = 6.06 × 2.44 m, 40' = 12.19 × 2.44 m, high-cube 2.90 m tall. Bay counts, areas, and the manifest are computed from those figures.</li>
+      <li>Stacking: ISO corner castings and posts carry the loads at sea, so intact boxes stack corner-on-corner. Every opening cut into a wall reduces that; the tall layouts here are design examples, and any real build gets an engineer.</li>
+      <li>Buried / bermed: container walls are not designed for lateral soil load. An earth-sheltered unit needs a retaining structure, membrane waterproofing, and drainage. It is the one option that changes the box.</li>
+      <li>This page is a configurator, not a quotation. Costs, delivery, and site work depend on the ground you are standing on.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="foot" id="contact">
+  <div class="mod-rule" aria-hidden="true"><span>MOD.FF</span><span class="rule-line"></span><span>LINK</span></div>
+  <h2 class="glare" data-text="CONTACT"><span aria-hidden="true">CONTACT</span><span class="vh">Contact</span></h2>
+  <p>GamerNation Inc. — Federal corporation, Canada.</p>
+  <p class="contact-line">email: <span class="todo">TODO:LUKAS</span></p>
+  <p class="curl-line">this page works from a real terminal too: <code>$ curl gamernation.ca/architecture</code></p>
+  <p><a href="index.html">← back to the boot sequence</a> · <a href=".well-known/security.txt">security.txt</a></p>
+  <p class="status" id="status">BUILD 2026-09-10 · NODE: rpi · TLS: <span id="tls">—</span> · UPTIME <span id="up">—</span></p>
+</footer>
+
+<div class="crt-vignette" aria-hidden="true"></div>
+</body>
+</html>

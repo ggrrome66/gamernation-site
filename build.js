@@ -48,7 +48,8 @@ function moduleHtml(m) {
         <p class="lede">${escTodo(m.lede)}</p>
         <ul class="rows">
 ${rows}
-        </ul>
+        </ul>${m.link ? `
+        <p class="mod-link"><a class="key" href="${esc(m.link.href)}">${esc(m.link.label)}</a></p>` : ""}
       </div>
     </div>
   </section>`;
@@ -75,6 +76,55 @@ function buildHtml() {
   return t;
 }
 
+/* ── 1b. architecture.html — the MOD.04 configurator page ─────────────── */
+
+const A4 = SITE.arch;
+const opt = (name, o, checked) =>
+  `          <label class="opt" title="${esc(o.blurb || "")}"><input type="radio" name="${name}" value="${esc(o.id)}"${checked ? " checked" : ""}>${esc(o.name)}</label>`;
+const catRow = o =>
+  `      <li><span class="k">${esc(o.name)}</span><span class="v"><span>${esc(o.blurb)}</span></span></li>`;
+const modName = id => (A4.modules.find(m => m.id === id) || { name: id }).name;
+
+function buildArchHtml() {
+  let t = read("architecture.template.html");
+  const def = { layout: "s20", ext: "stone", grade: "prem", light: "dusk" };
+  const map = {
+    NAME: esc(SITE.org.name),
+    NAME_UPPER: esc(SITE.org.name.toUpperCase()),
+    JURISDICTION: esc(SITE.org.jurisdiction),
+    DOMAIN: esc(SITE.org.domain),
+    NODE: esc(SITE.org.node),
+    EMAIL_HTML: emailHtml(),
+    STAMP: esc(STAMP),
+    ARCH_TITLE: esc(A4.title),
+    ARCH_DESC: esc(SITE.org.name + " — " + A4.title + ": " + A4.tag + ". Interactive 3D configurator."),
+    ARCH_LEDE: esc(A4.lede),
+    ARCH_HOW: A4.how.map(h => "      <li>" + esc(h) + "</li>").join("\n"),
+    ARCH_LIGHTS: A4.lights.map(o => opt("light", o, o.id === def.light)).join("\n"),
+    ARCH_LAYOUTS: A4.layouts.map(o => opt("layout", o, o.id === def.layout)).join("\n"),
+    ARCH_EXTERIORS: A4.exteriors.map(o => opt("ext", o, o.id === def.ext)).join("\n"),
+    ARCH_GRADES: A4.grades.map(o => opt("grade", o, o.id === def.grade)).join("\n"),
+    ARCH_PRESETS: A4.presets.map(p =>
+      `          <button type="button" data-preset="${esc(p.id)}" title="${esc(p.layout + " · " + p.ext + " · " + p.grade)}">${esc(p.name)}</button>`).join("\n"),
+    ARCH_DEFAULT20: esc(["bed", "galley", "head", "store"].map(modName).join(" · ")),
+    ARCH_DEFAULT40: esc(["air", "bench", "bench", "power", "galley", "head", "bed", "store"].map(modName).join(" · ")),
+    ARCH_SPEC_DEFAULT: [
+      ["UNITS", "1 × ISO high-cube (20') · 1 level · 2.9 m tall"],
+      ["PLAN", "6.1 × 2.4 m footprint · 15 m² gross floor · 4 bays"],
+      ["SHELL", A4.exteriors[2].name + " — " + A4.exteriors[2].blurb],
+      ["GRADE", A4.grades[1].name + " — " + A4.grades[1].blurb],
+      ["LAYOUT", A4.layouts[0].name + " — " + A4.layouts[0].blurb]
+    ].map(r => `      <li><span class="k">${esc(r[0])}</span><span class="v">${esc(r[1])}</span></li>`).join("\n"),
+    ARCH_MODULES: A4.modules.map(catRow).join("\n"),
+    ARCH_LAYOUT_ROWS: A4.layouts.map(o =>
+      `      <li><span class="k">${esc(o.name)}</span><span class="v"><span>${esc(o.blurb)}</span><button type="button" class="arch-load arch-jsonly" data-layout="${esc(o.id)}">[ LOAD ]</button></span></li>`).join("\n"),
+    ARCH_NOTES: A4.notes.map(n => "      <li>" + esc(n) + "</li>").join("\n")
+  };
+  for (const k of Object.keys(map)) t = t.split("{{" + k + "}}").join(map[k]);
+  if (/{{[A-Z_0-9]+}}/.test(t)) throw new Error("unreplaced template token: " + t.match(/{{[A-Z_0-9]+}}/)[0]);
+  return t;
+}
+
 /* ── 2. CSS / JS concat + light minify (regex only — no mangler, §8) ──── */
 
 const minCss = s => s
@@ -95,9 +145,20 @@ function buildCss() {
 }
 
 function buildJs() {
-  const content = read("content.js").replace(/^export /gm, "");
+  // SITE is embedded as JSON minus the configurator block, which only
+  // architecture.html needs (it ships in arch.js as ARCH)
+  const site = Object.assign({}, SITE);
+  delete site.arch;
+  const content = "const SITE=" + JSON.stringify(site) + ";";
   const body = [content, read("js/iso.js"), read("js/rain.js"), read("js/term.js"), read("js/boot.js")].join("\n");
   return '"use strict";(()=>{\n' + minJs(body) + "\n})();\n";
+}
+
+// the configurator is its own bundle (loaded by architecture.html only) so the
+// home page's first paint stays untouched; SITE.arch is injected as ARCH
+function buildArchCss() { return minCss(read("css/arch.css")); }
+function buildArchJs() {
+  return '"use strict";(()=>{\nconst ARCH=' + JSON.stringify(SITE.arch) + ";\n" + minJs(read("js/arch.js")) + "\n})();\n";
 }
 
 /* ── 3. ANSI text pages for curl (plan §6.2) ──────────────────────────── */
@@ -185,6 +246,33 @@ function txtModule(m) {
   return frame(L);
 }
 
+function txtArch() {
+  const L = txtHeader();
+  L.push(hr(), "");
+  L.push(A.am + A.b + "MOD.04 · ARCH — " + A4.title.toUpperCase() + A.r, "");
+  wrap(A4.lede, INNER).forEach(l => L.push(A.g + l + A.r));
+  L.push("");
+  L.push(A.gd + "interactive 3D configurator: https://" + SITE.org.domain + "/architecture" + A.r, "");
+  const section = (title, list) => {
+    L.push(hr(), A.am + A.b + title + A.r, "");
+    for (const o of list) {
+      L.push(A.g + o.name + A.r);
+      wrap(o.blurb, INNER - 2).forEach(l => L.push("  " + l));
+    }
+    L.push("");
+  };
+  section("LAYOUTS", A4.layouts);
+  section("EXTERIOR", A4.exteriors);
+  section("GRADE", A4.grades);
+  section("MODULES (one per bay)", A4.modules);
+  L.push(hr(), A.am + A.b + "NOTES" + A.r, "");
+  for (const n of A4.notes) { wrap(n, INNER - 2).forEach((l, i) => L.push((i ? "  " : A.pk + "! " + A.r) + l)); L.push(""); }
+  L.push(hr(), "");
+  L.push(A.gd + "index: curl " + SITE.org.domain + A.r);
+  L.push(A.gd + "contact: curl " + SITE.org.domain + "/txt/contact.txt" + A.r, "");
+  return frame(L);
+}
+
 function txtContact() {
   const L = txtHeader();
   L.push(hr(), "");
@@ -243,12 +331,15 @@ function emit(rel, text, compress = true) {
 emit("index.html", buildHtml());
 emit("app.css", buildCss());
 emit("app.js", buildJs());
+emit("architecture.html", buildArchHtml());
+emit("arch.css", buildArchCss());
+emit("arch.js", buildArchJs());
 emit("favicon.svg", FAVICON);
 emit("robots.txt", ROBOTS, false);
 emit(".well-known/security.txt", securityTxt(), false);
 
 const pages = { index: txtIndex(), contact: txtContact() };
-for (const m of SITE.modules) pages[m.id] = txtModule(m);
+for (const m of SITE.modules) pages[m.id] = m.id === "arch" ? txtArch() : txtModule(m);
 for (const name of Object.keys(pages)) {
   emit("txt/" + name + ".txt", pages[name]);
   emit("txt/" + name + ".plain.txt", vis(pages[name]));
@@ -263,7 +354,11 @@ const BUDGET = [
   // headroom over the original 24K/8K line for animation code, while the
   // first-paint total below stays comfortably inside the plan §4 budget.
   ["app.js", 28 * 1024, 10 * 1024],
-  ["favicon.svg", 1024, Infinity]
+  ["favicon.svg", 1024, Infinity],
+  // MOD.04 configurator page — its own bundle, never on the home page's path
+  ["architecture.html", 24 * 1024, 7 * 1024],
+  ["arch.css", 8 * 1024, 3 * 1024],
+  ["arch.js", 80 * 1024, 22 * 1024]
 ];
 
 let fail = false;
@@ -286,6 +381,13 @@ const fpBad = fpRaw > 120 * 1024 || fpBr > 45 * 1024;
 if (fpBad) fail = true;
 console.log("  " + "─".repeat(58));
 console.log("  first paint   " + KB(fpRaw) + "   " + KB(fpBr) + "     ≤120K / ≤45K br" + (fpBad ? "   ✗ OVER" : "   ✓"));
+// the architecture page loads app.css + app.js too; hold it to the same brotli line
+const ap = ["architecture.html", "app.css", "app.js", "arch.css", "arch.js"];
+const apRaw = ap.reduce((a, n) => a + sizes[n].raw, 0);
+const apBr = ap.reduce((a, n) => a + sizes[n].br, 0);
+const apBad = apRaw > 160 * 1024 || apBr > 45 * 1024;
+if (apBad) fail = true;
+console.log("  arch page     " + KB(apRaw) + "   " + KB(apBr) + "     ≤160K / ≤45K br" + (apBad ? "   ✗ OVER" : "   ✓"));
 console.log("  " + STAMP + "\n");
 
 if (fail) {
