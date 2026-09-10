@@ -126,9 +126,17 @@ const B = [[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]];
 const T = [[X0, y1, Z0], [X1, y1, Z0], [X1, y1, Z1], [X0, y1, Z1]];
 if (skip.indexOf("t") < 0) poly([T[0], T[3], T[2], T[1]], o.topC || c, o);
 const sides = [["s", 0, 1], ["e", 1, 2], ["n", 2, 3], ["w", 3, 0]];
+const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
 for (const s of sides) {
 if (skip.indexOf(s[0]) >= 0) continue;
-poly([B[s[2]], B[s[1]], T[s[1]], T[s[2]]], c, o);
+let deco = o.deco;
+if (o.contour) {
+const segs = [];
+for (const t of [0.3, 0.58, 0.82])
+segs.push(seg(mix(B[s[2]], T[s[2]], t), mix(B[s[1]], T[s[1]], t)));
+deco = [{ s: segs, c: o.contour }];
+}
+poly([B[s[2]], B[s[1]], T[s[1]], T[s[2]]], c, Object.assign({}, o, { deco }));
 }
 }
 function seg(a, b) { return [a, b]; }
@@ -280,13 +288,15 @@ if (prem && !buried) deck(L);
 else if (!buried) { box(L + 0.05, 0, W / 2 - 0.5, 0.35, 0.3, 1.0, C.steel); box(L + 0.4, 0, W / 2 - 0.5, 0.35, 0.15, 1.0, C.steel); }
 }
 if (u.primary) {
+if (!cut) {
 sink.push(lineFace([0, H - 0.05, W + 0.08], [L, H - 0.05, W + 0.08], C.copper, 2));
 sink.push(lineFace([L - 0.2, H - 0.05, W + 0.08], [L - 0.2, 0.1, W + 0.55], C.copper, 2));
+}
 cyl(L - 0.2, 0, W + 0.85, 0.42, 1.0, 8, C.dark);
 sink.push(lineFace([L - 0.62, 0.35, W + 0.85], [L + 0.22, 0.35, W + 0.85], C.brass, 2));
 if (!prem && !buried) { box(L + 1.0, 0, -1.4, 1.1, 0.8, 0.7, C.dark); box(L + 1.4, 0.8, -1.2, 0.3, 0.1, 0.3, C.amber); }
 }
-if (buried) berm(L, u);
+if (buried) berm(L, u, cut);
 if (cut) {
 tagIn = true;
 for (let i = 0; i < n; i++) {
@@ -331,21 +341,52 @@ box(L + 0.15, FLOOR, -0.15, 0.8, 0.35, 0.4, C.copper);
 cyl(L + 0.55, FLOOR + 0.35, 0.05, 0.28, 0.4, 5, C.plant);
 box(L + 2.1, 0, W / 2 - 0.5, 0.3, 0.08, 1.0, C.teak);
 }
-function berm(L, u) {
-const top = H + 0.38, o = { shell: true, inner: C.earth, unit: u, topC: C.sod };
-const bermC = "#6b8f3a";
-if (u.open === "n") {
-rfrus(-2.3, -2.3, L + 2.3, W, 0, -0.35, -0.35, L + 0.35, W + 0.25, top, bermC, Object.assign({ skip: "n" }, o));
-box(-0.35, 0, W - 0.1, 0.35, top, 0.55, C.stoneD);
-box(L, 0, W - 0.1, 0.35, top, 0.55, C.stoneD);
-} else {
-rfrus(-2.3, -2.3, L, W + 2.3, 0, -0.35, -0.35, L, W + 0.35, top, bermC, Object.assign({ skip: "e" }, o));
-box(L - 0.1, 0, -0.45, 0.5, top, 0.45, C.stoneD);
-box(L - 0.1, 0, W, 0.5, top, 0.45, C.stoneD);
+function courses(x, y, z, w, h, d, face) {
+const segs = [], row = 0.36;
+for (let t = row; t < h - 0.05; t += row) {
+if (face === "n") segs.push(seg([x + 0.02, y + t, z + d], [x + w - 0.02, y + t, z + d]));
+else if (face === "s") segs.push(seg([x + 0.02, y + t, z], [x + w - 0.02, y + t, z]));
+else if (face === "e") segs.push(seg([x + w, y + t, z + 0.02], [x + w, y + t, z + d - 0.02]));
+else segs.push(seg([x, y + t, z + 0.02], [x, y + t, z + d - 0.02]));
 }
-box(L * 0.5 - 0.5, top, W * 0.5 - 0.35, 1.0, 0.3, 0.7, C.glass, { a: 0.6, glow: state.light === "dusk" });
-cyl(L - 1.0, top, 0.5, 0.12, 1.1, 6, C.copper);                  // periscope vent
+return [{ s: segs, c: "#4f4840" }];
+}
+function berm(L, u, cut) {
+const top = H + 0.38, o = { topC: "#79a03f", contour: "#5f7a33" };
+const bermC = "#7d9c46", SK = 4.2, CUT = 2.4, TW = 0.45;   // skirt run, cut depth, wall thickness
+const dusk = state.light === "dusk";
+const wall = (x, y, z, w, h, d, face) =>
+box(x, y, z, w, h, d, C.stoneD, { deco: { [face]: courses(x, y, z, w, h, d, face) } });
+const shrubs = (x0, x1, z0, z1) => {
+const r = rng(((x0 + z0) * 31) | 0);
+for (let i = 0; i < 5; i++) {
+const x = x0 + r() * (x1 - x0), z = z0 + r() * (z1 - z0);
+cyl(x, top + 0.02, z, 0.3 + r() * 0.25, 0.5 + r() * 0.5, 5, r() < 0.5 ? C.plant : C.leaf, { phase: r() * TAU }, 0);
+}
+};
+if (u.open === "n") {
+if (!cut) { rfrus(-SK, -SK, L + SK, W, 0, -0.4, -0.4, L + 0.4, W + 0.3, top, bermC, Object.assign({ skip: "n" }, o)); shrubs(-0.2, L + 0.2, -0.2, W - 0.4); }
+wall(-0.4 - TW, 0, W, TW, top, CUT, "e");                    // retaining wings
+wall(L + 0.4, 0, W, TW, top, CUT, "w");
+box(-0.4 - TW, top - 0.5, W + 0.05, L + 0.8 + 2 * TW, 0.6, 0.4, C.stoneD,
+{ deco: { n: courses(-0.4 - TW, top - 0.5, W + 0.05, L + 0.8 + 2 * TW, 0.6, 0.4, "n") } });
+box(-0.4, 0, W, L + 0.8, 0.06, CUT, C.paving);               // forecourt
+box(-0.4 - TW, 0, W + CUT, L + 0.8 + 2 * TW, 0.3, 0.55, C.stoneD);
+cyl(-0.15, 0.3, W + CUT - 0.2, 0.1, 1.5, 6, C.iron);          // lantern post
+box(-0.3, 1.8, W + CUT - 0.35, 0.3, 0.32, 0.3, dusk ? C.amber : C.glass, { a: 0.85, glow: dusk });
+} else {
+if (!cut) { rfrus(-SK, -SK, L, W + SK, 0, -0.4, -0.4, L + 0.3, W + 0.4, top, bermC, Object.assign({ skip: "e" }, o)); shrubs(0.2, L - 0.4, -0.2, W + 0.2); }
+wall(L, 0, -0.4 - TW, CUT, top, TW, "n");
+wall(L, 0, W + 0.4, CUT, top, TW, "s");
+box(L + 0.05, top - 0.5, -0.4 - TW, 0.4, 0.6, W + 0.8 + 2 * TW, C.stoneD,
+{ deco: { e: courses(L + 0.05, top - 0.5, -0.4 - TW, 0.4, 0.6, W + 0.8 + 2 * TW, "e") } });
+box(L, 0, -0.4, CUT, 0.06, W + 0.8, C.paving);
+box(L + CUT, 0, -0.4 - TW, 0.55, 0.3, W + 0.8 + 2 * TW, C.stoneD);
+}
+cyl(L - 1.0, top, 0.5, 0.12, 1.1, 6, C.copper);                // periscope vent
 box(L - 1.35, top + 1.1, 0.38, 0.5, 0.2, 0.24, C.brass);
+if (cut) return;
+box(L * 0.5 - 0.5, top, W * 0.5 - 0.35, 1.0, 0.3, 0.7, C.glass, { a: 0.6, glow: dusk });  // skylight
 const cnt = Math.max(1, Math.floor((L - 1) / 1.1)), x0 = (L - cnt * 1.1) / 2;
 for (let i = 0; i < cnt; i++) {
 const x = x0 + i * 1.1;
@@ -674,6 +715,7 @@ top = Math.max(top, u.y + H);
 }
 scene.cx = (x0 + x1) / 2; scene.cz = (z0 + z1) / 2; scene.top = top;
 scene.rad = Math.hypot(x1 - x0, z1 - z0) / 2 + 3;
+if (state.ext === "buried") scene.rad += 4.5;      // the mound skirts well past the boxes
 cam.tx = scene.cx; cam.tz = scene.cz; cam.ty = Math.min(top * 0.35, 6);
 cam.dist = scene.rad * 1.7 + top * 0.5 + 3;
 sink = ground;
@@ -682,6 +724,7 @@ const R = scene.rad + 6, far = cam.dist * 3 + 40;
 const disc = (rad, y, c) => { const p = []; for (let i = 0; i < 28; i++) p.push([scene.cx + Math.cos(i / 28 * TAU) * rad, y, scene.cz + Math.sin(i / 28 * TAU) * rad]); poly(p, c, { two: true }); };
 disc(far, -0.02, C.moss);
 disc(R, 0, C.grass);
+disc(R * 0.72, 0.005, "#437026");            // mown clearing, so a berm reads against it
 if (state.ext === "buried" && scene.detail < 2) {
 sink = items;
 const y = 1.4;
@@ -694,7 +737,7 @@ sink = ground;
 const pu = lay.units.find(u => u.primary) || lay.units[0];
 setCur(pu.x, pu.y, pu.z, pu.r);
 const doorSide = state.ext === "buried" && pu.berm && pu.open === "n";
-const a = doorSide ? xf([pu.len * 0.3, 0, W + 0.2]) : xf([pu.len + 2.2, 0, W / 2]);
+const a = doorSide ? xf([pu.len * 0.3, 0, W + 3.0]) : xf([pu.len + 2.2, 0, W / 2]);
 const b = doorSide ? xf([pu.len * 0.3, 0, W + R]) : xf([pu.len + R + 8, 0, W / 2]);
 setCur(0, 0, 0, 0);
 const dx = b[0] - a[0], dz = b[2] - a[2], dl = Math.hypot(dx, dz) || 1, px = -dz / dl * 0.7, pz = dx / dl * 0.7;
@@ -823,7 +866,7 @@ tint = dusk ? [1.06, 0.9, 0.82] : [1, 1, 1];
 cy = Math.cos(cam.yaw); sy = Math.sin(cam.yaw); cp = Math.cos(cam.pitch); sp = Math.sin(cam.pitch);
 D = cam.dist * cam.zoom; F = Hpx * 1.25;
 camPos = [cam.tx + D * sy * cp, cam.ty + D * sp, cam.tz + D * cy * cp];
-const L = sun(), amb = dusk ? 0.42 : 0.52, dif = dusk ? 0.42 : 0.55;
+const L = sun(), amb = dusk ? 0.48 : 0.52, dif = dusk ? 0.44 : 0.55;
 faceCount = 0;
 sky(dusk);
 for (const f of ground) drawFace(f, L, amb, dif, dusk);
