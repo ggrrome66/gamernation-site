@@ -1,61 +1,5 @@
 "use strict";(()=>{
-const SITE = {
-org: {
-name: "GamerNation Inc.",
-tag: "drones · websites · ground-control software",
-jurisdiction: "Federal corporation, Canada",
-email: "TODO:LUKAS",
-domain: "gamernation.ca",
-node: "rpi"
-},
-hero: {
-boot: "> we build the drone, the software, and the page you found this on."
-},
-banner: [
-"╔═╗ ╔═╗ ╔╦╗ ╔═╗ ╦═╗ ╔╗╔ ╔═╗ ╔╦╗ ╦ ╔═╗ ╔╗╔",
-"║ ╦ ╠═╣ ║║║ ║╣  ╠╦╝ ║║║ ╠═╣  ║  ║ ║ ║ ║║║",
-"╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝",
-"                                     INC."
-],
-modules: [
-{
-id: "air", num: "01", chan: "AIR", model: "quad",
-title: "Drones & drone services",
-lede: "Purpose-built small UAS — designed, built, flown, and taught, end to end.",
-rows: [
-{ k: "BUILD", v: "Airframe design, fabrication, integration, and bring-up of purpose-built small UAS." },
-{ k: "FLY", v: "Survey and inspection flights flown to a plan, with data delivered — not just imagery dumped." },
-{ k: "TRAIN", v: "Three tiers — Basic, Advanced, and Complex — the last built around a 4-inch, single-cell (1S) recon platform for emergency services. Certification and flight-review wording: TODO:LUKAS." }
-],
-alt: "Rotating isometric render of a four-arm quadcopter drone",
-fallback: "[ MODEL: QUAD — 4-arm multirotor schematic. Enable JS to see it rotate. ]"
-},
-{
-id: "net", num: "02", chan: "NET", model: "crt",
-title: "Websites & social for small businesses",
-lede: "Hand-built sites that load on bad rural connections and cheap phones — this very page is the demo, running on a single-board computer.",
-rows: [
-{ k: "SITES", v: "Small, fast, hand-built pages. No bloated themes, no third-party trackers, no surprise invoices for plugins." },
-{ k: "SOCIAL", v: "Ongoing social updates handled on a schedule, so a small operator isn't drafting posts at 11pm." },
-{ k: "HOST", v: "Set up to run cheap and keep running — the same way this site runs on a Raspberry Pi." }
-],
-alt: "Rotating isometric render of a CRT monitor and keyboard",
-fallback: "[ MODEL: CRT — terminal workstation schematic. Enable JS to see it rotate. ]"
-},
-{
-id: "ctrl", num: "03", chan: "CTRL", model: "rack",
-title: "Custom drone software",
-lede: "Ground-station and fleet-management software written to fit an operator's actual workflow — not someone else's dashboard.",
-rows: [
-{ k: "PLAN", v: "Mission planning built around how your crews actually fly." },
-{ k: "WATCH", v: "Live asset monitoring and telemetry capture at the ground station." },
-{ k: "KEEP", v: "Post-flight data handling — capture, organize, and hand back the record that matters." }
-],
-alt: "Rotating isometric render of a ground-station case with antenna mast",
-fallback: "[ MODEL: RACK — ground-station schematic. Enable JS to see it rotate. ]"
-}
-]
-};
+const SITE={"org":{"name":"GamerNation Inc.","tag":"drones · websites · ground-control software","jurisdiction":"Federal corporation, Canada","email":"TODO:LUKAS","domain":"gamernation.ca","node":"rpi"},"hero":{"boot":"> we build the drone, the software, and the page you found this on."},"banner":["╔═╗ ╔═╗ ╔╦╗ ╔═╗ ╦═╗ ╔╗╔ ╔═╗ ╔╦╗ ╦ ╔═╗ ╔╗╔","║ ╦ ╠═╣ ║║║ ║╣  ╠╦╝ ║║║ ╠═╣  ║  ║ ║ ║ ║║║","╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝","                                     INC."],"modules":[{"id":"air","num":"01","chan":"AIR","model":"quad","title":"Drones & drone services","lede":"Purpose-built small UAS — designed, built, flown, and taught, end to end.","rows":[{"k":"BUILD","v":"Airframe design, fabrication, integration, and bring-up of purpose-built small UAS."},{"k":"FLY","v":"Survey and inspection flights flown to a plan, with data delivered — not just imagery dumped."},{"k":"TRAIN","v":"Three tiers — Basic, Advanced, and Complex — the last built around a 4-inch, single-cell (1S) recon platform for emergency services. Certification and flight-review wording: TODO:LUKAS."}],"alt":"Rotating isometric render of a four-arm quadcopter drone","fallback":"[ MODEL: QUAD — 4-arm multirotor schematic. Enable JS to see it rotate. ]"},{"id":"net","num":"02","chan":"NET","model":"crt","title":"Websites & social for small businesses","lede":"Hand-built sites that load on bad rural connections and cheap phones — this very page is the demo, running on a single-board computer.","rows":[{"k":"SITES","v":"Small, fast, hand-built pages. No bloated themes, no third-party trackers, no surprise invoices for plugins."},{"k":"SOCIAL","v":"Ongoing social updates handled on a schedule, so a small operator isn't drafting posts at 11pm."},{"k":"HOST","v":"Set up to run cheap and keep running — the same way this site runs on a Raspberry Pi."}],"alt":"Rotating isometric render of a CRT monitor and keyboard","fallback":"[ MODEL: CRT — terminal workstation schematic. Enable JS to see it rotate. ]"},{"id":"ctrl","num":"03","chan":"CTRL","model":"rack","title":"Custom drone software","lede":"Ground-station and fleet-management software written to fit an operator's actual workflow — not someone else's dashboard.","rows":[{"k":"PLAN","v":"Mission planning built around how your crews actually fly."},{"k":"WATCH","v":"Live asset monitoring and telemetry capture at the ground station."},{"k":"KEEP","v":"Post-flight data handling — capture, organize, and hand back the record that matters."}],"alt":"Rotating isometric render of a ground-station case with antenna mast","fallback":"[ MODEL: RACK — ground-station schematic. Enable JS to see it rotate. ]"},{"id":"arch","num":"04","chan":"ARCH","model":"crate","title":"Container architecture","lede":"Retrofitted shipping containers as off-grid cabins, shops, and camps — one box or a whole compound. The configurator on the ARCH page lets you swap interior modules, pick an exterior, and stack units into radical layouts.","rows":[{"k":"BOX","v":"ISO high-cube containers, 20' and 40'. Insulated, wired, plumbed, and fitted out as a one-bedroom cabin or a pure-function work unit."},{"k":"FIT","v":"Interior packed like a submarine: every bay is a swappable module — berth, galley, workbench, micro-farm, power station, ops desk, wet room, lockers."},{"k":"JOIN","v":"Corner castings are rated for stacking at sea, so units join side-by-side, end-to-end, and vertically: courtyards, stacked lofts, a stepped pyramid, or a walled compound."},{"k":"OPEN","v":"Interactive 3D configurator: /architecture.html"}],"link":{"href":"architecture.html","label":"[ OPEN CONFIGURATOR ]"},"alt":"Rotating isometric render of a shipping container fitted with a solar array and a stove flue","fallback":"[ MODEL: CRATE — container cabin schematic. Enable JS to see it rotate. ]"}]};
 const Iso = (() => {
 const C30 = Math.cos(Math.PI / 6);
 const S30 = 0.5;
@@ -139,7 +83,21 @@ m.core = [0, 0.15, 0.92];                      // display strip glow
 m.radar = [0.95, 1.9, -0.5];                   // sweep origin (mast top)
 return finalize(m);
 }
-const MODELS = { quad, crt, rack };
+function crate() {                         // MOD.04 — container cabin
+const m = M();
+box(m, 0, 0, 0, 3.0, 1.2, 1.25, 2);        // 20' high-cube box
+box(m, 0, 0.66, -0.18, 2.6, 0.12, 0.7, 1); // solar rack
+box(m, 0, 0.76, -0.18, 2.5, 0.06, 0.62, 0);// panel face (dark)
+box(m, 1.55, 0, 0.3, 0.1, 0.9, 0.5, 3);    // door end: right leaf
+box(m, 1.55, 0, -0.3, 0.1, 0.9, 0.5, 3);   // door end: left leaf
+box(m, -0.9, 0.9, 0.35, 0.12, 0.7, 0.12, 3);// stove flue
+box(m, 0, -0.66, 0, 3.2, 0.12, 1.45, 0);   // skid / plinth
+box(m, 0.6, 0.1, 0.66, 0.9, 0.4, 0.06, 3); // front window
+m.core = [-0.9, 1.3, 0.35];                // flue top (steam glow)
+m.mast = [-1.9, 0.9, -0.5];                // turbine mast base
+return finalize(m);
+}
+const MODELS = { quad, crt, rack, crate };
 const units = [];
 let raf = 0, last = 0;
 function project(v, rot) {
@@ -275,7 +233,25 @@ for (const off of [[0.36, 0], [-0.36, 0], [0, 0.36], [0, -0.36]])
 ray(ctx, d, put([cx + off[0], y2, cz + off[1]]), ORN, 1, 0.75, 0);
 dot(ctx, d[0], d[1], 2, ORN, 8);
 }
-const FX = { quad: fxQuad, crt: fxCrt, rack: fxRack };
+function fxCrate(ctx, u, now, put) {
+const b = u.model.mast, top = [b[0], b[1] + 1.1, b[2]];
+ray(ctx, put(b), put(top), ORN, 1.5, 0.8, 0);
+for (let i = 0; i < 3; i++) {
+const a = now / 400 + (i / 3) * TAU;
+const p = [top[0] + Math.cos(a) * 0.35, top[1], top[2] + Math.sin(a) * 0.35];
+ray(ctx, put([p[0], p[1] - 0.45, p[2]]), put([p[0], p[1] + 0.05, p[2]]), CYN, 2, 0.85, 4);
+}
+const c = u.model.core;
+for (let i = 0; i < 4; i++) {
+const t = ((now / 2600) + i / 4) % 1;
+const p = put([c[0] + Math.sin(t * 9 + i) * 0.12, c[1] + t * 1.1, c[2]]);
+ctx.save();
+ctx.globalAlpha = 0.35 * (1 - t);
+dot(ctx, p[0], p[1], 2 + t * 6, "#c8ffd4", 0);
+ctx.restore();
+}
+}
+const FX = { quad: fxQuad, crt: fxCrt, rack: fxRack, crate: fxCrate };
 function draw(u, now) {
 const ctx = u.ctx, w = u.w, h = u.h;
 const glitch = u.glitchUntil > now;
@@ -492,8 +468,9 @@ help() {
 print("commands:", "t-amber");
 [["help", "list commands"],
 ["ls", "list modules"],
-["cd <mod>", "select module (air | net | ctrl)"],
+["cd <mod>", "select module (air | net | ctrl | arch)"],
 ["cat <mod>", "print module in full"],
+["open <mod>", "open a module's page (arch)"],
 ["whoami", "org identity block"],
 ["contact", "email + how to reach"],
 ["banner", "ASCII wordmark"],
@@ -514,10 +491,17 @@ ps1.textContent = prompt();
 },
 cat(arg) {
 const id = arg || cwd;
-if (!id) { print("gn: cat needs a module: cat air | net | ctrl", "t-err"); return; }
+if (!id) { print("gn: cat needs a module: cat air | net | ctrl | arch", "t-err"); return; }
 const m = findMod(id);
 if (!m) { print("gn: no such module: " + id + "  (try 'ls')", "t-err"); return; }
 catMod(m);
+},
+open(arg) {
+const m = findMod(arg || cwd);
+if (!m) { print("gn: open needs a module: open arch", "t-err"); return; }
+if (!m.link) { print("gn: " + m.id + " has no page of its own — it is on this one (try 'exit')", "t-err"); return; }
+print("opening " + m.link.href + " …", "t-dim");
+location.href = m.link.href;
 },
 whoami() {
 print(SITE.org.name, "t-amber");
@@ -592,7 +576,7 @@ out.setAttribute("role", "log");
 out.setAttribute("aria-live", "polite");
 const quick = document.createElement("div");
 quick.className = "term-quick";
-[["ls", "ls"], ["air", "cat air"], ["net", "cat net"], ["ctrl", "cat ctrl"], ["exit", "exit"]]
+[["ls", "ls"], ["air", "cat air"], ["net", "cat net"], ["ctrl", "cat ctrl"], ["arch", "open arch"], ["exit", "exit"]]
 .forEach(b => {
 const btn = document.createElement("button");
 btn.textContent = b[0];
@@ -665,7 +649,7 @@ function refreshMotion() {
 Iso.refresh();
 Rain.refresh();
 }
-const calmBtn = document.getElementById("btn-calm");
+const calmBtn = document.getElementById("btn-calm") || document.createElement("button");
 calmBtn.hidden = false;
 calmBtn.setAttribute("aria-pressed", String(GN.calm));
 calmBtn.textContent = GN.calm ? "▯" : "▮";
@@ -680,6 +664,7 @@ refreshMotion();
 if (GN.reduced.addEventListener) GN.reduced.addEventListener("change", refreshMotion);
 ["btn-term", "btn-term2"].forEach(id => {
 const b = document.getElementById(id);
+if (!b) return;                            // secondary pages have no hero button
 b.hidden = false;
 b.addEventListener("click", () => {
 Term.toggle();

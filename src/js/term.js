@@ -34,8 +34,9 @@ const Term = (() => {
       print("commands:", "t-amber");
       [["help", "list commands"],
        ["ls", "list modules"],
-       ["cd <mod>", "select module (air | net | ctrl)"],
+       ["cd <mod>", "select module (air | net | ctrl | arch)"],
        ["cat <mod>", "print module in full"],
+       ["open <mod>", "open a module's page (arch)"],
        ["whoami", "org identity block"],
        ["contact", "email + how to reach"],
        ["banner", "ASCII wordmark"],
@@ -56,10 +57,17 @@ const Term = (() => {
     },
     cat(arg) {
       const id = arg || cwd;
-      if (!id) { print("gn: cat needs a module: cat air | net | ctrl", "t-err"); return; }
+      if (!id) { print("gn: cat needs a module: cat air | net | ctrl | arch", "t-err"); return; }
       const m = findMod(id);
       if (!m) { print("gn: no such module: " + id + "  (try 'ls')", "t-err"); return; }
       catMod(m);
+    },
+    open(arg) {
+      const m = findMod(arg || cwd);
+      if (!m) { print("gn: open needs a module: open arch", "t-err"); return; }
+      if (!m.link) { print("gn: " + m.id + " has no page of its own — it is on this one (try 'exit')", "t-err"); return; }
+      print("opening " + m.link.href + " …", "t-dim");
+      location.href = m.link.href;
     },
     whoami() {
       print(SITE.org.name, "t-amber");
@@ -142,7 +150,7 @@ const Term = (() => {
 
     const quick = document.createElement("div");
     quick.className = "term-quick";
-    [["ls", "ls"], ["air", "cat air"], ["net", "cat net"], ["ctrl", "cat ctrl"], ["exit", "exit"]]
+    [["ls", "ls"], ["air", "cat air"], ["net", "cat net"], ["ctrl", "cat ctrl"], ["arch", "open arch"], ["exit", "exit"]]
       .forEach(b => {
         const btn = document.createElement("button");
         btn.textContent = b[0];

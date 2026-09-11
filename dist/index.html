@@ -16,6 +16,7 @@
 <header class="bar">
   <a class="brand" href="#top">[GAMERNATION INC.]</a>
   <nav class="bar-nav" aria-label="site controls">
+    <a class="bar-btn" href="architecture.html">ARCH</a>
     <button id="btn-term" class="bar-btn" hidden aria-pressed="false">TERM</button>
     <button id="btn-calm" class="bar-btn" hidden aria-pressed="false" aria-label="pause ambient motion">▮</button>
   </nav>
@@ -91,6 +92,27 @@
       </div>
     </div>
   </section>
+
+  <section class="mod" id="mod-arch" aria-labelledby="h-arch">
+    <div class="mod-rule" aria-hidden="true"><span>MOD.04</span><span class="rule-line"></span><span>ARCH</span></div>
+    <div class="mod-body">
+      <div class="mod-viz">
+        <canvas class="iso" data-model="crate" width="320" height="240" aria-label="Rotating isometric render of a shipping container fitted with a solar array and a stove flue" hidden></canvas>
+        <noscript><p class="iso-fallback">[ MODEL: CRATE — container cabin schematic. Enable JS to see it rotate. ]</p></noscript>
+      </div>
+      <div class="mod-copy">
+        <h2 class="glare" id="h-arch" data-text="ARCH"><span aria-hidden="true">ARCH</span><span class="vh">ARCH — Container architecture</span></h2>
+        <p class="lede">Retrofitted shipping containers as off-grid cabins, shops, and camps — one box or a whole compound. The configurator on the ARCH page lets you swap interior modules, pick an exterior, and stack units into radical layouts.</p>
+        <ul class="rows">
+        <li><span class="k">BOX</span><span class="v">ISO high-cube containers, 20' and 40'. Insulated, wired, plumbed, and fitted out as a one-bedroom cabin or a pure-function work unit.</span></li>
+        <li><span class="k">FIT</span><span class="v">Interior packed like a submarine: every bay is a swappable module — berth, galley, workbench, micro-farm, power station, ops desk, wet room, lockers.</span></li>
+        <li><span class="k">JOIN</span><span class="v">Corner castings are rated for stacking at sea, so units join side-by-side, end-to-end, and vertically: courtyards, stacked lofts, a stepped pyramid, or a walled compound.</span></li>
+        <li><span class="k">OPEN</span><span class="v">Interactive 3D configurator: /architecture.html</span></li>
+        </ul>
+        <p class="mod-link"><a class="key" href="architecture.html">[ OPEN CONFIGURATOR ]</a></p>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer class="foot" id="contact">
@@ -100,7 +122,7 @@
   <p class="contact-line">email: <span class="todo">TODO:LUKAS</span></p>
   <p class="curl-line">this page works from a real terminal too: <code>$ curl gamernation.ca</code></p>
   <p><a href=".well-known/security.txt">security.txt</a></p>
-  <p class="status" id="status">BUILD 2026-08-25 · NODE: rpi · TLS: <span id="tls">—</span> · UPTIME <span id="up">—</span></p>
+  <p class="status" id="status">BUILD 2026-09-10 · NODE: rpi · TLS: <span id="tls">—</span> · UPTIME <span id="up">—</span></p>
 </footer>
 
 <div class="crt-vignette" aria-hidden="true"></div>

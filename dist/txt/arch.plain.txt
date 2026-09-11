@@ -1,0 +1,148 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+│              ╔═╗ ╔═╗ ╔╦╗ ╔═╗ ╦═╗ ╔╗╔ ╔═╗ ╔╦╗ ╦ ╔═╗ ╔╗╔               │
+│              ║ ╦ ╠═╣ ║║║ ║╣  ╠╦╝ ║║║ ╠═╣  ║  ║ ║ ║ ║║║               │
+│              ╚═╝ ╩ ╩ ╩ ╩ ╚═╝ ╩╚═ ╝╚╝ ╩ ╩  ╩  ╩ ╚═╝ ╝╚╝               │
+│                                                   INC.               │
+│                                                                      │
+│             drones · websites · ground-control software              │
+│                     Federal corporation, Canada                      │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│                                                                      │
+│ MOD.04 · ARCH — CONTAINER ARCHITECTURE                               │
+│                                                                      │
+│ One retrofitted shipping container in a dense mixed-wood forest: a   │
+│ light steam/solar-punk one-bedroom stonework cabin-shop, off grid.   │
+│ Swap the interior modules, change the exterior, then join and stack  │
+│ units into something much bigger.                                    │
+│                                                                      │
+│ interactive 3D configurator: https://gamernation.ca/architecture     │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│ LAYOUTS                                                              │
+│                                                                      │
+│ SINGLE 20'                                                           │
+│   One 20-foot high-cube. Four bays, a door end, a deck. The base     │
+│   one-bedroom cabin or a single work unit.                           │
+│ SINGLE 40'                                                           │
+│   One 40-foot high-cube. Eight bays — room for a bedroom, galley,    │
+│   wet room, and a full workshop in one line.                         │
+│ TWIN 20'                                                             │
+│   Two 20-foot units side by side with the shared wall opened up: a   │
+│   4.9 m wide room, eight bays.                                       │
+│ STACKED LOFT                                                         │
+│   Two 40-foot units on the ground, a third on top with a roof deck   │
+│   beside it. Sixteen bays down, eight up.                            │
+│ ROMAN COURT                                                          │
+│   Two 40-foot and two 20-foot units around a central courtyard — an  │
+│   atrium with a planted impluvium in the middle. Twenty-four bays.   │
+│ PYRAMID HOUSE                                                        │
+│   Seventeen 20-foot units in four stepped tiers, each tier's roof a  │
+│   terraced garden with solar. A ziggurat in the woods.               │
+│ WALLED COMPOUND                                                      │
+│   A perimeter wall of 40-foot units stacked two high, a four-high    │
+│   turret at each corner, and a central eight-storey tower with an    │
+│   observation deck.                                                  │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│ EXTERIOR                                                             │
+│                                                                      │
+│ BARE STEEL                                                           │
+│   Weathering (corten-style) steel left as delivered. Cheapest shell; │
+│   all insulation goes inside, which costs floor width.               │
+│ COATED                                                               │
+│   Elastomeric / ceramic-loaded coating over the corrugation.         │
+│   Reflective, sealed, repaintable. Insulation still inside.          │
+│ STONEWORK                                                            │
+│   Stone veneer on a ventilated rail over external insulation. The    │
+│   cabin look: thermal mass, fireproof, quiet.                        │
+│ SPRAY FOAM                                                           │
+│   Closed-cell spray foam applied outside the box, then clad.         │
+│   Continuous insulation, no thermal bridges, full interior width     │
+│   kept.                                                              │
+│ BURIED / BERMED                                                      │
+│   Earth-sheltered: the box sits in a cut with a sod roof and a       │
+│   stone-faced entry. Very stable temperatures. Needs waterproofing,  │
+│   drainage, and reinforcement — see notes.                           │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│ GRADE                                                                │
+│                                                                      │
+│ UTILITARIAN                                                          │
+│   Pure function: insulated shell, skid frame with forklift pockets,  │
+│   steel steps, small windows, original doors, generator-ready.       │
+│   Remote drill operations, survey camps, sites.                      │
+│ PREMIUM (YACHT)                                                      │
+│   Yacht-grade joinery: teak deck and rail, glazed end wall, brass    │
+│   and copper fittings, planters, stone plinth. The civilian cabin.   │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│ MODULES (one per bay)                                                │
+│                                                                      │
+│ BERTH                                                                │
+│   Full berth over drawer storage, lockers above, reading light,      │
+│   curtain rail. The one bedroom.                                     │
+│ GALLEY                                                               │
+│   Counter, sink, induction hob, fridge drawer, overhead lockers.     │
+│   Compact as a boat galley.                                          │
+│ WET ROOM                                                             │
+│   Shower pan, composting toilet, basin, roof vent. Frosted           │
+│   partition.                                                         │
+│ LOCKER WALL                                                          │
+│   Floor-to-ceiling submarine lockers with recessed latches. Where    │
+│   everything lives.                                                  │
+│ WORKBENCH                                                            │
+│   Hardwood bench, vise, pegboard wall, tool shelf, task light. The   │
+│   shop.                                                              │
+│ MICRO-FARM                                                           │
+│   Three-tier hydroponic racks under grow lights. Greens and herbs    │
+│   year-round; a roof light over the bay outside.                     │
+│ POWER STATION                                                        │
+│   Battery rack, inverter, charge controller, breaker panel. Feeds    │
+│   the roof solar and the turbine mast.                               │
+│ WATER PLANT                                                          │
+│   Twin tanks, filter stack, pump, copper runs. Fed from the roof     │
+│   gutter and rain barrel.                                            │
+│ OPS DESK                                                             │
+│   Two screens, radio stack, map board, antenna feed. The ground      │
+│   station — drone operations run from here.                          │
+│ DRONE BAY                                                            │
+│   Charging shelves for small UAS, battery bank, spares wall. Fleet   │
+│   ready.                                                             │
+│ STOVE                                                                │
+│   Small wood stove with a copper flue through the roof, log store,   │
+│   warming bench. The steam-punk heart.                               │
+│ AIRLOCK                                                              │
+│   Inner door and mudroom: bench, boot rack, drying hooks, grated     │
+│   floor. For cold sites and dirty work.                              │
+│ OPEN FLOOR                                                           │
+│   Nothing fitted. Flex space, a table, or room for a module you have │
+│   not chosen yet.                                                    │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│ NOTES                                                                │
+│                                                                      │
+│ ! Dimensions are standard ISO: 20' = 6.06 × 2.44 m, 40' = 12.19 ×    │
+│   2.44 m, high-cube 2.90 m tall. Bay counts, areas, and the manifest │
+│   are computed from those figures.                                   │
+│                                                                      │
+│ ! Stacking: ISO corner castings and posts carry the loads at sea, so │
+│   intact boxes stack corner-on-corner. Every opening cut into a wall │
+│   reduces that; the tall layouts here are design examples, and any   │
+│   real build gets an engineer.                                       │
+│                                                                      │
+│ ! Buried / bermed: container walls are not designed for lateral soil │
+│   load. An earth-sheltered unit needs a retaining structure,         │
+│   membrane waterproofing, and drainage. It is the one option that    │
+│   changes the box.                                                   │
+│                                                                      │
+│ ! This page is a configurator, not a quotation. Costs, delivery, and │
+│   site work depend on the ground you are standing on.                │
+│                                                                      │
+│ ──────────────────────────────────────────────────────────────────── │
+│                                                                      │
+│ index: curl gamernation.ca                                           │
+│ contact: curl gamernation.ca/txt/contact.txt                         │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘

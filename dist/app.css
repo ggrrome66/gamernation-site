@@ -320,6 +320,8 @@ border-top: 1px solid rgba(27, 127, 56, 0.45);
 max-width: 60ch;
 }
 .rows .k { color: var(--amber); letter-spacing: 0.12em; font-size: var(--fs-1); padding-top: 0.15em; }
+.mod-link { margin: 1.25rem 0 0; }
+.mod-link .key { padding-left: 0; }
 .rows .v { color: var(--paper); }
 .foot {
 padding: 2.5rem 1rem calc(2.5rem + env(safe-area-inset-bottom));

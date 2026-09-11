@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{ARCH_DESC}}">
+<meta name="color-scheme" content="dark">
+<title>{{ARCH_TITLE}} — {{NAME}}</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="arch.css">
+<script src="app.js" defer></script>
+<script src="arch.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+
+<header class="bar">
+  <a class="brand" href="index.html#top">[{{NAME_UPPER}}]</a>
+  <nav class="bar-nav" aria-label="site controls">
+    <a class="bar-btn" href="index.html#mod-arch">HOME</a>
+    <button id="btn-term" class="bar-btn" hidden aria-pressed="false">TERM</button>
+    <button id="btn-calm" class="bar-btn" hidden aria-pressed="false" aria-label="pause ambient motion">▮</button>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="mod arch-hero" id="top" aria-labelledby="h-arch">
+    <div class="mod-rule" aria-hidden="true"><span>MOD.04</span><span class="rule-line"></span><span>ARCH</span></div>
+    <h1 class="glare" id="h-arch" data-text="ARCH"><span aria-hidden="true">ARCH</span><span class="vh">ARCH — {{ARCH_TITLE}}</span></h1>
+    <p class="lede">{{ARCH_LEDE}}</p>
+    <ul class="arch-how">
+{{ARCH_HOW}}
+    </ul>
+  </section>
+
+  <section class="mod arch-lab" id="lab" aria-label="interactive configurator">
+    <div class="arch-stage">
+      <canvas id="arch-cv" class="arch" width="960" height="720" tabindex="0" role="img" aria-label="3D render of the configured container cabin in a forest clearing" hidden></canvas>
+      <noscript><p class="arch-fallback">[ RENDER: CONTAINER CABIN — a 20' high-cube in a forest clearing, stone-clad, solar on the roof, copper flue, turbine mast. Enable JS to orbit it and swap the modules. ]</p></noscript>
+      <p class="arch-cap" id="arch-cap" aria-hidden="true"></p>
+      <div class="arch-ctl" role="group" aria-label="camera">
+        <button type="button" id="arch-auto" aria-pressed="true" title="auto-orbit">AUTO</button>
+        <button type="button" id="arch-zin" aria-label="zoom in">+</button>
+        <button type="button" id="arch-zout" aria-label="zoom out">−</button>
+        <button type="button" id="arch-reset" title="reset camera">RST</button>
+      </div>
+      <p class="arch-hud" id="arch-hud" aria-hidden="true"></p>
+    </div>
+
+    <form class="arch-panel" id="arch-form" aria-label="configuration">
+      <fieldset>
+        <legend>VIEW</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="view" value="cut" checked>CUTAWAY</label>
+          <label class="opt"><input type="radio" name="view" value="ext">EXTERIOR</label>
+{{ARCH_LIGHTS}}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>LAYOUT</legend>
+        <div class="opts">
+{{ARCH_LAYOUTS}}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>EXTERIOR</legend>
+        <div class="opts">
+{{ARCH_EXTERIORS}}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>GRADE</legend>
+        <div class="opts">
+{{ARCH_GRADES}}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>MODULES</legend>
+        <div class="arch-unit-row arch-jsonly">
+          <label class="k" for="arch-unit">UNIT</label>
+          <select id="arch-unit"></select>
+        </div>
+        <div class="arch-bays" id="arch-bays"></div>
+        <noscript><p class="arch-hint">Default fit-out, 20': {{ARCH_DEFAULT20}}. 40': {{ARCH_DEFAULT40}}. Enable JS to change them.</p></noscript>
+        <p class="arch-hint arch-jsonly">Click a bay in the cutaway to select it. Every mix is valid.</p>
+      </fieldset>
+      <fieldset>
+        <legend>PRESETS</legend>
+        <div class="arch-presets">
+{{ARCH_PRESETS}}
+        </div>
+      </fieldset>
+    </form>
+  </section>
+
+  <section class="mod" id="spec" aria-labelledby="h-spec">
+    <div class="mod-rule" aria-hidden="true"><span>MOD.04.1</span><span class="rule-line"></span><span>SPEC</span></div>
+    <h2 class="glare" id="h-spec" data-text="SPEC"><span aria-hidden="true">SPEC</span><span class="vh">Specification of the current configuration</span></h2>
+    <ul class="rows" id="arch-spec" aria-live="polite">
+{{ARCH_SPEC_DEFAULT}}
+    </ul>
+    <pre class="arch-manifest" id="arch-manifest" aria-label="bay manifest"># manifest · single 20' · stonework · premium
+UNIT A        1:stove  2:galley  3:berth  4:wet room
+exterior: solar rack · rain barrel · turbine mast · copper flue · roof vent</pre>
+  </section>
+
+  <section class="mod arch-cat" id="modules" aria-labelledby="h-modules">
+    <div class="mod-rule" aria-hidden="true"><span>MOD.04.2</span><span class="rule-line"></span><span>MODULES</span></div>
+    <h2 class="glare" id="h-modules" data-text="MODULES"><span aria-hidden="true">MODULES</span><span class="vh">Interior modules</span></h2>
+    <p class="lede">Every bay takes one of these. Storage runs floor to ceiling, submarine style; the premium grade swaps steel for teak and brass, the utilitarian grade keeps it painted and bolted.</p>
+    <ul class="rows">
+{{ARCH_MODULES}}
+    </ul>
+  </section>
+
+  <section class="mod arch-cat" id="radical" aria-labelledby="h-radical">
+    <div class="mod-rule" aria-hidden="true"><span>MOD.04.3</span><span class="rule-line"></span><span>JOIN</span></div>
+    <h2 class="glare" id="h-radical" data-text="JOIN"><span aria-hidden="true">JOIN</span><span class="vh">Joining and stacking units</span></h2>
+    <p class="lede">Boxes join side by side, end to end, and corner-on-corner. The same four moves that make a courtyard make a pyramid.</p>
+    <ul class="rows">
+{{ARCH_LAYOUT_ROWS}}
+    </ul>
+  </section>
+
+  <section class="mod arch-cat" id="notes" aria-labelledby="h-notes">
+    <div class="mod-rule" aria-hidden="true"><span>MOD.04.4</span><span class="rule-line"></span><span>NOTES</span></div>
+    <h2 class="glare" id="h-notes" data-text="NOTES"><span aria-hidden="true">NOTES</span><span class="vh">Notes and caveats</span></h2>
+    <ul class="arch-notes">
+{{ARCH_NOTES}}
+    </ul>
+  </section>
+</main>
+
+<footer class="foot" id="contact">
+  <div class="mod-rule" aria-hidden="true"><span>MOD.FF</span><span class="rule-line"></span><span>LINK</span></div>
+  <h2 class="glare" data-text="CONTACT"><span aria-hidden="true">CONTACT</span><span class="vh">Contact</span></h2>
+  <p>{{NAME}} — {{JURISDICTION}}.</p>
+  <p class="contact-line">email: {{EMAIL_HTML}}</p>
+  <p class="curl-line">this page works from a real terminal too: <code>$ curl {{DOMAIN}}/architecture</code></p>
+  <p><a href="index.html">← back to the boot sequence</a> · <a href=".well-known/security.txt">security.txt</a></p>
+  <p class="status" id="status">{{STAMP}} · NODE: {{NODE}} · TLS: <span id="tls">—</span> · UPTIME <span id="up">—</span></p>
+</footer>
+
+<div class="crt-vignette" aria-hidden="true"></div>
+</body>
+</html>

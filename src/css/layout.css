@@ -164,6 +164,8 @@ canvas.iso {
 }
 
 .rows .k { color: var(--amber); letter-spacing: 0.12em; font-size: var(--fs-1); padding-top: 0.15em; }
+.mod-link { margin: 1.25rem 0 0; }
+.mod-link .key { padding-left: 0; }
 .rows .v { color: var(--paper); }
 
 /* ── footer ───────────────────────────────────────────────────────────── */
